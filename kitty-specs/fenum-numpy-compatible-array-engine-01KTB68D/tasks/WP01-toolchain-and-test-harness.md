@@ -19,8 +19,8 @@ subtasks:
 - T005
 phase: Phase 1 - Toolchain And Test Harness
 assignee: ''
-agent: ''
-shell_pid: '377853'
+agent: "codex:gpt-5:implementer:implementer"
+shell_pid: "377853"
 history:
 - timestamp: '2026-06-05T06:16:00Z'
   agent: codex
@@ -71,3 +71,7 @@ must skip cleanly when NumPy is unavailable.
 
 Reject if tooling is decorative, hard to run, or introduces a dependency not
 justified by the current Fortran-first scope.
+
+## Activity Log
+
+- 2026-06-05T11:48:55Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command

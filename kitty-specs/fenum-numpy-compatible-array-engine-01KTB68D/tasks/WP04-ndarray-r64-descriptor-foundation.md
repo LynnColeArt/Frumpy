@@ -68,3 +68,4 @@ Reject if ownership, offset semantics, or axis/dimension naming is vague.
 ## Activity Log
 
 - 2026-06-05T18:46:30Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command
+- 2026-06-05T18:52:14Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Ready for review: ndarray_r64 descriptor, umbrella module, owned and metadata descriptor constructors, ownership/offset/contiguity invariants, and descriptor-only gfortran tests validated.

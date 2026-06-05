@@ -1,0 +1,11 @@
+project:
+  uuid: 42f85db0-eee0-4652-972c-7f7800c3b782
+  slug: fenum
+  node_id: 752e6076aa27
+  build_id: ce0f46fa-f77b-4957-8053-ab208f306ce4
+vcs:
+  type: git
+agents:
+  available:
+  - codex
+  auto_commit: true

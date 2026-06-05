@@ -63,11 +63,11 @@ model loading, tokenizers, GPU runtime design, or a SciPy replacement.
 **Requirements Refs**: FR-005
 **Owned Files**: src/fenum.f90, src/fenum_ndarray_r64.f90, test/test_ndarray_r64.f90
 **Subtasks**: T017, T018, T019, T020, T021
-- [ ] T017 Implement the public umbrella module `fenum`.
-- [ ] T018 Implement `ndarray_r64` with rank, shape, strides, offset, ownership, contiguity, and backing storage.
-- [ ] T019 Add descriptor-only constructors for owned storage and descriptor metadata.
-- [ ] T020 Add scalar inspection helpers for tests without making them permanent public API unless needed.
-- [ ] T021 Add descriptor invariant tests before adding math kernels.
+- [x] T017 Implement the public umbrella module `fenum`.
+- [x] T018 Implement `ndarray_r64` with rank, shape, strides, offset, ownership, contiguity, and backing storage.
+- [x] T019 Add descriptor-only constructors for owned storage and descriptor metadata.
+- [x] T020 Add scalar inspection helpers for tests without making them permanent public API unless needed.
+- [x] T021 Add descriptor invariant tests before adding math kernels.
 
 ---
 

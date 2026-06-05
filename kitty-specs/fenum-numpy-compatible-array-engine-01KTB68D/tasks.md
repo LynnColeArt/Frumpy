@@ -20,11 +20,11 @@ model loading, tokenizers, GPU runtime design, or a SciPy replacement.
 **Requirements Refs**: FR-001
 **Owned Files**: fpm.toml, Makefile, src/**, test/**, examples/**, bench/**, python/tests/**, README.md
 **Subtasks**: T001, T002, T003, T004, T005
-- [ ] T001 Create the canonical source/test/example/bench/python directory layout.
-- [ ] T002 Add `fpm.toml` for the Fortran package path.
-- [ ] T003 Add `Makefile` fallback commands for build, test, clean, and optional Python differential tests.
-- [ ] T004 Add a minimal Fortran test runner and one smoke test.
-- [ ] T005 Add an optional Python NumPy differential smoke test that skips cleanly without NumPy.
+- [x] T001 Create the canonical source/test/example/bench/python directory layout.
+- [x] T002 Add `fpm.toml` for the Fortran package path.
+- [x] T003 Add `Makefile` fallback commands for build, test, clean, and optional Python differential tests.
+- [x] T004 Add a minimal Fortran test runner and one smoke test.
+- [x] T005 Add an optional Python NumPy differential smoke test that skips cleanly without NumPy.
 
 ---
 

@@ -8,7 +8,7 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts for this mission target main. During implementation, trust the workspace and branch printed by Spec Kitty.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T034
 - T035
@@ -16,19 +16,21 @@ subtasks:
 - T037
 - T038
 - T039
-phase: "Phase 5 - Reductions And Axis Semantics"
-assignee: ""
-agent: ""
-shell_pid: ""
+phase: Phase 5 - Reductions And Axis Semantics
+assignee: ''
+agent: ''
 history:
-- timestamp: "2026-06-05T06:16:00Z"
+- timestamp: '2026-06-05T06:16:00Z'
   agent: codex
   action: Prompt generated during mission handoff
+authoritative_surface: src/fenum_reductions_r64.f90
+execution_mode: code_change
 owned_files:
 - src/fenum_reductions_r64.f90
 - test/test_reductions_r64.f90
 - examples/first_vertical_slice.f90
 - python/tests/test_numpy_reductions.py
+tags: []
 ---
 
 # Work Package Prompt: WP07 - Reductions, Axis Semantics, And First Vertical Slice

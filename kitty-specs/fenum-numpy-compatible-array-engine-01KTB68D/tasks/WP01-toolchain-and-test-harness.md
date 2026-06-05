@@ -7,30 +7,35 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts for this mission target main. During implementation, trust the workspace and branch printed by Spec Kitty.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T001
 - T002
 - T003
 - T004
 - T005
-phase: "Phase 1 - Toolchain And Test Harness"
-assignee: ""
-agent: ""
-shell_pid: ""
+phase: Phase 1 - Toolchain And Test Harness
+assignee: ''
+agent: ''
 history:
-- timestamp: "2026-06-05T06:16:00Z"
+- timestamp: '2026-06-05T06:16:00Z'
   agent: codex
   action: Prompt generated during mission handoff
+authoritative_surface: fpm.toml
+execution_mode: code_change
 owned_files:
 - fpm.toml
 - Makefile
-- src/**
-- test/**
-- examples/**
-- bench/**
-- python/tests/**
+- src/.gitkeep
+- test/.gitkeep
+- test/test_runner.f90
+- test/test_smoke.f90
+- examples/.gitkeep
+- bench/.gitkeep
+- python/tests/.gitkeep
+- python/tests/test_numpy_smoke.py
 - README.md
+tags: []
 ---
 
 # Work Package Prompt: WP01 - Toolchain And Test Harness

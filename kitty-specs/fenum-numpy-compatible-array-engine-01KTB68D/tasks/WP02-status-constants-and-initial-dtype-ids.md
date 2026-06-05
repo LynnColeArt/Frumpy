@@ -9,27 +9,29 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts for this mission target main. During implementation, trust the workspace and branch printed by Spec Kitty.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T006
 - T007
 - T008
 - T009
 - T010
-phase: "Phase 2 - Core Descriptor And Metadata"
-assignee: ""
-agent: ""
-shell_pid: ""
+phase: Phase 2 - Core Descriptor And Metadata
+assignee: ''
+agent: ''
 history:
-- timestamp: "2026-06-05T06:16:00Z"
+- timestamp: '2026-06-05T06:16:00Z'
   agent: codex
   action: Prompt generated during mission handoff
+authoritative_surface: src/fenum_statuses.f90
+execution_mode: code_change
 owned_files:
 - src/fenum_constants.f90
 - src/fenum_statuses.f90
 - src/fenum_dtypes.f90
 - test/test_statuses.f90
 - test/test_dtypes.f90
+tags: []
 ---
 
 # Work Package Prompt: WP02 - Status, Constants, And Initial Dtype IDs

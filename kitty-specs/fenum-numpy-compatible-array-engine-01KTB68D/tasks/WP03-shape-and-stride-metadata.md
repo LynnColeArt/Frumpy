@@ -9,7 +9,7 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts for this mission target main. During implementation, trust the workspace and branch printed by Spec Kitty.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T011
 - T012
@@ -17,19 +17,21 @@ subtasks:
 - T014
 - T015
 - T016
-phase: "Phase 2 - Core Descriptor And Metadata"
-assignee: ""
-agent: ""
-shell_pid: ""
+phase: Phase 2 - Core Descriptor And Metadata
+assignee: ''
+agent: ''
 history:
-- timestamp: "2026-06-05T06:16:00Z"
+- timestamp: '2026-06-05T06:16:00Z'
   agent: codex
   action: Prompt generated during mission handoff
+authoritative_surface: src/fenum_shape.f90
+execution_mode: code_change
 owned_files:
 - src/fenum_shape.f90
 - src/fenum_strides.f90
 - test/test_shape.f90
 - test/test_strides.f90
+tags: []
 ---
 
 # Work Package Prompt: WP03 - Shape And Stride Metadata

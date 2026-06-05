@@ -19,7 +19,7 @@ subtasks:
 - T005
 phase: Phase 1 - Toolchain And Test Harness
 assignee: ''
-agent: "codex:gpt-5:implementer:implementer"
+agent: "codex:gpt-5:reviewer:reviewer"
 shell_pid: "377853"
 history:
 - timestamp: '2026-06-05T06:16:00Z'
@@ -76,3 +76,4 @@ justified by the current Fortran-first scope.
 
 - 2026-06-05T11:48:55Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command
 - 2026-06-05T11:55:19Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Ready for review: toolchain and smoke test harness added
+- 2026-06-05T11:57:04Z – codex:gpt-5:reviewer:reviewer – shell_pid=377853 – Started review via action command

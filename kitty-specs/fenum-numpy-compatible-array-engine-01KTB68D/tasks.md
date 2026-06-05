@@ -48,12 +48,12 @@ model loading, tokenizers, GPU runtime design, or a SciPy replacement.
 **Requirements Refs**: FR-003, FR-004
 **Owned Files**: src/fenum_shape.f90, src/fenum_strides.f90, test/test_shape.f90, test/test_strides.f90
 **Subtasks**: T011, T012, T013, T014, T015, T016
-- [ ] T011 Implement shape validation for scalar, empty, singleton, and multidimensional arrays.
-- [ ] T012 Implement overflow-checked element-count computation.
-- [ ] T013 Implement C-order stride calculation using signed element strides.
-- [ ] T014 Implement Fortran-order stride calculation using signed element strides.
-- [ ] T015 Implement C-contiguity and Fortran-contiguity checks.
-- [ ] T016 Add tests for zero-sized dimensions, scalar arrays, and negative-stride planning assumptions.
+- [x] T011 Implement shape validation for scalar, empty, singleton, and multidimensional arrays.
+- [x] T012 Implement overflow-checked element-count computation.
+- [x] T013 Implement C-order stride calculation using signed element strides.
+- [x] T014 Implement Fortran-order stride calculation using signed element strides.
+- [x] T015 Implement C-contiguity and Fortran-contiguity checks.
+- [x] T016 Add tests for zero-sized dimensions, scalar arrays, and negative-stride planning assumptions.
 
 ---
 

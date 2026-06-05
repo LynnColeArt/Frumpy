@@ -75,3 +75,4 @@ justified by the current Fortran-first scope.
 ## Activity Log
 
 - 2026-06-05T11:48:55Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command
+- 2026-06-05T11:55:19Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Ready for review: toolchain and smoke test harness added

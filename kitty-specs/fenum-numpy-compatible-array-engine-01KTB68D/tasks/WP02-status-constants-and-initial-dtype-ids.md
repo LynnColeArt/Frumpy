@@ -21,7 +21,7 @@ subtasks:
 - T010
 phase: Phase 2 - Core Descriptor And Metadata
 assignee: ''
-agent: "codex:gpt-5:implementer:implementer"
+agent: "codex:gpt-5:reviewer:reviewer"
 shell_pid: "377853"
 history:
 - timestamp: '2026-06-05T06:16:00Z'
@@ -72,3 +72,4 @@ Reject if dtype machinery becomes overly generic before the `r64` path exists.
 
 - 2026-06-05T13:17:36Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command
 - 2026-06-05T13:25:39Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Ready for review: status constants and initial dtype metadata implemented and validated with standalone gfortran tests.
+- 2026-06-05T13:26:17Z – codex:gpt-5:reviewer:reviewer – shell_pid=377853 – Started review via action command

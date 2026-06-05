@@ -22,7 +22,7 @@ subtasks:
 - T016
 phase: Phase 2 - Core Descriptor And Metadata
 assignee: ''
-agent: "codex:gpt-5:implementer:implementer"
+agent: "codex:gpt-5:reviewer:reviewer"
 shell_pid: "377853"
 history:
 - timestamp: '2026-06-05T06:16:00Z'
@@ -74,3 +74,4 @@ units are ambiguous.
 
 - 2026-06-05T13:30:43Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command
 - 2026-06-05T13:37:55Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Ready for review: shape validation, overflow-checked element counts, signed C/F stride plans, contiguity checks, and negative-stride assumptions validated with standalone gfortran tests.
+- 2026-06-05T13:38:21Z – codex:gpt-5:reviewer:reviewer – shell_pid=377853 – Started review via action command

@@ -16,6 +16,7 @@
 .kiro/
 .agent/
 .agents/skills/
+.worktrees/
 .github/copilot/
 .kittify/.dashboard
 .kittify/charter/context-state.json

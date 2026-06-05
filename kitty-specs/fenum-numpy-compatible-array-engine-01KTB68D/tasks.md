@@ -34,11 +34,11 @@ model loading, tokenizers, GPU runtime design, or a SciPy replacement.
 **Requirements Refs**: FR-002, FR-011
 **Owned Files**: src/fenum_constants.f90, src/fenum_statuses.f90, src/fenum_dtypes.f90, test/test_statuses.f90, test/test_dtypes.f90
 **Subtasks**: T006, T007, T008, T009, T010
-- [ ] T006 Implement project constants including maximum rank and order IDs.
-- [ ] T007 Implement `fenum_status` and status codes for expected library failures.
-- [ ] T008 Implement initial dtype IDs and metadata for `r64` plus planned supported dtypes.
-- [ ] T009 Add tests for status initialization, failure detection, and unsupported behavior.
-- [ ] T010 Add tests for dtype metadata and unsupported dtype status paths.
+- [x] T006 Implement project constants including maximum rank and order IDs.
+- [x] T007 Implement `fenum_status` and status codes for expected library failures.
+- [x] T008 Implement initial dtype IDs and metadata for `r64` plus planned supported dtypes.
+- [x] T009 Add tests for status initialization, failure detection, and unsupported behavior.
+- [x] T010 Add tests for dtype metadata and unsupported dtype status paths.
 
 ---
 

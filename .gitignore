@@ -16,6 +16,7 @@
 .kiro/
 .agent/
 .agents/skills/
+.worktrees/
 .github/copilot/
 .kittify/.dashboard
 .kittify/charter/context-state.json
@@ -24,6 +25,7 @@
 .kittify/charter/metadata.yaml
 .kittify/charter/references.yaml
 .kittify/dossiers/
+.kittify/derived/
 .kittify/events/
 .kittify/merge-state.json
 .kittify/missions/__pycache__/

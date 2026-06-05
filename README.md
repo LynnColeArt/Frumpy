@@ -108,6 +108,20 @@ The short version:
   decoder ring.
 
 
+## Development Commands
+
+Fenum uses `fpm` when it is available and keeps a plain `gfortran` fallback for
+early toolchain work.
+
+- `make build` builds with `fpm` when installed, otherwise compiles the smoke
+  test runner with `gfortran`.
+- `make test` runs the Fortran smoke tests.
+- `make python-test` runs optional Python NumPy oracle tests. If NumPy is not
+  installed, the tests skip cleanly.
+- `make fpm-test` runs `fpm test` when `fpm` is installed.
+- `make clean` removes generated build artifacts.
+
+
 ## Status
 
 Fenum is at the beginning.

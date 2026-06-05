@@ -8,6 +8,9 @@ tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
 branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-fenum-numpy-compatible-array-engine-01KTB68D
+base_commit: ebca9716676ab638f5a0de39742256eb12e35058
+created_at: '2026-06-05T11:47:39.187293+00:00'
 subtasks:
 - T001
 - T002
@@ -17,6 +20,7 @@ subtasks:
 phase: Phase 1 - Toolchain And Test Harness
 assignee: ''
 agent: ''
+shell_pid: '377853'
 history:
 - timestamp: '2026-06-05T06:16:00Z'
   agent: codex

@@ -9,5 +9,7 @@
   "purpose_context": "This mission advances fenum numpy compatible array engine on main so stakeholders can track the work from mission creation onward.",
   "purpose_tldr": "fenum numpy compatible array engine",
   "slug": "fenum-numpy-compatible-array-engine-01KTB68D",
-  "target_branch": "main"
+  "target_branch": "main",
+  "vcs": "git",
+  "vcs_locked_at": "2026-06-05T11:47:39.153827+00:00"
 }

@@ -20,7 +20,7 @@ subtasks:
 - T021
 phase: Phase 2 - Core Descriptor And Metadata
 assignee: ''
-agent: "codex:gpt-5:implementer:implementer"
+agent: "codex:gpt-5:reviewer:reviewer"
 shell_pid: "377853"
 history:
 - timestamp: '2026-06-05T06:16:00Z'
@@ -69,3 +69,4 @@ Reject if ownership, offset semantics, or axis/dimension naming is vague.
 
 - 2026-06-05T18:46:30Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command
 - 2026-06-05T18:52:14Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Ready for review: ndarray_r64 descriptor, umbrella module, owned and metadata descriptor constructors, ownership/offset/contiguity invariants, and descriptor-only gfortran tests validated.
+- 2026-06-05T18:52:32Z – codex:gpt-5:reviewer:reviewer – shell_pid=377853 – Started review via action command

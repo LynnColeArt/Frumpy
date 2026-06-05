@@ -1,0 +1,28 @@
+schema_version: 1.0.0
+mission: software-dev
+profile: minimal
+answers:
+  project_intent: Build a readable, explicit, NumPy-compatible array engine in
+    Fortran 2018.
+  languages_frameworks: Fortran 2018 for the core; Python is allowed for NumPy
+    differential tests and later bindings; C ABI work is staged later.
+  testing_requirements: Use compatibility-first TDD. Tests should prove Fortran
+    invariants or compare supported public behavior against NumPy.
+  quality_gates: Compile with the declared Fortran toolchain, run the project
+    tests, run git diff --check, and review ndarray metadata honesty before
+    handoff.
+  review_policy: At least one focused reviewer approves before merge, with
+    emphasis on NumPy compatibility, hidden copies, status handling, and scope
+    creep.
+  performance_targets: Correct NumPy semantics come first; avoid unnecessary
+    allocation and benchmark before claiming speed.
+  deployment_constraints: The core must remain buildable on Linux and macOS
+    developer environments.
+selected_paradigms: []
+selected_directives: []
+selected_tactics: []
+available_tools:
+- git
+- spec-kitty
+agent_profile:
+agent_role:

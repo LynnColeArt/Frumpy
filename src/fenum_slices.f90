@@ -124,11 +124,14 @@ contains
     integer(int64), intent(in) :: extent
     integer(int64), intent(in) :: step
 
-    if (extent == 0_int64) then
-      is_valid_slice_bound = bound0 == 0_int64 .or. &
-        (step < 0_int64 .and. bound0 == -1_int64)
+    if (step > 0_int64) then
+      is_valid_slice_bound = bound0 >= 0_int64 .and. bound0 <= extent
     else
-      is_valid_slice_bound = bound0 >= 0_int64 .and. bound0 < extent
+      if (extent == 0_int64) then
+        is_valid_slice_bound = bound0 == -1_int64
+      else
+        is_valid_slice_bound = bound0 >= 0_int64 .and. bound0 < extent
+      end if
     end if
   end function is_valid_slice_bound
 

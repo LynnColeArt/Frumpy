@@ -186,6 +186,14 @@ contains
     sliced%data(sliced%offset) = 33.0_real64
     call assert_close_scalar(source%data(3), 33.0_real64, &
       "negative slice mutation reaches source")
+
+    specs = [slice_all(), slice_range(3_int64, 3_int64, status=status)]
+    call assert_status_ok(status, "empty slice spec status")
+    sliced = slice_r64(source, specs, status)
+    call assert_status_ok(status, "empty slice status")
+    call assert_equal_int64_vector(sliced%shape, [2_int64, 0_int64], &
+      "empty slice shape")
+    call assert_equal_int64(sliced%size(), 0_int64, "empty slice size")
   end subroutine test_slice_views_and_negative_strides
 
   subroutine test_view_status_paths()
@@ -361,6 +369,17 @@ contains
       error stop 1
     end if
   end subroutine assert_equal_int64_vector
+
+  subroutine assert_equal_int64(actual, expected, message)
+    integer(int64), intent(in) :: actual
+    integer(int64), intent(in) :: expected
+    character(len=*), intent(in) :: message
+
+    if (actual /= expected) then
+      write (*, '(a)') "FAIL: " // message
+      error stop 1
+    end if
+  end subroutine assert_equal_int64
 
   subroutine assert_close_scalar(actual, expected, message)
     real(real64), intent(in) :: actual

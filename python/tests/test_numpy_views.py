@@ -59,6 +59,9 @@ def test_numpy_slice_reference_cases():
         [3, 2, 1, 6, 5, 4],
     )
 
+    empty_columns = source[:, 3:3]
+    assert empty_columns.shape == (2, 0)
+
 
 def test_numpy_first_vertical_slice_uses_reshape_reference_case():
     a = np.zeros((2, 3), dtype=np.float64)

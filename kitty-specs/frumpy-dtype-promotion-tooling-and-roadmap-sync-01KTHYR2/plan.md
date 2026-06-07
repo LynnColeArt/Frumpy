@@ -122,7 +122,12 @@ Makefile
 fpm.toml
 bench/
 docs/
+├── BUILDING.md
+├── DTYPE_METADATA.md
+├── DTYPE_PROMOTION.md
+├── CASTING_POLICY.md
 ├── DTYPE_SUPPORT.md
+├── DTYPE_VALIDATION.md
 └── COMPLEX_DTYPE_PLAN.md
 
 src/
@@ -142,7 +147,8 @@ test/
 └── test_ndarray_bool.f90
 
 python/tests/
-└── test_numpy_dtype_promotion.py
+├── test_numpy_dtype_promotion.py
+└── test_numpy_casting.py
 ```
 
 **Structure Decision**: Keep Frumpy as a single-library Fortran project. Add

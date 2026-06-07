@@ -8,7 +8,7 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts are generated on the mission coordination branch; completed changes must merge back into main.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T006
 - T007
@@ -28,8 +28,8 @@ owned_files:
 - PROJECT_PLAN.md
 - STYLE_GUIDE.md
 - AGENTS.md
-- kitty-specs/**/plan.md
-- kitty-specs/**/tasks.md
+- README.md
+- SPEC_KITTY_HANDOFF.md
 tags: []
 ---
 
@@ -37,7 +37,7 @@ tags: []
 
 ## Objective
 
-Align current-facing project and mission artifacts with the Frumpy name without
+Align current-facing project and mission guidance with the Frumpy name without
 breaking historical Spec Kitty identifiers.
 
 ## Context

@@ -11,7 +11,7 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts are generated on the mission coordination branch; completed changes must merge back into main.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T015
 - T016
@@ -31,7 +31,7 @@ owned_files:
 - src/frumpy_promotion.f90
 - test/test_dtype_promotion.f90
 - python/tests/test_numpy_dtype_promotion.py
-- docs/DTYPE_SUPPORT.md
+- docs/DTYPE_PROMOTION.md
 tags: []
 ---
 
@@ -52,7 +52,7 @@ inside individual kernel modules. NumPy is the oracle for public behavior.
 - T016 Define unsupported promotion status behavior for pairs outside the selected subset.
 - T017 Add Fortran promotion tests for supported, unsupported, scalar-like, and identity pairs.
 - T018 Add Python NumPy fixtures for expected promotion behavior and record the observed NumPy version.
-- T019 Document the supported promotion subset and any intentional NumPy differences.
+- T019 Document the supported promotion subset and any intentional NumPy differences in `docs/DTYPE_PROMOTION.md`.
 
 ## Validation
 

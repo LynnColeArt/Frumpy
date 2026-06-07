@@ -10,7 +10,7 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts are generated on the mission coordination branch; completed changes must merge back into main.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T020
 - T021
@@ -29,8 +29,8 @@ execution_mode: code_change
 owned_files:
 - src/frumpy_casting.f90
 - test/test_casting.f90
-- python/tests/test_numpy_dtype_promotion.py
-- docs/DTYPE_SUPPORT.md
+- python/tests/test_numpy_casting.py
+- docs/CASTING_POLICY.md
 tags: []
 ---
 
@@ -52,7 +52,7 @@ policy.
 - T021 Separate promotion decisions from cast execution.
 - T022 Define status behavior for lossy, overflowing, or unsupported casts.
 - T023 Add Fortran cast tests for supported and rejected casts.
-- T024 Add or extend Python fixtures for NumPy cast expectations.
+- T024 Add Python fixtures for NumPy cast expectations.
 
 ## Validation
 

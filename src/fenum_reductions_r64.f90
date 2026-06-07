@@ -29,6 +29,10 @@ module fenum_reductions_r64
 
 contains
 
+  ! Empty-reduction policy follows NumPy for this subset: sum/prod use their
+  ! identities, mean returns NaN, and min/max fail when a non-empty result would
+  ! require reducing an empty slice.
+
   function axis0_to_dim1(axis0, rank, status) result(dim1)
     integer(int32), intent(in) :: axis0
     integer(int32), intent(in) :: rank

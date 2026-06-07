@@ -32,3 +32,9 @@
 .kittify/runtime/
 .kittify/sync-state.json
 .kittify/workspaces/
+
+# Local Python environments
+.venv/
+venv/
+env/
+ENV/

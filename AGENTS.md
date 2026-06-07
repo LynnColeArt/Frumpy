@@ -256,3 +256,17 @@ When changing Fenum:
 5. Update documentation when behavior, scope, or compatibility changes.
 
 Keep the mountain visible, but climb the next rock.
+
+
+## Python Environment Policy
+
+Do not assume a rich host Python environment.
+
+Fenum may use Python to compare behavior against NumPy, but host Python
+configuration can be unstable across machines. Treat the system `python3` as a
+minimal tool for basic scripts only.
+
+If NumPy, pytest, or other Python packages are needed for local compatibility
+checks, create a repo-local virtual environment such as `.venv/`. Keep virtual
+environments out of git and do not install project-specific Python packages into
+the host Python environment.

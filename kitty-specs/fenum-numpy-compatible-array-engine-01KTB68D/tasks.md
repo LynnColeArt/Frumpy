@@ -77,12 +77,12 @@ model loading, tokenizers, GPU runtime design, or a SciPy replacement.
 **Requirements Refs**: FR-006
 **Owned Files**: src/fenum_ndarray_r64.f90, src/fenum_constructors_r64.f90, test/test_constructors_r64.f90, python/tests/test_numpy_constructors.py
 **Subtasks**: T022, T023, T024, T025, T026, T027
-- [ ] T022 Implement `empty_r64`.
-- [ ] T023 Implement `zeros_r64`, `ones_r64`, and `full_r64`.
-- [ ] T024 Implement `arange_r64` and `linspace_r64`.
-- [ ] T025 Implement `copy_r64`, `asarray_r64`, and `ascontiguousarray_r64`.
-- [ ] T026 Add Fortran constructor/data-movement tests.
-- [ ] T027 Add NumPy differential constructor fixtures for the supported subset.
+- [x] T022 Implement `empty_r64`.
+- [x] T023 Implement `zeros_r64`, `ones_r64`, and `full_r64`.
+- [x] T024 Implement `arange_r64` and `linspace_r64`.
+- [x] T025 Implement `copy_r64`, `asarray_r64`, and `ascontiguousarray_r64`.
+- [x] T026 Add Fortran constructor/data-movement tests.
+- [x] T027 Add NumPy differential constructor fixtures for the supported subset.
 
 ---
 

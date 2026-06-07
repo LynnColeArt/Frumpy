@@ -1,7 +1,7 @@
 {
-  "event_count": 30,
-  "last_event_id": "01KTFWSAJG1FK3ZYYRSDMBQ9E9",
-  "materialized_at": "2026-06-07T01:57:30.832926+00:00",
+  "event_count": 39,
+  "last_event_id": "01KTFYKXNPFTVQT4H8DAS4X9DK",
+  "materialized_at": "2026-06-07T02:29:30.934143+00:00",
   "mission_number": "",
   "mission_slug": "fenum-numpy-compatible-array-engine-01KTB68D",
   "mission_type": "software-dev",
@@ -12,9 +12,9 @@
     "claimed": 0,
     "done": 0,
     "for_review": 0,
-    "in_progress": 0,
+    "in_progress": 1,
     "in_review": 0,
-    "planned": 0
+    "planned": 6
   },
   "work_packages": {
     "WP01": {
@@ -58,6 +58,55 @@
       "lane": "approved",
       "last_event_id": "01KTFWSAJG1FK3ZYYRSDMBQ9E9",
       "last_transition_at": "2026-06-07T01:57:30.832926+00:00"
+    },
+    "WP07": {
+      "actor": "codex",
+      "force_count": 1,
+      "lane": "in_progress",
+      "last_event_id": "01KTFYKXNPFTVQT4H8DAS4X9DK",
+      "last_transition_at": "2026-06-07T02:29:30.934143+00:00"
+    },
+    "WP08": {
+      "actor": "finalize-tasks",
+      "force_count": 1,
+      "lane": "planned",
+      "last_event_id": "01KTFYFXP1KETNF83FVKG4HMQ2",
+      "last_transition_at": "2026-06-07T02:27:19.873408+00:00"
+    },
+    "WP09": {
+      "actor": "finalize-tasks",
+      "force_count": 1,
+      "lane": "planned",
+      "last_event_id": "01KTFYFZ36SGX0577MZP1HG1DA",
+      "last_transition_at": "2026-06-07T02:27:21.318552+00:00"
+    },
+    "WP10": {
+      "actor": "finalize-tasks",
+      "force_count": 1,
+      "lane": "planned",
+      "last_event_id": "01KTFYG0G5EM56NRH1NA6BGJ44",
+      "last_transition_at": "2026-06-07T02:27:22.757569+00:00"
+    },
+    "WP11": {
+      "actor": "finalize-tasks",
+      "force_count": 1,
+      "lane": "planned",
+      "last_event_id": "01KTFYG1XHQWNWDB6S2M6E1Y6T",
+      "last_transition_at": "2026-06-07T02:27:24.209432+00:00"
+    },
+    "WP12": {
+      "actor": "finalize-tasks",
+      "force_count": 1,
+      "lane": "planned",
+      "last_event_id": "01KTFYG3A8G4FQ9YM8RS178R8G",
+      "last_transition_at": "2026-06-07T02:27:25.640983+00:00"
+    },
+    "WP13": {
+      "actor": "finalize-tasks",
+      "force_count": 1,
+      "lane": "planned",
+      "last_event_id": "01KTFYG4QVTBRERSJQ6XZQDT46",
+      "last_transition_at": "2026-06-07T02:27:27.099409+00:00"
     }
   }
 }

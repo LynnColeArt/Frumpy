@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "mission_slug": "frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
+  "mission_id": "01KTHYR2R4YXFGHWT1EEPEKZK4",
+  "mission_branch": "kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
+  "target_branch": "main",
+  "lanes": [
+    {
+      "lane_id": "lane-a",
+      "wp_ids": [
+        "WP01"
+      ],
+      "write_scope": [
+        ".gitignore",
+        "Makefile",
+        "bench/**",
+        "docs/BUILDING.md",
+        "fpm.toml"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [],
+      "parallel_group": 0
+    },
+    {
+      "lane_id": "lane-b",
+      "wp_ids": [
+        "WP02"
+      ],
+      "write_scope": [
+        ".kittify/charter/charter.md",
+        "AGENTS.md",
+        "PROJECT_PLAN.md",
+        "README.md",
+        "SPEC_KITTY_HANDOFF.md",
+        "STYLE_GUIDE.md"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering"
+      ],
+      "depends_on_lanes": [
+        "lane-a"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-c",
+      "wp_ids": [
+        "WP03"
+      ],
+      "write_scope": [
+        "docs/DTYPE_METADATA.md",
+        "src/frumpy_dtypes.f90",
+        "test/test_dtypes.f90"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [
+        "lane-a"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-d",
+      "wp_ids": [
+        "WP04"
+      ],
+      "write_scope": [
+        "docs/DTYPE_PROMOTION.md",
+        "python/tests/test_numpy_dtype_promotion.py",
+        "src/frumpy_promotion.f90",
+        "test/test_dtype_promotion.f90"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [
+        "lane-c"
+      ],
+      "parallel_group": 2
+    },
+    {
+      "lane_id": "lane-f",
+      "wp_ids": [
+        "WP06"
+      ],
+      "write_scope": [
+        "src/frumpy.f90",
+        "src/frumpy_ndarray_bool.f90",
+        "src/frumpy_ndarray_i32.f90",
+        "src/frumpy_ndarray_i64.f90",
+        "src/frumpy_ndarray_r32.f90",
+        "test/test_ndarray_bool.f90",
+        "test/test_ndarray_i32.f90",
+        "test/test_ndarray_i64.f90",
+        "test/test_ndarray_r32.f90"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [
+        "lane-c"
+      ],
+      "parallel_group": 2
+    },
+    {
+      "lane_id": "lane-e",
+      "wp_ids": [
+        "WP05"
+      ],
+      "write_scope": [
+        "docs/CASTING_POLICY.md",
+        "python/tests/test_numpy_casting.py",
+        "src/frumpy_casting.f90",
+        "test/test_casting.f90"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [
+        "lane-d"
+      ],
+      "parallel_group": 3
+    },
+    {
+      "lane_id": "lane-g",
+      "wp_ids": [
+        "WP07"
+      ],
+      "write_scope": [
+        "docs/COMPLEX_DTYPE_PLAN.md",
+        "docs/DTYPE_SUPPORT.md",
+        "docs/DTYPE_VALIDATION.md"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [
+        "lane-b",
+        "lane-d",
+        "lane-e",
+        "lane-f"
+      ],
+      "parallel_group": 4
+    }
+  ],
+  "computed_at": "2026-06-07T21:25:17.943240+00:00",
+  "computed_from": "dependency_graph+ownership",
+  "planning_artifact_wps": []
+}

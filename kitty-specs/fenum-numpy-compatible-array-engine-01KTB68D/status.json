@@ -1,7 +1,7 @@
 {
-  "event_count": 34,
-  "last_event_id": "01KTFYG0G5EM56NRH1NA6BGJ44",
-  "materialized_at": "2026-06-07T02:27:22.757569+00:00",
+  "event_count": 33,
+  "last_event_id": "01KTFYFZ36SGX0577MZP1HG1DA",
+  "materialized_at": "2026-06-07T02:27:21.318552+00:00",
   "mission_number": "",
   "mission_slug": "fenum-numpy-compatible-array-engine-01KTB68D",
   "mission_type": "software-dev",
@@ -14,7 +14,7 @@
     "for_review": 0,
     "in_progress": 0,
     "in_review": 0,
-    "planned": 4
+    "planned": 3
   },
   "work_packages": {
     "WP01": {
@@ -79,13 +79,6 @@
       "lane": "planned",
       "last_event_id": "01KTFYFZ36SGX0577MZP1HG1DA",
       "last_transition_at": "2026-06-07T02:27:21.318552+00:00"
-    },
-    "WP10": {
-      "actor": "finalize-tasks",
-      "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01KTFYG0G5EM56NRH1NA6BGJ44",
-      "last_transition_at": "2026-06-07T02:27:22.757569+00:00"
     }
   }
 }

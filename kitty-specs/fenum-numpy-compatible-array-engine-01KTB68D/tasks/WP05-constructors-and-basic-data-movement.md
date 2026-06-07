@@ -21,7 +21,7 @@ subtasks:
 - T027
 phase: Phase 3 - Constructors And Basic Data Movement
 assignee: ''
-agent: "codex:gpt-5:implementer:implementer"
+agent: "codex:gpt-5:reviewer:reviewer"
 shell_pid: "377853"
 history:
 - timestamp: '2026-06-05T06:16:00Z'
@@ -68,3 +68,5 @@ reported through status.
 ## Activity Log
 
 - 2026-06-07T01:25:56Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command
+- 2026-06-07T01:35:31Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Ready for review: r64 constructors, copy/asarray/ascontiguousarray, Fortran tests, and NumPy fixtures
+- 2026-06-07T01:35:55Z – codex:gpt-5:reviewer:reviewer – shell_pid=377853 – Started review via action command

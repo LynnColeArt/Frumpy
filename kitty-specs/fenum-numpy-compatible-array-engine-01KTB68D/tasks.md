@@ -122,12 +122,12 @@ model loading, tokenizers, GPU runtime design, or a SciPy replacement.
 **Requirements Refs**: FR-010
 **Owned Files**: src/fenum_views_r64.f90, src/fenum_slices.f90, test/test_views_r64.f90, python/tests/test_numpy_views.py
 **Subtasks**: T040, T041, T042, T043, T044, T045
-- [ ] T040 Design and implement view ownership/base lifetime behavior.
-- [ ] T041 Implement `reshape_r64`, `ravel_r64`, and `flatten_r64`.
-- [ ] T042 Implement `transpose_r64`, `swapaxes_r64`, `squeeze_r64`, and `expand_dims_r64`.
-- [ ] T043 Implement basic slice descriptors.
-- [ ] T044 Implement slice-to-view and negative-stride view support.
-- [ ] T045 Add NumPy differential tests for reshape, transpose, and slicing behavior.
+- [x] T040 Design and implement view ownership/base lifetime behavior.
+- [x] T041 Implement `reshape_r64`, `ravel_r64`, and `flatten_r64`.
+- [x] T042 Implement `transpose_r64`, `swapaxes_r64`, `squeeze_r64`, and `expand_dims_r64`.
+- [x] T043 Implement basic slice descriptors.
+- [x] T044 Implement slice-to-view and negative-stride view support.
+- [x] T045 Add NumPy differential tests for reshape, transpose, and slicing behavior.
 
 ---
 

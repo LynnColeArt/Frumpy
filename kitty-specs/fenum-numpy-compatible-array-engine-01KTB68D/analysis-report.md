@@ -15,7 +15,7 @@ input_artifacts:
     sha256: bf0e204729aeb91c4b492248c18dc5feff99e16df99bbdae9ba11933aa226d51
   tasks.md:
     path: /home/lynn/projects/fenum/kitty-specs/fenum-numpy-compatible-array-engine-01KTB68D/tasks.md
-    sha256: 4ffef65ca7d721840bd2b36c6567f0bcc3d6571c825481f347a9633a363f138d
+    sha256: 5185bd3b02801c90eb47bf44943bb1235eed0c0a65130cfedf0f4789dcb75937
   charter:
     path: /home/lynn/projects/fenum/.kittify/charter/charter.md
     sha256: c0ea2361a1e1284a645981fad6426862c6cd99967eb0260f723022f1b6fc02da

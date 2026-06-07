@@ -1,13 +1,10 @@
 program test_constructors_r64
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_constants, only: FENUM_ORDER_A, FENUM_ORDER_C, FENUM_ORDER_F, &
-    FENUM_ORDER_K
-  use fenum_constructors_r64, only: arange_r64, asarray_r64, &
-    ascontiguousarray_r64, copy_r64, empty_r64, full_r64, linspace_r64, &
-    ones_r64, zeros_r64
-  use fenum_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64
-  use fenum_statuses, only: FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
-    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status
+  use fenum, only: FENUM_ORDER_A, FENUM_ORDER_C, FENUM_ORDER_F, &
+    FENUM_ORDER_K, FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
+    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, arange_r64, asarray_r64, &
+    ascontiguousarray_r64, copy_r64, empty_r64, fenum_status, full_r64, &
+    linspace_r64, metadata_descriptor_r64, ndarray_r64, ones_r64, zeros_r64
 
   implicit none
 

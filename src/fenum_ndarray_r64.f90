@@ -17,6 +17,7 @@ module fenum_ndarray_r64
   public :: ndarray_r64
   public :: owned_descriptor_r64
   public :: metadata_descriptor_r64
+  public :: view_descriptor_r64
 
   type :: ndarray_r64
     integer(int32) :: dtype_id = FENUM_DTYPE_R64
@@ -27,7 +28,7 @@ module fenum_ndarray_r64
     logical :: owns_data = .false.
     logical :: is_c_contiguous = .false.
     logical :: is_f_contiguous = .false.
-    real(real64), allocatable :: data(:)
+    real(real64), pointer :: data(:) => null()
   contains
     procedure :: size => ndarray_r64_size
     procedure :: storage_size => ndarray_r64_storage_size
@@ -106,6 +107,35 @@ contains
     call set_optional_status_value(status, local_status)
   end function metadata_descriptor_r64
 
+  function view_descriptor_r64(source, shape, strides, offset, status) &
+      result(array)
+    type(ndarray_r64), intent(in) :: source
+    integer(int64), intent(in) :: shape(:)
+    integer(int64), intent(in) :: strides(:)
+    integer(int64), intent(in) :: offset
+    type(fenum_status), intent(out), optional :: status
+    type(ndarray_r64) :: array
+    type(fenum_status) :: local_status
+
+    if (.not. source%has_storage()) then
+      call set_optional_status(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+        "view_descriptor_r64 requires source storage")
+      return
+    end if
+
+    call assign_descriptor_metadata(array, shape, strides, offset, .false., &
+      local_status)
+    if (local_status%is_failure()) then
+      call set_optional_status_value(status, local_status)
+      return
+    end if
+
+    ! View lifetime is explicit in this phase: a view shares the source storage
+    ! pointer and is valid only while that source storage remains alive.
+    array%data => source%data
+    call set_optional_status(status, FENUM_STATUS_OK)
+  end function view_descriptor_r64
+
   function ndarray_r64_size(array) result(count)
     class(ndarray_r64), intent(in) :: array
     integer(int64) :: count
@@ -121,7 +151,7 @@ contains
     class(ndarray_r64), intent(in) :: array
     integer(int64) :: count
 
-    if (allocated(array%data)) then
+    if (associated(array%data)) then
       count = int(size(array%data), int64)
     else
       count = 0_int64
@@ -131,7 +161,7 @@ contains
   logical function ndarray_r64_has_storage(array)
     class(ndarray_r64), intent(in) :: array
 
-    ndarray_r64_has_storage = allocated(array%data)
+    ndarray_r64_has_storage = associated(array%data)
   end function ndarray_r64_has_storage
 
   subroutine assign_descriptor_metadata(array, shape, strides, offset, &

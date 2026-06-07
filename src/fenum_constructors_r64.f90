@@ -275,7 +275,7 @@ contains
       return
     end if
 
-    if (allocated(array%data)) array%data = fill_value
+    if (associated(array%data)) array%data = fill_value
     call set_optional_status(status, FENUM_STATUS_OK)
   end function filled_array_r64
 

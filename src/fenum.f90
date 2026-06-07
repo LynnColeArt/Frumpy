@@ -10,12 +10,15 @@ module fenum
     exp_r64, log_r64, multiply_r64, negate_r64, sin_r64, sqrt_r64, &
     subtract_r64
   use fenum_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64, &
-    owned_descriptor_r64
+    owned_descriptor_r64, view_descriptor_r64
   use fenum_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
     min_r64, prod_r64, sum_r64
+  use fenum_slices, only: slice_all, slice_range, slice_spec
   use fenum_statuses, only: FENUM_STATUS_ALLOCATION_FAILED, &
     FENUM_STATUS_INVALID_AXIS, FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
     FENUM_STATUS_OVERFLOW, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status
+  use fenum_views_r64, only: expand_dims_r64, flatten_r64, ravel_r64, &
+    reshape_r64, slice_r64, squeeze_r64, swapaxes_r64, transpose_r64
 
   implicit none
 
@@ -43,8 +46,10 @@ module fenum
   public :: copy_r64
   public :: divide_r64
   public :: empty_r64
+  public :: expand_dims_r64
   public :: exp_r64
   public :: fenum_status
+  public :: flatten_r64
   public :: full_r64
   public :: linspace_r64
   public :: log_r64
@@ -58,9 +63,19 @@ module fenum
   public :: owned_descriptor_r64
   public :: metadata_descriptor_r64
   public :: prod_r64
+  public :: ravel_r64
+  public :: reshape_r64
+  public :: slice_all
+  public :: slice_range
+  public :: slice_r64
+  public :: slice_spec
   public :: sin_r64
   public :: sqrt_r64
   public :: subtract_r64
   public :: sum_r64
+  public :: squeeze_r64
+  public :: swapaxes_r64
+  public :: transpose_r64
+  public :: view_descriptor_r64
   public :: zeros_r64
 end module fenum

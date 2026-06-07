@@ -1,7 +1,7 @@
 program first_vertical_slice
   use iso_fortran_env, only: int32, int64, real64
-  use fenum, only: FENUM_STATUS_OK, add_r64, asarray_r64, fenum_status, &
-    full_r64, ndarray_r64, sum_r64, zeros_r64
+  use fenum, only: FENUM_STATUS_OK, add_r64, fenum_status, full_r64, &
+    ndarray_r64, reshape_r64, sum_r64, zeros_r64
 
   implicit none
 
@@ -21,10 +21,8 @@ program first_vertical_slice
   c = add_r64(a, b, status)
   call require_ok(status, "add_r64")
 
-  ! WP08 owns real reshape/view behavior. For the first executable vertical
-  ! slice, make the reshaped step explicit as a C-order copy.
-  d = asarray_r64(c%data, [3_int64, 2_int64], status=status)
-  call require_ok(status, "temporary reshape copy")
+  d = reshape_r64(c, [3_int64, 2_int64], status=status)
+  call require_ok(status, "reshape_r64")
 
   e = sum_r64(d, axis0=1_int32, status=status)
   call require_ok(status, "sum_r64")

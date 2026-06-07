@@ -13,7 +13,7 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts are generated on the mission coordination branch; completed changes must merge back into main.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T030
 - T031
@@ -33,10 +33,7 @@ execution_mode: code_change
 owned_files:
 - docs/DTYPE_SUPPORT.md
 - docs/COMPLEX_DTYPE_PLAN.md
-- README.md
-- STYLE_GUIDE.md
-- AGENTS.md
-- kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2/**
+- docs/DTYPE_VALIDATION.md
 tags: []
 ---
 

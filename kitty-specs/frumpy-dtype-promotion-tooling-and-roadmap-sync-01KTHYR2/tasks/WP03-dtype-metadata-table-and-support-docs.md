@@ -10,7 +10,7 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts are generated on the mission coordination branch; completed changes must merge back into main.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T010
 - T011
@@ -29,7 +29,7 @@ execution_mode: code_change
 owned_files:
 - src/frumpy_dtypes.f90
 - test/test_dtypes.f90
-- docs/DTYPE_SUPPORT.md
+- docs/DTYPE_METADATA.md
 tags: []
 ---
 
@@ -52,7 +52,7 @@ with support status and documentation.
 - T011 Track dtype IDs, names, byte sizes, support state, and planned/unsupported status messages.
 - T012 Keep `r64` supported while making non-r64 support claims explicit.
 - T013 Extend Fortran dtype tests for table lookup and unsupported statuses.
-- T014 Start `docs/DTYPE_SUPPORT.md` with supported, planned, and unsupported dtype categories.
+- T014 Start `docs/DTYPE_METADATA.md` with dtype IDs, support states, and unsupported dtype categories.
 
 ## Validation
 
@@ -61,5 +61,5 @@ landed yet. Include focused dtype metadata tests.
 
 ## Review Guidance
 
-Reject if docs claim non-r64 operations work before descriptors, promotion, and
-casting support actually land.
+Reject if metadata docs claim non-r64 operations work before descriptors,
+promotion, and casting support actually land.

@@ -9,7 +9,7 @@ requirement_refs:
 tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
-branch_strategy: Planning artifacts are generated on the mission coordination branch; completed changes must merge back into main.
+branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
 subtasks:
 - T001
 - T002
@@ -29,8 +29,7 @@ owned_files:
 - Makefile
 - fpm.toml
 - bench/**
-- README.md
-- AGENTS.md
+- docs/BUILDING.md
 - .gitignore
 tags: []
 ---
@@ -53,7 +52,7 @@ validation surface that later dtype WPs can depend on.
 - T002 Encode the current strict `gfortran` source order and test programs in the Makefile.
 - T003 Add `fpm.toml` metadata or a documented limitation if fpm cannot cleanly run the current standalone tests.
 - T004 Add or reserve `bench/` with a minimal benchmark/readme surface.
-- T005 Update contributor docs with the canonical local validation commands.
+- T005 Add `docs/BUILDING.md` with the canonical local validation commands.
 
 ## Validation
 

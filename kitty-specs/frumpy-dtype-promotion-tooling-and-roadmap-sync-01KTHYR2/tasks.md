@@ -18,13 +18,13 @@ replacement work in this mission.
 
 **Dependencies**: None
 **Requirements Refs**: FR-001, FR-002, FR-012
-**Owned Files**: Makefile, fpm.toml, bench/**, README.md, AGENTS.md, .gitignore
+**Owned Files**: Makefile, fpm.toml, bench/**, docs/BUILDING.md, .gitignore
 **Subtasks**: T001, T002, T003, T004, T005
 - [ ] T001 Add a `Makefile` with `build`, `test`, `python-test`, `validate`, and `clean` targets.
 - [ ] T002 Encode the current strict `gfortran` source order and test programs in the Makefile.
 - [ ] T003 Add `fpm.toml` metadata or a documented limitation if fpm cannot cleanly run the current standalone tests.
 - [ ] T004 Add or reserve `bench/` with a minimal benchmark/readme surface.
-- [ ] T005 Update contributor docs with the canonical local validation commands.
+- [ ] T005 Add `docs/BUILDING.md` with the canonical local validation commands.
 
 ---
 
@@ -32,7 +32,7 @@ replacement work in this mission.
 
 **Dependencies**: WP01
 **Requirements Refs**: FR-003
-**Owned Files**: .kittify/charter/charter.md, PROJECT_PLAN.md, STYLE_GUIDE.md, AGENTS.md, kitty-specs/**/plan.md, kitty-specs/**/tasks.md
+**Owned Files**: .kittify/charter/charter.md, PROJECT_PLAN.md, STYLE_GUIDE.md, AGENTS.md, README.md, SPEC_KITTY_HANDOFF.md
 **Subtasks**: T006, T007, T008, T009
 - [ ] T006 Classify current-facing Frumpy names versus historical Fenum identifiers before editing.
 - [ ] T007 Update current-facing docs and active planning artifacts to use `frumpy_*` module paths.
@@ -45,13 +45,13 @@ replacement work in this mission.
 
 **Dependencies**: WP01
 **Requirements Refs**: FR-004, FR-009, FR-011
-**Owned Files**: src/frumpy_dtypes.f90, test/test_dtypes.f90, docs/DTYPE_SUPPORT.md
+**Owned Files**: src/frumpy_dtypes.f90, test/test_dtypes.f90, docs/DTYPE_METADATA.md
 **Subtasks**: T010, T011, T012, T013, T014
 - [ ] T010 Expand `frumpy_dtypes` into a table-backed dtype metadata source.
 - [ ] T011 Track dtype IDs, names, byte sizes, support state, and planned/unsupported status messages.
 - [ ] T012 Keep `r64` supported while making non-r64 support claims explicit.
 - [ ] T013 Extend Fortran dtype tests for table lookup and unsupported statuses.
-- [ ] T014 Start `docs/DTYPE_SUPPORT.md` with supported, planned, and unsupported dtype categories.
+- [ ] T014 Start `docs/DTYPE_METADATA.md` with dtype IDs, support states, and unsupported dtype categories.
 
 ---
 
@@ -59,13 +59,13 @@ replacement work in this mission.
 
 **Dependencies**: WP03
 **Requirements Refs**: FR-005, FR-006, FR-009, FR-010
-**Owned Files**: src/frumpy_promotion.f90, test/test_dtype_promotion.f90, python/tests/test_numpy_dtype_promotion.py, docs/DTYPE_SUPPORT.md
+**Owned Files**: src/frumpy_promotion.f90, test/test_dtype_promotion.f90, python/tests/test_numpy_dtype_promotion.py, docs/DTYPE_PROMOTION.md
 **Subtasks**: T015, T016, T017, T018, T019
 - [ ] T015 Add `frumpy_promotion` with a table-driven promotion API for the selected dtype subset.
 - [ ] T016 Define unsupported promotion status behavior for pairs outside the selected subset.
 - [ ] T017 Add Fortran promotion tests for supported, unsupported, scalar-like, and identity pairs.
 - [ ] T018 Add Python NumPy fixtures for expected promotion behavior and record the observed NumPy version.
-- [ ] T019 Document the supported promotion subset and any intentional NumPy differences.
+- [ ] T019 Document the supported promotion subset and any intentional NumPy differences in `docs/DTYPE_PROMOTION.md`.
 
 ---
 
@@ -73,13 +73,13 @@ replacement work in this mission.
 
 **Dependencies**: WP04
 **Requirements Refs**: FR-007, FR-009, FR-010
-**Owned Files**: src/frumpy_casting.f90, test/test_casting.f90, python/tests/test_numpy_dtype_promotion.py, docs/DTYPE_SUPPORT.md
+**Owned Files**: src/frumpy_casting.f90, test/test_casting.f90, python/tests/test_numpy_casting.py, docs/CASTING_POLICY.md
 **Subtasks**: T020, T021, T022, T023, T024
 - [ ] T020 Add `frumpy_casting` with explicit cast/copy kernels for the selected dtype pairs.
 - [ ] T021 Separate promotion decisions from cast execution.
 - [ ] T022 Define status behavior for lossy, overflowing, or unsupported casts.
 - [ ] T023 Add Fortran cast tests for supported and rejected casts.
-- [ ] T024 Add or extend Python fixtures for NumPy cast expectations.
+- [ ] T024 Add Python fixtures for NumPy cast expectations.
 
 ---
 
@@ -101,7 +101,7 @@ replacement work in this mission.
 
 **Dependencies**: WP02, WP04, WP05, WP06
 **Requirements Refs**: FR-003, FR-011, FR-012
-**Owned Files**: docs/DTYPE_SUPPORT.md, docs/COMPLEX_DTYPE_PLAN.md, README.md, STYLE_GUIDE.md, AGENTS.md, kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2/**
+**Owned Files**: docs/DTYPE_SUPPORT.md, docs/COMPLEX_DTYPE_PLAN.md, docs/DTYPE_VALIDATION.md
 **Subtasks**: T030, T031, T032, T033, T034, T035
 - [ ] T030 Write `docs/COMPLEX_DTYPE_PLAN.md`.
 - [ ] T031 Document object dtype as intentionally unsupported.

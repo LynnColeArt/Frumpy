@@ -1,13 +1,13 @@
 !> Initial r64 elementwise kernels with strided broadcast fallbacks.
-module fenum_elementwise_r64
+module frumpy_elementwise_r64
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_broadcast, only: broadcast_plan, broadcast_plan_r64
-  use fenum_constants, only: FENUM_ORDER_C
-  use fenum_constructors_r64, only: empty_r64
-  use fenum_ndarray_r64, only: ndarray_r64
-  use fenum_statuses, only: FENUM_STATUS_ALLOCATION_FAILED, &
-    FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
-    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status, set_status
+  use frumpy_broadcast, only: broadcast_plan, broadcast_plan_r64
+  use frumpy_constants, only: FRUMPY_ORDER_C
+  use frumpy_constructors_r64, only: empty_r64
+  use frumpy_ndarray_r64, only: ndarray_r64
+  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
+    FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
+    FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status, set_status
 
   implicit none
 
@@ -42,7 +42,7 @@ contains
   function add_r64(lhs, rhs, status) result(array)
     type(ndarray_r64), intent(in) :: lhs
     type(ndarray_r64), intent(in) :: rhs
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = binary_r64(lhs, rhs, OP_ADD, status)
@@ -51,7 +51,7 @@ contains
   function subtract_r64(lhs, rhs, status) result(array)
     type(ndarray_r64), intent(in) :: lhs
     type(ndarray_r64), intent(in) :: rhs
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = binary_r64(lhs, rhs, OP_SUBTRACT, status)
@@ -60,7 +60,7 @@ contains
   function multiply_r64(lhs, rhs, status) result(array)
     type(ndarray_r64), intent(in) :: lhs
     type(ndarray_r64), intent(in) :: rhs
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = binary_r64(lhs, rhs, OP_MULTIPLY, status)
@@ -69,7 +69,7 @@ contains
   function divide_r64(lhs, rhs, status) result(array)
     type(ndarray_r64), intent(in) :: lhs
     type(ndarray_r64), intent(in) :: rhs
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = binary_r64(lhs, rhs, OP_DIVIDE, status)
@@ -77,7 +77,7 @@ contains
 
   function negate_r64(source, status) result(array)
     type(ndarray_r64), intent(in) :: source
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = unary_r64(source, OP_NEGATE, status)
@@ -85,7 +85,7 @@ contains
 
   function abs_r64(source, status) result(array)
     type(ndarray_r64), intent(in) :: source
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = unary_r64(source, OP_ABS, status)
@@ -93,7 +93,7 @@ contains
 
   function exp_r64(source, status) result(array)
     type(ndarray_r64), intent(in) :: source
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = unary_r64(source, OP_EXP, status)
@@ -101,7 +101,7 @@ contains
 
   function log_r64(source, status) result(array)
     type(ndarray_r64), intent(in) :: source
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = unary_r64(source, OP_LOG, status)
@@ -109,7 +109,7 @@ contains
 
   function sqrt_r64(source, status) result(array)
     type(ndarray_r64), intent(in) :: source
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = unary_r64(source, OP_SQRT, status)
@@ -117,7 +117,7 @@ contains
 
   function sin_r64(source, status) result(array)
     type(ndarray_r64), intent(in) :: source
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = unary_r64(source, OP_SIN, status)
@@ -125,7 +125,7 @@ contains
 
   function cos_r64(source, status) result(array)
     type(ndarray_r64), intent(in) :: source
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = unary_r64(source, OP_COS, status)
@@ -135,10 +135,10 @@ contains
     type(ndarray_r64), intent(in) :: lhs
     type(ndarray_r64), intent(in) :: rhs
     integer(int32), intent(in) :: op
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
     type(broadcast_plan) :: plan
-    type(fenum_status) :: local_status
+    type(frumpy_status) :: local_status
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1
     integer(int64) :: lhs_position
@@ -146,7 +146,7 @@ contains
 
     if (.not. has_accessible_storage(lhs) .or. &
         .not. has_accessible_storage(rhs)) then
-      call set_optional_status(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+      call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
         "binary r64 kernels require accessible source storage")
       return
     end if
@@ -157,28 +157,28 @@ contains
       return
     end if
 
-    array = empty_r64(plan%shape, FENUM_ORDER_C, local_status)
+    array = empty_r64(plan%shape, FRUMPY_ORDER_C, local_status)
     if (local_status%is_failure()) then
       call set_optional_status_value(status, local_status)
       return
     end if
 
     if (array%size() == 0_int64) then
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
     if (plan%rank == 0_int32) then
       if (.not. valid_position(lhs, lhs%offset) .or. &
           .not. valid_position(rhs, rhs%offset)) then
-        call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+        call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
           "binary scalar source offset is out of bounds")
         return
       end if
 
       array%data(1) = apply_binary(op, lhs%data(lhs%offset), &
         rhs%data(rhs%offset))
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -194,7 +194,7 @@ contains
 
       if (.not. valid_position(lhs, lhs_position) .or. &
           .not. valid_position(rhs, rhs_position)) then
-        call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+        call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
           "binary broadcast source position is out of bounds")
         return
       end if
@@ -204,51 +204,51 @@ contains
       call advance_c_order_index(index0, plan%shape)
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function binary_r64
 
   function unary_r64(source, op, status) result(array)
     type(ndarray_r64), intent(in) :: source
     integer(int32), intent(in) :: op
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
-    type(fenum_status) :: local_status
+    type(frumpy_status) :: local_status
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1
     integer(int64) :: source_position
 
     if (.not. has_accessible_storage(source)) then
-      call set_optional_status(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+      call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
         "unary r64 kernels require accessible source storage")
       return
     end if
 
     if (.not. allocated(source%shape) .or. .not. allocated(source%strides)) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "unary r64 source descriptor has incomplete metadata")
       return
     end if
 
-    array = empty_r64(source%shape, FENUM_ORDER_C, local_status)
+    array = empty_r64(source%shape, FRUMPY_ORDER_C, local_status)
     if (local_status%is_failure()) then
       call set_optional_status_value(status, local_status)
       return
     end if
 
     if (array%size() == 0_int64) then
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
     if (source%rank == 0_int32) then
       if (.not. valid_position(source, source%offset)) then
-        call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+        call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
           "unary scalar source offset is out of bounds")
         return
       end if
 
       array%data(1) = apply_unary(op, source%data(source%offset))
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -262,7 +262,7 @@ contains
       source_position = storage_position(source, source%strides, index0)
 
       if (.not. valid_position(source, source_position)) then
-        call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+        call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
           "unary source position is out of bounds")
         return
       end if
@@ -271,7 +271,7 @@ contains
       call advance_c_order_index(index0, source%shape)
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function unary_r64
 
   real(real64) function apply_binary(op, lhs, rhs) result(value)
@@ -359,23 +359,23 @@ contains
   logical function allocate_index_vector(index0, rank, status)
     integer(int64), allocatable, intent(out) :: index0(:)
     integer(int32), intent(in) :: rank
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
     integer :: alloc_stat
 
     allocate(index0(rank), stat=alloc_stat)
     if (alloc_stat /= 0) then
       allocate_index_vector = .false.
-      call set_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "elementwise index vector allocation failed")
       return
     end if
 
     allocate_index_vector = .true.
-    call set_status(status, FENUM_STATUS_OK)
+    call set_status(status, FRUMPY_STATUS_OK)
   end function allocate_index_vector
 
   subroutine set_optional_status(status, code, message)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32), intent(in) :: code
     character(len=*), intent(in), optional :: message
 
@@ -389,11 +389,11 @@ contains
   end subroutine set_optional_status
 
   subroutine set_optional_status_value(status, source_status)
-    type(fenum_status), intent(out), optional :: status
-    type(fenum_status), intent(in) :: source_status
+    type(frumpy_status), intent(out), optional :: status
+    type(frumpy_status), intent(in) :: source_status
 
     if (.not. present(status)) return
 
     status = source_status
   end subroutine set_optional_status_value
-end module fenum_elementwise_r64
+end module frumpy_elementwise_r64

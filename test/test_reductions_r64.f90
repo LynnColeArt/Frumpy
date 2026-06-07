@@ -1,13 +1,13 @@
 program test_reductions_r64
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_constructors_r64, only: asarray_r64, empty_r64
-  use fenum_constants, only: FENUM_ORDER_F
-  use fenum_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64
-  use fenum_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
+  use frumpy_constructors_r64, only: asarray_r64, empty_r64
+  use frumpy_constants, only: FRUMPY_ORDER_F
+  use frumpy_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64
+  use frumpy_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
     min_r64, prod_r64, sum_r64
-  use fenum_statuses, only: FENUM_STATUS_INVALID_AXIS, FENUM_STATUS_OK, &
-    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_AXIS, FRUMPY_STATUS_OK, &
+    FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status
 
   implicit none
 
@@ -25,7 +25,7 @@ program test_reductions_r64
 contains
 
   subroutine test_axis0_validation_helper()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     integer(int32) :: dim1
 
     dim1 = axis0_to_dim1(2_int32, 3_int32, status)
@@ -33,16 +33,16 @@ contains
     call assert_equal_int32(dim1, 3_int32, "valid axis0 converts to dim1")
 
     dim1 = axis0_to_dim1(-1_int32, 3_int32, status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_AXIS, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_AXIS, &
       "negative axis0 status")
 
     dim1 = axis0_to_dim1(3_int32, 3_int32, status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_AXIS, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_AXIS, &
       "axis0 equal to rank status")
   end subroutine test_axis0_validation_helper
 
   subroutine test_axis_reductions()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: result
 
@@ -84,7 +84,7 @@ contains
   end subroutine test_axis_reductions
 
   subroutine test_keepdims_and_all_axes()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: result
 
@@ -112,7 +112,7 @@ contains
   end subroutine test_keepdims_and_all_axes
 
   subroutine test_scalar_reductions()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: scalar
     type(ndarray_r64) :: result
 
@@ -126,12 +126,12 @@ contains
     call assert_close_vector(result%data, [7.0_real64], "scalar sum data")
 
     result = sum_r64(scalar, axis0=0_int32, status=status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_AXIS, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_AXIS, &
       "scalar axis0 reduction status")
   end subroutine test_scalar_reductions
 
   subroutine test_empty_reduction_behavior()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: empty_matrix
     type(ndarray_r64) :: result
 
@@ -155,7 +155,7 @@ contains
     call assert_all_nan(result%data, "empty mean axis0=0 data")
 
     result = min_r64(empty_matrix, axis0=0_int32, status=status)
-    call assert_status_code(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+    call assert_status_code(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
       "empty min axis0=0 status")
 
     result = max_r64(empty_matrix, axis0=1_int32, status=status)
@@ -167,13 +167,13 @@ contains
   end subroutine test_empty_reduction_behavior
 
   subroutine test_strided_reduction_fallbacks()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: result
 
     source = asarray_r64([1.0_real64, 2.0_real64, 3.0_real64, &
         4.0_real64, 5.0_real64, 6.0_real64], [2_int64, 3_int64], &
-      FENUM_ORDER_F, status)
+      FRUMPY_ORDER_F, status)
     call assert_status_ok(status, "Fortran order source constructor")
 
     result = sum_r64(source, axis0=0_int32, status=status)
@@ -196,30 +196,30 @@ contains
   end subroutine test_strided_reduction_fallbacks
 
   subroutine test_reduction_status_paths()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: result
 
     source = matrix_source(status)
 
     result = sum_r64(source, axis0=2_int32, status=status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_AXIS, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_AXIS, &
       "invalid high axis0 reduction status")
 
     result = sum_r64(source, axis0=-1_int32, status=status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_AXIS, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_AXIS, &
       "invalid negative axis0 reduction status")
 
     source = metadata_descriptor_r64([2_int64], [1_int64], 1_int64, status)
     call assert_status_ok(status, "metadata descriptor status")
 
     result = sum_r64(source, status=status)
-    call assert_status_code(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+    call assert_status_code(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
       "missing storage reduction status")
   end subroutine test_reduction_status_paths
 
   function matrix_source(status) result(source)
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
     type(ndarray_r64) :: source
 
     source = asarray_r64([1.0_real64, 2.0_real64, 3.0_real64, &
@@ -229,14 +229,14 @@ contains
   end function matrix_source
 
   subroutine assert_status_ok(status, message)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     character(len=*), intent(in) :: message
 
-    call assert_status_code(status, FENUM_STATUS_OK, message)
+    call assert_status_code(status, FRUMPY_STATUS_OK, message)
   end subroutine assert_status_ok
 
   subroutine assert_status_code(status, expected_code, message)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     integer(int32), intent(in) :: expected_code
     character(len=*), intent(in) :: message
 

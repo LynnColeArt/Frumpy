@@ -1,13 +1,13 @@
 program test_elementwise_r64
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_constructors_r64, only: asarray_r64, empty_r64
-  use fenum_constants, only: FENUM_ORDER_F
-  use fenum_elementwise_r64, only: abs_r64, add_r64, cos_r64, divide_r64, &
+  use frumpy_constructors_r64, only: asarray_r64, empty_r64
+  use frumpy_constants, only: FRUMPY_ORDER_F
+  use frumpy_elementwise_r64, only: abs_r64, add_r64, cos_r64, divide_r64, &
     exp_r64, log_r64, multiply_r64, negate_r64, sin_r64, sqrt_r64, &
     subtract_r64
-  use fenum_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64
-  use fenum_statuses, only: FENUM_STATUS_INVALID_SHAPE, &
-    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, FENUM_STATUS_OK, fenum_status
+  use frumpy_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_SHAPE, &
+    FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, FRUMPY_STATUS_OK, frumpy_status
 
   implicit none
 
@@ -26,7 +26,7 @@ program test_elementwise_r64
 contains
 
   subroutine test_binary_broadcast_kernels()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: lhs
     type(ndarray_r64) :: rhs
     type(ndarray_r64) :: result
@@ -68,7 +68,7 @@ contains
   end subroutine test_binary_broadcast_kernels
 
   subroutine test_scalar_broadcast_kernel()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: scalar
     type(ndarray_r64) :: vector
     type(ndarray_r64) :: result
@@ -89,7 +89,7 @@ contains
   end subroutine test_scalar_broadcast_kernel
 
   subroutine test_zero_extent_broadcast_kernel()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: lhs
     type(ndarray_r64) :: rhs
     type(ndarray_r64) :: result
@@ -110,14 +110,14 @@ contains
   end subroutine test_zero_extent_broadcast_kernel
 
   subroutine test_fortran_order_strided_fallback()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: lhs
     type(ndarray_r64) :: rhs
     type(ndarray_r64) :: result
 
     lhs = asarray_r64([1.0_real64, 2.0_real64, 3.0_real64, &
         4.0_real64, 5.0_real64, 6.0_real64], [2_int64, 3_int64], &
-      FENUM_ORDER_F, status)
+      FRUMPY_ORDER_F, status)
     call assert_status_ok(status, "Fortran lhs constructor")
 
     rhs = asarray_r64([10.0_real64, 20.0_real64], [2_int64, 1_int64], &
@@ -132,7 +132,7 @@ contains
   end subroutine test_fortran_order_strided_fallback
 
   subroutine test_manual_negative_stride_fallback()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: result
 
@@ -152,7 +152,7 @@ contains
   end subroutine test_manual_negative_stride_fallback
 
   subroutine test_unary_kernels()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: result
 
@@ -200,7 +200,7 @@ contains
   end subroutine test_unary_kernels
 
   subroutine test_elementwise_status_paths()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: lhs
     type(ndarray_r64) :: rhs
     type(ndarray_r64) :: result
@@ -214,25 +214,25 @@ contains
     call assert_status_ok(status, "status rhs constructor")
 
     result = add_r64(lhs, rhs, status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_SHAPE, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, &
       "incompatible add status")
 
     rhs = metadata_descriptor_r64([2_int64], [1_int64], 1_int64, status)
     call assert_status_ok(status, "metadata descriptor status")
     result = add_r64(lhs, rhs, status)
-    call assert_status_code(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+    call assert_status_code(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
       "missing storage add status")
   end subroutine test_elementwise_status_paths
 
   subroutine assert_status_ok(status, message)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     character(len=*), intent(in) :: message
 
-    call assert_status_code(status, FENUM_STATUS_OK, message)
+    call assert_status_code(status, FRUMPY_STATUS_OK, message)
   end subroutine assert_status_ok
 
   subroutine assert_status_code(status, expected_code, message)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     integer(int32), intent(in) :: expected_code
     character(len=*), intent(in) :: message
 

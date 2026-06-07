@@ -1,6 +1,6 @@
-# Fenum Coding Standards and Style Guide
+# Frumpy Coding Standards and Style Guide
 
-Fenum is a NumPy-compatible numerical array library written in Fortran 2018.
+Frumpy is a NumPy-compatible numerical array library written in Fortran 2018.
 
 The goal is not to make "Fortran that feels like Python." The goal is to make
 the same array semantics NumPy users rely on, implemented with Fortran's
@@ -13,7 +13,7 @@ https://raw.githubusercontent.com/LynnColeArt/glamin/refs/heads/main/STYLE_GUIDE
 
 ## Core Principles
 
-1. **NumPy compatibility is a contract.** If Fenum behaves differently from
+1. **NumPy compatibility is a contract.** If Frumpy behaves differently from
    NumPy, the difference must be intentional, documented, and tested.
 2. **Strong typing always.** No implicit kinds. No precision roulette. No
    hidden integer-width assumptions.
@@ -37,10 +37,10 @@ https://raw.githubusercontent.com/LynnColeArt/glamin/refs/heads/main/STYLE_GUIDE
 Every module follows the same shape unless a comment explains the exception.
 
 ```fortran
-module fenum_example
+module frumpy_example
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_constants, only: FENUM_MAX_RANK
-  use fenum_statuses, only: fenum_status
+  use frumpy_constants, only: FRUMPY_MAX_RANK
+  use frumpy_statuses, only: frumpy_status
 
   implicit none
 
@@ -68,18 +68,18 @@ contains
 
   function zeros_r64(shape, status) result(array)
     integer(int64), intent(in) :: shape(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     ! Implementation here.
   end function zeros_r64
 
-end module fenum_example
+end module frumpy_example
 ```
 
 Required order:
 
-1. `module fenum_name`
+1. `module frumpy_name`
 2. `use` statements, with `only:` lists
 3. `implicit none`
 4. `private`
@@ -93,11 +93,11 @@ Required order:
 
 ## Naming Conventions
 
-Fenum names should describe array semantics, not vague computation.
+Frumpy names should describe array semantics, not vague computation.
 
 Avoid these:
 
-| Weak name | Better Fenum name |
+| Weak name | Better Frumpy name |
 | --- | --- |
 | `process_data` | `apply_strided_binary_kernel_r64` |
 | `get_shape` | `copy_shape_vector` |
@@ -108,24 +108,24 @@ Avoid these:
 ### Modules
 
 - Use `snake_case`.
-- Prefix project modules with `fenum_`.
+- Prefix project modules with `frumpy_`.
 - Name the responsibility, not the bucket.
 
 Good:
 
 ```fortran
-fenum_ndarray_r64
-fenum_broadcast
-fenum_strides
-fenum_reductions_r64
-fenum_linalg_lapack
+frumpy_ndarray_r64
+frumpy_broadcast
+frumpy_strides
+frumpy_reductions_r64
+frumpy_linalg_lapack
 ```
 
 Bad:
 
 ```fortran
-fenum_utils
-fenum_helpers
+frumpy_utils
+frumpy_helpers
 array_stuff
 misc_math
 ```
@@ -136,7 +136,7 @@ misc_math
 - Array descriptor types use dtype suffixes: `ndarray_r64`, `ndarray_i64`.
 - Planning and metadata types name the concept: `broadcast_plan`,
   `reduction_plan`, `slice_spec`.
-- Status and error types use direct names: `fenum_status`, `fenum_error`.
+- Status and error types use direct names: `frumpy_status`, `frumpy_error`.
 
 Good:
 
@@ -215,7 +215,7 @@ matmul
 Good:
 
 ```fortran
-integer(int32), parameter :: FENUM_MAX_RANK = 32_int32
+integer(int32), parameter :: FRUMPY_MAX_RANK = 32_int32
 integer(int64), parameter :: BYTE_SIZE_R64 = 8_int64
 integer(int32), parameter :: DEFAULT_ALIGNMENT_BYTES = 64_int32
 ```
@@ -351,7 +351,7 @@ Library procedures should not use `error stop` for normal invalid input.
 Preferred pattern:
 
 ```fortran
-type(fenum_status), intent(out), optional :: status
+type(frumpy_status), intent(out), optional :: status
 ```
 
 Rules:
@@ -361,17 +361,17 @@ Rules:
 - If `status` is absent, use a documented default behavior for public APIs.
 - Tests and examples may use `error stop`.
 - Internal assertions may use a dedicated invariant helper, but only for states
-  that indicate a Fenum bug rather than user input.
+  that indicate a Frumpy bug rather than user input.
 
 Status names should describe what happened:
 
 ```fortran
-FENUM_STATUS_OK
-FENUM_STATUS_INVALID_SHAPE
-FENUM_STATUS_INVALID_AXIS
-FENUM_STATUS_ALLOC_FAILED
-FENUM_STATUS_OVERFLOW
-FENUM_STATUS_UNSUPPORTED_DTYPE
+FRUMPY_STATUS_OK
+FRUMPY_STATUS_INVALID_SHAPE
+FRUMPY_STATUS_INVALID_AXIS
+FRUMPY_STATUS_ALLOC_FAILED
+FRUMPY_STATUS_OVERFLOW
+FRUMPY_STATUS_UNSUPPORTED_DTYPE
 ```
 
 
@@ -381,7 +381,7 @@ Public APIs should be small, stable, and NumPy-shaped.
 
 Rules:
 
-- Prefer generic names in the umbrella `fenum` module.
+- Prefer generic names in the umbrella `frumpy` module.
 - Keep dtype-specific procedures available in implementation modules.
 - Do not expose internal planning types unless users need them.
 - Preserve NumPy argument names where practical: `shape`, `axis`, `dtype`,
@@ -440,7 +440,7 @@ function reshape_r64(array, new_shape, status) result(reshaped)
 
 ## Testing Rules
 
-Fenum tests should prove both Fortran invariants and NumPy compatibility.
+Frumpy tests should prove both Fortran invariants and NumPy compatibility.
 
 Fortran tests cover:
 
@@ -497,17 +497,17 @@ end type strided_loop_plan
 Every intentional NumPy departure must include:
 
 - The NumPy behavior.
-- The Fenum behavior.
-- Why Fenum differs.
+- The Frumpy behavior.
+- Why Frumpy differs.
 - Which tests lock in the decision.
 
 Use this format:
 
 ```text
-Decision: Fenum does not support object dtype.
+Decision: Frumpy does not support object dtype.
 NumPy behavior: object arrays can store arbitrary Python objects.
-Fenum behavior: object dtype is unsupported.
-Reason: Fenum's core is numeric Fortran storage, not Python object ownership.
+Frumpy behavior: object dtype is unsupported.
+Reason: Frumpy's core is numeric Fortran storage, not Python object ownership.
 Tests: test_unsupported_object_dtype_status
 ```
 
@@ -557,6 +557,6 @@ Testing:
 
 ## Final Rule
 
-Fenum should feel boring in the best possible way: precise, fast, predictable,
+Frumpy should feel boring in the best possible way: precise, fast, predictable,
 and compatible enough that a NumPy user only notices when the Fortran engine
 quietly does the work well.

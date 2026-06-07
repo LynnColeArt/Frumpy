@@ -1,12 +1,12 @@
-# Fenum
+# Frumpy
 
-Fenum is a Fortran 2018 NumPy-compatible array engine.
+Frumpy is a Fortran 2018 NumPy-compatible array engine.
 
 It exists because numerical software does not have to be a C++ template jungle
 or a Python wrapper labyrinth. It can be direct, readable, explicit, and still
 fast.
 
-Fenum's goal is to provide a NumPy-shaped foundation for native Fortran array
+Frumpy's goal is to provide a NumPy-shaped foundation for native Fortran array
 programming: an ndarray substrate with familiar semantics, explicit memory
 behavior, and source code that remains understandable when you open it.
 
@@ -15,7 +15,7 @@ behavior, and source code that remains understandable when you open it.
 
 Fortran is not a nostalgia choice here. It is the point.
 
-We are building Fenum in Fortran because:
+We are building Frumpy in Fortran because:
 
 - Fortran is comfortable for this kind of numerical work.
 - Fortran's array-oriented model makes dense numerical code easy to follow.
@@ -25,14 +25,14 @@ We are building Fenum in Fortran because:
 - The language has earned its place in numerical computing, and it still has
   things to say.
 
-Fenum is a deliberate argument:
+Frumpy is a deliberate argument:
 
 > Modern numerical infrastructure can be fast, explicit, and humane.
 
 
-## What Fenum Wants To Be
+## What Frumpy Wants To Be
 
-Fenum is not trying to make Fortran feel like Python. It is trying to implement
+Frumpy is not trying to make Fortran feel like Python. It is trying to implement
 the array semantics NumPy users already understand, using Fortran's strengths.
 
 That means:
@@ -55,7 +55,7 @@ there.
 The intended architecture is:
 
 ```text
-NumPy-compatible Fenum API
+NumPy-compatible Frumpy API
         |
 Fortran 2018 ndarray runtime
         |
@@ -66,7 +66,7 @@ BLAS/LAPACK and native Fortran kernels
 C ABI and Python bindings later
 ```
 
-Fenum is scoped to NumPy right now. Future projects may find it useful as a
+Frumpy is scoped to NumPy right now. Future projects may find it useful as a
 numerical floor, but Torch compatibility, Diffusers support, autograd, model
 loading, and GPU runtime design are not part of the current project scope.
 
@@ -75,7 +75,7 @@ loading, and GPU runtime design are not part of the current project scope.
 
 NumPy compatibility is a contract.
 
-If Fenum behaves differently from NumPy, the difference must be intentional,
+If Frumpy behaves differently from NumPy, the difference must be intentional,
 documented, and tested. This is especially important for:
 
 - Broadcasting.
@@ -87,7 +87,7 @@ documented, and tested. This is especially important for:
 - C-order and Fortran-order memory layout.
 - Error behavior.
 
-Fenum's public semantics should be NumPy-shaped even when the implementation is
+Frumpy's public semantics should be NumPy-shaped even when the implementation is
 deeply Fortran-native.
 
 
@@ -110,7 +110,7 @@ The short version:
 
 ## Status
 
-Fenum is at the beginning.
+Frumpy is at the beginning.
 
 The current focus is project definition and the ndarray foundation:
 

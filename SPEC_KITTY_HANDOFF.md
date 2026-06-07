@@ -1,14 +1,14 @@
-# Spec Kitty Handoff: Fenum NumPy-Compatible Array Engine
+# Spec Kitty Handoff: Frumpy NumPy-Compatible Array Engine
 
 This document is the mission brief for Spec Kitty.
 
 Mission name:
 
-- Fenum NumPy-compatible array engine
+- Frumpy NumPy-compatible array engine
 
 Suggested mission slug:
 
-- `fenum-numpy-compatible-array-engine`
+- `frumpy-numpy-compatible-array-engine`
 
 Mission type:
 
@@ -17,14 +17,14 @@ Mission type:
 
 ## Product Intent
 
-Fenum is a Fortran 2018 NumPy-compatible array engine.
+Frumpy is a Fortran 2018 NumPy-compatible array engine.
 
 The project should implement NumPy-shaped ndarray behavior in readable modern
 Fortran. The goal is not to imitate Python syntax. The goal is to provide the
 same array semantics NumPy users rely on: shape behavior, dtype handling,
 broadcasting, views, copies, strides, reductions, indexing, and linear algebra.
 
-Fenum should make the point that modern numerical infrastructure can be fast,
+Frumpy should make the point that modern numerical infrastructure can be fast,
 explicit, humane, and easy to follow.
 
 
@@ -42,7 +42,7 @@ Spec Kitty should treat these files as authoritative:
 
 The active scope is NumPy only.
 
-Fenum owns:
+Frumpy owns:
 
 - NumPy-compatible ndarray semantics.
 - Shape, stride, dtype, memory, view, and copy behavior.
@@ -70,12 +70,12 @@ Do not include these in the current mission scope:
 - GPU runtime design.
 - A complete SciPy replacement.
 
-Future projects may use Fenum. They do not belong inside this mission.
+Future projects may use Frumpy. They do not belong inside this mission.
 
 
 ## Mission Shape
 
-Give Spec Kitty the full Fenum NumPy replacement as one long-horizon mission.
+Give Spec Kitty the full Frumpy NumPy replacement as one long-horizon mission.
 Do not split the vision into many independent missions yet.
 
 The mission should decompose the work into phased, dependency-aware work

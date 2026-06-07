@@ -1,10 +1,10 @@
 !> NumPy-style trailing-dimension broadcast planning.
-module fenum_broadcast
+module frumpy_broadcast
   use iso_fortran_env, only: int32, int64
-  use fenum_ndarray_r64, only: ndarray_r64
-  use fenum_shape, only: element_count, is_valid_shape
-  use fenum_statuses, only: FENUM_STATUS_ALLOCATION_FAILED, &
-    FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, fenum_status, set_status
+  use frumpy_ndarray_r64, only: ndarray_r64
+  use frumpy_shape, only: element_count, is_valid_shape
+  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
+    FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, frumpy_status, set_status
 
   implicit none
 
@@ -27,7 +27,7 @@ contains
   function broadcast_plan_r64(lhs, rhs, status) result(plan)
     type(ndarray_r64), intent(in) :: lhs
     type(ndarray_r64), intent(in) :: rhs
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(broadcast_plan) :: plan
     integer(int32) :: result_rank
     integer(int32) :: result_dim1
@@ -39,14 +39,14 @@ contains
 
     if (.not. has_descriptor_metadata(lhs) .or. &
         .not. has_descriptor_metadata(rhs)) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "broadcast inputs must have shape and stride metadata")
       return
     end if
 
     if (.not. is_valid_shape(lhs%shape) .or. &
         .not. is_valid_shape(rhs%shape)) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "broadcast input shape must be valid")
       return
     end if
@@ -67,7 +67,7 @@ contains
       rhs_extent = extent_or_one(rhs, rhs_dim1)
 
       if (.not. broadcast_extents_match(lhs_extent, rhs_extent)) then
-        call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+        call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
           "broadcast dimensions are incompatible")
         return
       end if
@@ -78,17 +78,17 @@ contains
       plan%rhs_strides(result_dim1) = broadcast_stride(rhs, rhs_dim1)
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function broadcast_plan_r64
 
   function broadcast_plan_size(plan, status) result(count)
     class(broadcast_plan), intent(in) :: plan
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int64) :: count
 
     if (.not. allocated(plan%shape)) then
       count = 0_int64
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "broadcast plan shape is not allocated")
       return
     end if
@@ -154,13 +154,13 @@ contains
   logical function allocate_plan_vectors(plan, rank, status)
     type(broadcast_plan), intent(out) :: plan
     integer(int32), intent(in) :: rank
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer :: alloc_stat
 
     allocate(plan%shape(rank), stat=alloc_stat)
     if (alloc_stat /= 0) then
       allocate_plan_vectors = .false.
-      call set_optional_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "broadcast shape allocation failed")
       return
     end if
@@ -168,7 +168,7 @@ contains
     allocate(plan%lhs_strides(rank), stat=alloc_stat)
     if (alloc_stat /= 0) then
       allocate_plan_vectors = .false.
-      call set_optional_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "broadcast lhs stride allocation failed")
       return
     end if
@@ -176,17 +176,17 @@ contains
     allocate(plan%rhs_strides(rank), stat=alloc_stat)
     if (alloc_stat /= 0) then
       allocate_plan_vectors = .false.
-      call set_optional_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "broadcast rhs stride allocation failed")
       return
     end if
 
     allocate_plan_vectors = .true.
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function allocate_plan_vectors
 
   subroutine set_optional_status(status, code, message)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32), intent(in) :: code
     character(len=*), intent(in), optional :: message
 
@@ -198,4 +198,4 @@ contains
       call set_status(status, code)
     end if
   end subroutine set_optional_status
-end module fenum_broadcast
+end module frumpy_broadcast

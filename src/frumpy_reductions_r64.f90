@@ -1,14 +1,14 @@
 !> Initial r64 reductions with explicit NumPy-facing axis0 semantics.
-module fenum_reductions_r64
+module frumpy_reductions_r64
   use, intrinsic :: ieee_arithmetic, only: ieee_quiet_nan, ieee_value
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_constants, only: FENUM_ORDER_C
-  use fenum_constructors_r64, only: empty_r64
-  use fenum_ndarray_r64, only: ndarray_r64
-  use fenum_shape, only: element_count
-  use fenum_statuses, only: FENUM_STATUS_ALLOCATION_FAILED, &
-    FENUM_STATUS_INVALID_AXIS, FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
-    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status, set_status
+  use frumpy_constants, only: FRUMPY_ORDER_C
+  use frumpy_constructors_r64, only: empty_r64
+  use frumpy_ndarray_r64, only: ndarray_r64
+  use frumpy_shape, only: element_count
+  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
+    FRUMPY_STATUS_INVALID_AXIS, FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
+    FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status, set_status
 
   implicit none
 
@@ -36,25 +36,25 @@ contains
   function axis0_to_dim1(axis0, rank, status) result(dim1)
     integer(int32), intent(in) :: axis0
     integer(int32), intent(in) :: rank
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32) :: dim1
 
     if (axis0 < 0_int32 .or. axis0 >= rank) then
       dim1 = -1_int32
-      call set_optional_status(status, FENUM_STATUS_INVALID_AXIS, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_AXIS, &
         "axis0 is out of bounds for ndarray rank")
       return
     end if
 
     dim1 = axis0 + 1_int32
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function axis0_to_dim1
 
   function sum_r64(source, axis0, keepdims, status) result(array)
     type(ndarray_r64), intent(in) :: source
     integer(int32), intent(in), optional :: axis0
     logical, intent(in), optional :: keepdims
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = reduce_r64(source, REDUCE_SUM, axis0, keepdims, status)
@@ -64,7 +64,7 @@ contains
     type(ndarray_r64), intent(in) :: source
     integer(int32), intent(in), optional :: axis0
     logical, intent(in), optional :: keepdims
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = reduce_r64(source, REDUCE_PROD, axis0, keepdims, status)
@@ -74,7 +74,7 @@ contains
     type(ndarray_r64), intent(in) :: source
     integer(int32), intent(in), optional :: axis0
     logical, intent(in), optional :: keepdims
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = reduce_r64(source, REDUCE_MIN, axis0, keepdims, status)
@@ -84,7 +84,7 @@ contains
     type(ndarray_r64), intent(in) :: source
     integer(int32), intent(in), optional :: axis0
     logical, intent(in), optional :: keepdims
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = reduce_r64(source, REDUCE_MAX, axis0, keepdims, status)
@@ -94,7 +94,7 @@ contains
     type(ndarray_r64), intent(in) :: source
     integer(int32), intent(in), optional :: axis0
     logical, intent(in), optional :: keepdims
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
 
     array = reduce_r64(source, REDUCE_MEAN, axis0, keepdims, status)
@@ -105,9 +105,9 @@ contains
     integer(int32), intent(in) :: operation
     integer(int32), intent(in), optional :: axis0
     logical, intent(in), optional :: keepdims
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
-    type(fenum_status) :: local_status
+    type(frumpy_status) :: local_status
     integer(int64), allocatable :: output_shape(:)
     integer(int64), allocatable :: output_index0(:)
     integer(int64), allocatable :: source_index0(:)
@@ -144,21 +144,21 @@ contains
       return
     end if
 
-    array = empty_r64(output_shape, FENUM_ORDER_C, local_status)
+    array = empty_r64(output_shape, FRUMPY_ORDER_C, local_status)
     if (local_status%is_failure()) then
       call set_optional_status_value(status, local_status)
       return
     end if
 
     if (array%size() == 0_int64) then
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
     reduction_extent = resolved_reduction_extent(source, dim1, reduce_all_axes)
     if (reduction_extent == 0_int64 .and. &
         operation_has_no_empty_identity(operation)) then
-      call set_optional_status(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+      call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
         "min_r64 and max_r64 have no identity for empty reductions")
       return
     end if
@@ -170,7 +170,7 @@ contains
         return
       end if
       array%data = reduced_value
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -204,33 +204,33 @@ contains
       end if
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function reduce_r64
 
   subroutine validate_source(source, status)
     type(ndarray_r64), intent(in) :: source
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
 
     if (.not. source%has_storage()) then
-      call set_status(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+      call set_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
         "r64 reductions require accessible source storage")
       return
     end if
 
     if (.not. allocated(source%shape) .or. .not. allocated(source%strides)) then
-      call set_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "r64 reduction source descriptor has incomplete metadata")
       return
     end if
 
     if (source%rank /= int(size(source%shape), int32) .or. &
         source%rank /= int(size(source%strides), int32)) then
-      call set_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "r64 reduction source rank does not match metadata")
       return
     end if
 
-    call set_status(status, FENUM_STATUS_OK)
+    call set_status(status, FRUMPY_STATUS_OK)
   end subroutine validate_source
 
   subroutine reduction_output_shape(source_shape, dim1, reduce_all_axes, &
@@ -240,7 +240,7 @@ contains
     logical, intent(in) :: reduce_all_axes
     logical, intent(in) :: keepdims
     integer(int64), allocatable, intent(out) :: output_shape(:)
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
     integer(int32) :: source_dim1
     integer(int32) :: output_dim1
     integer(int32) :: output_rank
@@ -250,7 +250,7 @@ contains
       if (keepdims .and. size(source_shape) > 0) then
         allocate(output_shape(size(source_shape)), stat=alloc_stat)
         if (alloc_stat /= 0) then
-          call set_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+          call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
             "reduction keepdims shape allocation failed")
           return
         end if
@@ -258,34 +258,34 @@ contains
       else
         allocate(output_shape(0), stat=alloc_stat)
         if (alloc_stat /= 0) then
-          call set_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+          call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
             "reduction scalar shape allocation failed")
           return
         end if
       end if
 
-      call set_status(status, FENUM_STATUS_OK)
+      call set_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
     if (keepdims) then
       allocate(output_shape(size(source_shape)), stat=alloc_stat)
       if (alloc_stat /= 0) then
-        call set_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+        call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
           "reduction axis keepdims shape allocation failed")
         return
       end if
 
       output_shape = source_shape
       output_shape(dim1) = 1_int64
-      call set_status(status, FENUM_STATUS_OK)
+      call set_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
     output_rank = int(size(source_shape), int32) - 1_int32
     allocate(output_shape(output_rank), stat=alloc_stat)
     if (alloc_stat /= 0) then
-      call set_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "reduction axis output shape allocation failed")
       return
     end if
@@ -297,7 +297,7 @@ contains
       output_dim1 = output_dim1 + 1_int32
     end do
 
-    call set_status(status, FENUM_STATUS_OK)
+    call set_status(status, FRUMPY_STATUS_OK)
   end subroutine reduction_output_shape
 
   integer(int64) function resolved_reduction_extent(source, dim1, &
@@ -324,7 +324,7 @@ contains
     type(ndarray_r64), intent(in) :: source
     integer(int32), intent(in) :: operation
     real(real64), intent(out) :: reduced_value
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1
     integer(int64) :: source_position
@@ -332,19 +332,19 @@ contains
 
     if (source%size() == 0_int64) then
       reduced_value = empty_reduction_value(operation)
-      call set_status(status, FENUM_STATUS_OK)
+      call set_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
     if (source%rank == 0_int32) then
       if (.not. valid_position(source, source%offset)) then
-        call set_status(status, FENUM_STATUS_INVALID_SHAPE, &
+        call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
           "scalar reduction source offset is out of bounds")
         return
       end if
 
       reduced_value = source%data(source%offset)
-      call set_status(status, FENUM_STATUS_OK)
+      call set_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -355,7 +355,7 @@ contains
     do item1 = 1_int64, source%size()
       source_position = storage_position(source, index0)
       if (.not. valid_position(source, source_position)) then
-        call set_status(status, FENUM_STATUS_INVALID_SHAPE, &
+        call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
           "all-axis reduction source position is out of bounds")
         return
       end if
@@ -367,7 +367,7 @@ contains
 
     reduced_value = finalize_reduction_value(operation, running_value, &
       source%size())
-    call set_status(status, FENUM_STATUS_OK)
+    call set_status(status, FRUMPY_STATUS_OK)
   end subroutine reduce_all_values
 
   subroutine reduce_axis_values(source, dim1, source_index0, operation, &
@@ -377,7 +377,7 @@ contains
     integer(int64), intent(inout) :: source_index0(:)
     integer(int32), intent(in) :: operation
     real(real64), intent(out) :: reduced_value
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
     integer(int64) :: reduction_index0
     integer(int64) :: source_position
     integer(int64) :: reduction_extent
@@ -386,7 +386,7 @@ contains
     reduction_extent = source%shape(dim1)
     if (reduction_extent == 0_int64) then
       reduced_value = empty_reduction_value(operation)
-      call set_status(status, FENUM_STATUS_OK)
+      call set_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -395,7 +395,7 @@ contains
       source_index0(dim1) = reduction_index0
       source_position = storage_position(source, source_index0)
       if (.not. valid_position(source, source_position)) then
-        call set_status(status, FENUM_STATUS_INVALID_SHAPE, &
+        call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
           "axis reduction source position is out of bounds")
         return
       end if
@@ -406,7 +406,7 @@ contains
 
     reduced_value = finalize_reduction_value(operation, running_value, &
       reduction_extent)
-    call set_status(status, FENUM_STATUS_OK)
+    call set_status(status, FRUMPY_STATUS_OK)
   end subroutine reduce_axis_values
 
   subroutine source_index_from_output(output_index0, source_index0, dim1, &
@@ -537,23 +537,23 @@ contains
   logical function allocate_index_vector(index0, rank, status)
     integer(int64), allocatable, intent(out) :: index0(:)
     integer(int32), intent(in) :: rank
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
     integer :: alloc_stat
 
     allocate(index0(rank), stat=alloc_stat)
     if (alloc_stat /= 0) then
       allocate_index_vector = .false.
-      call set_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "reduction index vector allocation failed")
       return
     end if
 
     allocate_index_vector = .true.
-    call set_status(status, FENUM_STATUS_OK)
+    call set_status(status, FRUMPY_STATUS_OK)
   end function allocate_index_vector
 
   subroutine set_optional_status(status, code, message)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32), intent(in) :: code
     character(len=*), intent(in), optional :: message
 
@@ -567,11 +567,11 @@ contains
   end subroutine set_optional_status
 
   subroutine set_optional_status_value(status, source_status)
-    type(fenum_status), intent(out), optional :: status
-    type(fenum_status), intent(in) :: source_status
+    type(frumpy_status), intent(out), optional :: status
+    type(frumpy_status), intent(in) :: source_status
 
     if (.not. present(status)) return
 
     status = source_status
   end subroutine set_optional_status_value
-end module fenum_reductions_r64
+end module frumpy_reductions_r64

@@ -1,8 +1,8 @@
 program test_strides
   use iso_fortran_env, only: int32, int64
-  use fenum_statuses, only: FENUM_STATUS_INVALID_SHAPE, &
-    FENUM_STATUS_OVERFLOW, fenum_status
-  use fenum_strides, only: c_order_strides, f_order_strides, &
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_SHAPE, &
+    FRUMPY_STATUS_OVERFLOW, frumpy_status
+  use frumpy_strides, only: c_order_strides, f_order_strides, &
     has_negative_stride, is_c_contiguous, is_f_contiguous
 
   implicit none
@@ -16,7 +16,7 @@ program test_strides
   integer(int64) :: singleton_negative_stride(1)
   integer(int64) :: overflow_shape(3)
   integer(int64), allocatable :: strides(:)
-  type(fenum_status) :: status
+  type(frumpy_status) :: status
   logical :: is_contiguous
 
   empty_shape = [0_int64, 3_int64]
@@ -89,17 +89,17 @@ program test_strides
 
   is_contiguous = is_c_contiguous([2_int64, 3_int64], [1_int64], status)
   call assert_false(is_contiguous, "rank mismatch is not contiguous")
-  call assert_equal_int32(status%code, FENUM_STATUS_INVALID_SHAPE, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_INVALID_SHAPE, &
     "rank mismatch status code")
 
   strides = c_order_strides(overflow_shape, status)
-  call assert_equal_int32(status%code, FENUM_STATUS_OVERFLOW, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_OVERFLOW, &
     "C stride overflow status")
   call assert_equal_vector(strides, [0_int64, 0_int64, 0_int64], &
     "C stride overflow returns zero strides")
 
   strides = f_order_strides(overflow_shape, status)
-  call assert_equal_int32(status%code, FENUM_STATUS_OVERFLOW, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_OVERFLOW, &
     "F stride overflow status")
   call assert_equal_vector(strides, [0_int64, 0_int64, 0_int64], &
     "F stride overflow returns zero strides")

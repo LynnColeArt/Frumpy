@@ -1,12 +1,12 @@
-# Fenum Phased Project Plan
+# Frumpy Phased Project Plan
 
-Fenum is a big project on purpose. This plan keeps the ambition visible while
+Frumpy is a big project on purpose. This plan keeps the ambition visible while
 keeping the active scope clean:
 
-> Fenum is a Fortran 2018 NumPy-compatible array engine.
+> Frumpy is a Fortran 2018 NumPy-compatible array engine.
 
-For now, Fenum is only about NumPy. Future ML ecosystem work may benefit from
-Fenum, but it should not shape the first implementation. The current job is to
+For now, Frumpy is only about NumPy. Future ML ecosystem work may benefit from
+Frumpy, but it should not shape the first implementation. The current job is to
 make ndarray semantics correct, readable, tested, and fast.
 
 This is a phase-gated plan, not a date-gated plan. We move forward when the
@@ -42,7 +42,7 @@ These external contracts shape the plan:
 
 ## Scope Boundaries
 
-Fenum owns:
+Frumpy owns:
 
 - NumPy-shaped ndarray semantics.
 - Shape, stride, dtype, memory, view, and copy behavior.
@@ -55,7 +55,7 @@ Fenum owns:
 - A stable C ABI and eventual Python package surface.
 - NumPy differential tests for every supported public behavior.
 
-Fenum does not own right now:
+Frumpy does not own right now:
 
 - Torch compatibility.
 - Autograd.
@@ -67,8 +67,8 @@ Fenum does not own right now:
 - GPU runtime design.
 - A complete SciPy replacement.
 
-Future projects may sit on top of Fenum. They do not belong inside the current
-Fenum scope.
+Future projects may sit on top of Frumpy. They do not belong inside the current
+Frumpy scope.
 
 
 ## Compatibility Tiers
@@ -84,7 +84,7 @@ The first compatibility tier targets the portable Array API-style subset:
 - Reductions.
 - Linear algebra basics.
 
-This gives Fenum a smaller, modern contract before historical NumPy behavior
+This gives Frumpy a smaller, modern contract before historical NumPy behavior
 starts creeping in through the windows.
 
 ### Tier 2: Core NumPy ndarray Behavior
@@ -117,7 +117,7 @@ The third tier expands beyond the ndarray core:
 
 Goal:
 
-Define what Fenum is before code makes accidental promises.
+Define what Frumpy is before code makes accidental promises.
 
 Deliverables:
 
@@ -179,11 +179,11 @@ Build the ndarray descriptor before building operations.
 
 Deliverables:
 
-- `fenum_statuses` module.
-- `fenum_constants` module.
-- `fenum_dtypes` module with initial dtype IDs.
-- `fenum_shape` module.
-- `fenum_strides` module.
+- `frumpy_statuses` module.
+- `frumpy_constants` module.
+- `frumpy_dtypes` module with initial dtype IDs.
+- `frumpy_shape` module.
+- `frumpy_strides` module.
 - First concrete array type: `ndarray_r64`.
 - Constructors for descriptor-only and owned-storage arrays.
 - Contiguity detection for C order and Fortran order.
@@ -229,7 +229,7 @@ Exit criteria:
 - Constructors match NumPy shape and fill behavior for supported dtype.
 - Copies are explicit.
 - Basic owned arrays can be inspected in tests.
-- Allocation failures propagate through `fenum_status`.
+- Allocation failures propagate through `frumpy_status`.
 
 Key risks:
 
@@ -241,7 +241,7 @@ Key risks:
 
 Goal:
 
-Make Fenum feel like an array library.
+Make Frumpy feel like an array library.
 
 Deliverables:
 
@@ -413,7 +413,7 @@ Deliverables:
 
 Exit criteria:
 
-- BLAS/LAPACK wrappers are isolated behind Fenum modules.
+- BLAS/LAPACK wrappers are isolated behind Frumpy modules.
 - `matmul` handles vector/matrix rank behavior for supported dtypes.
 - Random behavior is reproducible and documented.
 - Numerical tests include tolerances and dtype-specific expectations.
@@ -429,13 +429,13 @@ Key risks:
 
 Goal:
 
-Expose Fenum as a real NumPy-shaped library without leaking Fortran internals.
+Expose Frumpy as a real NumPy-shaped library without leaking Fortran internals.
 
 Deliverables:
 
 - Stable C ABI for array descriptors and owned buffers.
 - Python extension package skeleton.
-- Python-level `fenum.ndarray` wrapper.
+- Python-level `frumpy.ndarray` wrapper.
 - Python constructors: `array`, `zeros`, `ones`, `arange`.
 - Python elementwise and reduction calls.
 - NumPy differential tests in CI/local test harness.
@@ -443,8 +443,8 @@ Deliverables:
 
 Exit criteria:
 
-- A Python user can create a Fenum array and run a small operation.
-- Differential tests compare Fenum and NumPy for the supported subset.
+- A Python user can create a Frumpy array and run a small operation.
+- Differential tests compare Frumpy and NumPy for the supported subset.
 - The C ABI does not expose compiler-specific Fortran layout.
 - Ownership and destruction are tested from Python.
 
@@ -518,19 +518,19 @@ This slice exercises:
 The bigger demo, later:
 
 ```text
-Create arrays from Python through Fenum.
+Create arrays from Python through Frumpy.
 Run NumPy-style broadcasting, slicing, dtype promotion, reductions, and matmul.
 Compare the full result set against NumPy.
 Show which operations are implemented and which are not.
 ```
 
-This is the point where Fenum starts feeling like a credible NumPy replacement
+This is the point where Frumpy starts feeling like a credible NumPy replacement
 instead of a Fortran array experiment.
 
 
 ## Future Context, Not Current Scope
 
-Fenum may later become useful to ML runtimes, Torch-compatible systems, or
+Frumpy may later become useful to ML runtimes, Torch-compatible systems, or
 Diffusers-style projects. That is a reason to care about correctness and
 interoperability, not a reason to put those systems in the current scope.
 
@@ -567,7 +567,7 @@ Mission type:
 
 Mission scope:
 
-- The full Fenum NumPy-compatible array engine.
+- The full Frumpy NumPy-compatible array engine.
 
 Mission constraint:
 

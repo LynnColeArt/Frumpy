@@ -1,9 +1,9 @@
 !> Shape validation and element-count helpers for ndarray descriptors.
-module fenum_shape
+module frumpy_shape
   use iso_fortran_env, only: int32, int64
-  use fenum_constants, only: FENUM_MAX_RANK
-  use fenum_statuses, only: FENUM_STATUS_INVALID_SHAPE, &
-    FENUM_STATUS_OK, FENUM_STATUS_OVERFLOW, fenum_status, set_status
+  use frumpy_constants, only: FRUMPY_MAX_RANK
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_SHAPE, &
+    FRUMPY_STATUS_OK, FRUMPY_STATUS_OVERFLOW, frumpy_status, set_status
 
   implicit none
 
@@ -20,7 +20,7 @@ contains
 
   function shape_rank(shape, status) result(rank)
     integer(int64), intent(in) :: shape(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32) :: rank
 
     call validate_shape(shape, status)
@@ -34,27 +34,27 @@ contains
 
   subroutine validate_shape(shape, status)
     integer(int64), intent(in) :: shape(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
 
-    if (size(shape) > FENUM_MAX_RANK) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
-        "shape rank exceeds FENUM_MAX_RANK")
+    if (size(shape) > FRUMPY_MAX_RANK) then
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
+        "shape rank exceeds FRUMPY_MAX_RANK")
       return
     end if
 
     if (any(shape < 0_int64)) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "shape entries must be non-negative")
       return
     end if
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end subroutine validate_shape
 
   logical function is_valid_shape(shape)
     integer(int64), intent(in) :: shape(:)
 
-    is_valid_shape = size(shape) <= FENUM_MAX_RANK .and. &
+    is_valid_shape = size(shape) <= FRUMPY_MAX_RANK .and. &
       all(shape >= 0_int64)
   end function is_valid_shape
 
@@ -72,7 +72,7 @@ contains
 
   function element_count(shape, status) result(count)
     integer(int64), intent(in) :: shape(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int64) :: count
     integer(int32) :: dim1
     integer(int32) :: rank
@@ -85,7 +85,7 @@ contains
 
     if (has_zero_extent(shape)) then
       count = 0_int64
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -95,7 +95,7 @@ contains
     do dim1 = 1_int32, rank
       if (.not. can_multiply_int64(count, shape(dim1))) then
         count = 0_int64
-        call set_optional_status(status, FENUM_STATUS_OVERFLOW, &
+        call set_optional_status(status, FRUMPY_STATUS_OVERFLOW, &
           "shape element count overflows int64")
         return
       end if
@@ -103,7 +103,7 @@ contains
       count = count * shape(dim1)
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function element_count
 
   logical function can_multiply_int64(lhs, rhs)
@@ -118,7 +118,7 @@ contains
   end function can_multiply_int64
 
   subroutine set_optional_status(status, code, message)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32), intent(in) :: code
     character(len=*), intent(in), optional :: message
 
@@ -130,4 +130,4 @@ contains
       call set_status(status, code)
     end if
   end subroutine set_optional_status
-end module fenum_shape
+end module frumpy_shape

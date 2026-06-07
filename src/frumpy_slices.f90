@@ -1,8 +1,8 @@
 !> Basic NumPy-style slice descriptors for ndarray views.
-module fenum_slices
+module frumpy_slices
   use iso_fortran_env, only: int32, int64
-  use fenum_statuses, only: FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
-    fenum_status, set_status
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
+    frumpy_status, set_status
 
   implicit none
 
@@ -35,7 +35,7 @@ contains
     integer(int64), intent(in) :: start0
     integer(int64), intent(in) :: stop0
     integer(int64), intent(in), optional :: step
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(slice_spec) :: spec
     integer(int64) :: resolved_step
 
@@ -43,7 +43,7 @@ contains
     if (present(step)) resolved_step = step
 
     if (resolved_step == 0_int64) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "slice step must be non-zero")
       return
     end if
@@ -52,13 +52,13 @@ contains
     spec%stop0 = stop0
     spec%step = resolved_step
     spec%uses_full_extent = .false.
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function slice_range
 
   function slice_length(spec, extent, status) result(length)
     type(slice_spec), intent(in) :: spec
     integer(int64), intent(in) :: extent
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int64) :: length
     integer(int64) :: start0
     integer(int64) :: stop0
@@ -66,20 +66,20 @@ contains
 
     if (extent < 0_int64) then
       length = 0_int64
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "slice extent must be non-negative")
       return
     end if
 
     if (spec%uses_full_extent) then
       length = extent
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
     if (spec%step == 0_int64) then
       length = 0_int64
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "slice step must be non-zero")
       return
     end if
@@ -88,14 +88,14 @@ contains
     stop0 = spec%stop0
     if (.not. is_valid_slice_bound(start0, extent, spec%step)) then
       length = 0_int64
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "slice start0 is out of bounds")
       return
     end if
 
     if (.not. is_valid_slice_stop(stop0, extent, spec%step)) then
       length = 0_int64
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "slice stop0 is out of bounds")
       return
     end if
@@ -116,7 +116,7 @@ contains
       end if
     end if
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function slice_length
 
   logical function is_valid_slice_bound(bound0, extent, step)
@@ -148,7 +148,7 @@ contains
   end function is_valid_slice_stop
 
   subroutine set_optional_status(status, code, message)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32), intent(in) :: code
     character(len=*), intent(in), optional :: message
 
@@ -160,4 +160,4 @@ contains
       call set_status(status, code)
     end if
   end subroutine set_optional_status
-end module fenum_slices
+end module frumpy_slices

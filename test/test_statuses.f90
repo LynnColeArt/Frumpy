@@ -1,34 +1,34 @@
 program test_statuses
   use iso_fortran_env, only: int32
-  use fenum_statuses, only: FENUM_STATUS_ALLOCATION_FAILED, &
-    FENUM_STATUS_INVALID_AXIS, FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
-    FENUM_STATUS_OVERFLOW, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
-    FENUM_STATUS_UNSUPPORTED_DTYPE, fenum_error, fenum_ok, fenum_status, &
+  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
+    FRUMPY_STATUS_INVALID_AXIS, FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
+    FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+    FRUMPY_STATUS_UNSUPPORTED_DTYPE, frumpy_error, frumpy_ok, frumpy_status, &
     set_status, status_code_name
 
   implicit none
 
-  type(fenum_status) :: status
+  type(frumpy_status) :: status
 
-  status = fenum_ok()
+  status = frumpy_ok()
   call assert_true(status%is_ok(), "ok status reports is_ok")
   call assert_false(status%failed, "ok status is not failed")
   call assert_false(status%is_failure(), "ok status is not a failure")
-  call assert_equal_int32(status%code, FENUM_STATUS_OK, "ok status code")
+  call assert_equal_int32(status%code, FRUMPY_STATUS_OK, "ok status code")
   call assert_equal_string(status%message, "", "ok status message")
 
-  call assert_failure(FENUM_STATUS_INVALID_SHAPE, "invalid_shape")
-  call assert_failure(FENUM_STATUS_INVALID_AXIS, "invalid_axis")
-  call assert_failure(FENUM_STATUS_ALLOCATION_FAILED, "allocation_failed")
-  call assert_failure(FENUM_STATUS_OVERFLOW, "overflow")
-  call assert_failure(FENUM_STATUS_UNSUPPORTED_DTYPE, "unsupported_dtype")
-  call assert_failure(FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+  call assert_failure(FRUMPY_STATUS_INVALID_SHAPE, "invalid_shape")
+  call assert_failure(FRUMPY_STATUS_INVALID_AXIS, "invalid_axis")
+  call assert_failure(FRUMPY_STATUS_ALLOCATION_FAILED, "allocation_failed")
+  call assert_failure(FRUMPY_STATUS_OVERFLOW, "overflow")
+  call assert_failure(FRUMPY_STATUS_UNSUPPORTED_DTYPE, "unsupported_dtype")
+  call assert_failure(FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
     "unsupported_behavior")
 
-  call set_status(status, FENUM_STATUS_OK)
+  call set_status(status, FRUMPY_STATUS_OK)
   call assert_true(status%is_ok(), "set_status can reset to ok")
 
-  status = fenum_error(FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+  status = frumpy_error(FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
     "object dtype is unsupported")
   call assert_true(status%failed, "custom error status failed flag")
   call assert_equal_string(status%message, "object dtype is unsupported", &
@@ -42,9 +42,9 @@ contains
   subroutine assert_failure(code, expected_name)
     integer(int32), intent(in) :: code
     character(len=*), intent(in) :: expected_name
-    type(fenum_status) :: failure
+    type(frumpy_status) :: failure
 
-    failure = fenum_error(code)
+    failure = frumpy_error(code)
 
     call assert_true(failure%failed, expected_name // " failed flag")
     call assert_true(failure%is_failure(), expected_name // " is_failure")

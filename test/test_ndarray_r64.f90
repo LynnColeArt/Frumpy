@@ -1,10 +1,10 @@
 program test_ndarray_r64
   use iso_fortran_env, only: int32, int64
-  use fenum, only: FENUM_ORDER_C, FENUM_ORDER_F, &
-    FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
-    fenum_status, metadata_descriptor_r64, ndarray_r64, &
+  use frumpy, only: FRUMPY_ORDER_C, FRUMPY_ORDER_F, &
+    FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+    frumpy_status, metadata_descriptor_r64, ndarray_r64, &
     owned_descriptor_r64
-  use fenum_dtypes, only: FENUM_DTYPE_R64
+  use frumpy_dtypes, only: FRUMPY_DTYPE_R64
 
   implicit none
 
@@ -12,7 +12,7 @@ program test_ndarray_r64
   integer(int64) :: empty_shape(2)
   integer(int64) :: matrix_shape(2)
   integer(int64) :: negative_strides(1)
-  type(fenum_status) :: status
+  type(frumpy_status) :: status
   type(ndarray_r64) :: array
 
   empty_shape = [0_int64, 3_int64]
@@ -38,7 +38,7 @@ program test_ndarray_r64
   call assert_equal_int64(array%storage_size(), 0_int64, &
     "empty descriptor storage size")
 
-  array = owned_descriptor_r64(matrix_shape, FENUM_ORDER_C, status)
+  array = owned_descriptor_r64(matrix_shape, FRUMPY_ORDER_C, status)
   call assert_true(status%is_ok(), "C descriptor status")
   call assert_descriptor_metadata(array, 2_int32, matrix_shape, &
     [3_int64, 1_int64], 1_int64, .true., .true., .false., &
@@ -47,7 +47,7 @@ program test_ndarray_r64
   call assert_equal_int64(array%storage_size(), 6_int64, &
     "C descriptor storage size")
 
-  array = owned_descriptor_r64(matrix_shape, FENUM_ORDER_F, status)
+  array = owned_descriptor_r64(matrix_shape, FRUMPY_ORDER_F, status)
   call assert_true(status%is_ok(), "F descriptor status")
   call assert_descriptor_metadata(array, 2_int32, matrix_shape, &
     [1_int64, 2_int64], 1_int64, .true., .false., .true., &
@@ -65,24 +65,24 @@ program test_ndarray_r64
 
   array = owned_descriptor_r64([2_int64, -1_int64], status=status)
   call assert_true(status%is_failure(), "negative shape descriptor fails")
-  call assert_equal_int32(status%code, FENUM_STATUS_INVALID_SHAPE, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_INVALID_SHAPE, &
     "negative shape descriptor status code")
 
   array = metadata_descriptor_r64([2_int64, 3_int64], [1_int64], 1_int64, &
     status)
   call assert_true(status%is_failure(), "rank mismatch descriptor fails")
-  call assert_equal_int32(status%code, FENUM_STATUS_INVALID_SHAPE, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_INVALID_SHAPE, &
     "rank mismatch descriptor status code")
 
   array = metadata_descriptor_r64([3_int64], [1_int64], 0_int64, status)
   call assert_true(status%is_failure(), "zero offset descriptor fails")
-  call assert_equal_int32(status%code, FENUM_STATUS_INVALID_SHAPE, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_INVALID_SHAPE, &
     "zero offset descriptor status code")
 
   array = owned_descriptor_r64([2_int64, 3_int64], order=99_int32, &
     status=status)
   call assert_true(status%is_failure(), "unsupported order fails")
-  call assert_equal_int32(status%code, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
     "unsupported order status code")
 
 contains
@@ -100,7 +100,7 @@ contains
     logical, intent(in) :: expected_is_f_contiguous
     character(len=*), intent(in) :: message
 
-    call assert_equal_int32(array%dtype_id, FENUM_DTYPE_R64, &
+    call assert_equal_int32(array%dtype_id, FRUMPY_DTYPE_R64, &
       message // " dtype")
     call assert_equal_int32(array%rank, expected_rank, &
       message // " rank")

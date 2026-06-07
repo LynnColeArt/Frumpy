@@ -1,13 +1,13 @@
 !> First concrete r64 ndarray descriptor.
-module fenum_ndarray_r64
+module frumpy_ndarray_r64
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_constants, only: FENUM_ORDER_C, FENUM_ORDER_F
-  use fenum_dtypes, only: FENUM_DTYPE_R64
-  use fenum_shape, only: element_count, is_valid_shape
-  use fenum_statuses, only: FENUM_STATUS_ALLOCATION_FAILED, &
-    FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
-    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status, set_status
-  use fenum_strides, only: c_order_strides, f_order_strides, &
+  use frumpy_constants, only: FRUMPY_ORDER_C, FRUMPY_ORDER_F
+  use frumpy_dtypes, only: FRUMPY_DTYPE_R64
+  use frumpy_shape, only: element_count, is_valid_shape
+  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
+    FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
+    FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status, set_status
+  use frumpy_strides, only: c_order_strides, f_order_strides, &
     is_c_contiguous, is_f_contiguous
 
   implicit none
@@ -20,7 +20,7 @@ module fenum_ndarray_r64
   public :: view_descriptor_r64
 
   type :: ndarray_r64
-    integer(int32) :: dtype_id = FENUM_DTYPE_R64
+    integer(int32) :: dtype_id = FRUMPY_DTYPE_R64
     integer(int32) :: rank = 0_int32
     integer(int64), allocatable :: shape(:)
     integer(int64), allocatable :: strides(:)
@@ -40,20 +40,20 @@ contains
   function owned_descriptor_r64(shape, order, status) result(array)
     integer(int64), intent(in) :: shape(:)
     integer(int32), intent(in), optional :: order
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
-    type(fenum_status) :: local_status
+    type(frumpy_status) :: local_status
     integer(int32) :: resolved_order
     integer(int64) :: element_count_value
     integer(int64), allocatable :: strides(:)
     integer :: alloc_stat
 
-    resolved_order = FENUM_ORDER_C
+    resolved_order = FRUMPY_ORDER_C
     if (present(order)) resolved_order = order
 
-    if (resolved_order /= FENUM_ORDER_C .and. &
-        resolved_order /= FENUM_ORDER_F) then
-      call set_optional_status(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+    if (resolved_order /= FRUMPY_ORDER_C .and. &
+        resolved_order /= FRUMPY_ORDER_F) then
+      call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
         "owned_descriptor_r64 supports only C or Fortran order")
       return
     end if
@@ -64,7 +64,7 @@ contains
       return
     end if
 
-    if (resolved_order == FENUM_ORDER_F) then
+    if (resolved_order == FRUMPY_ORDER_F) then
       strides = f_order_strides(shape, local_status)
     else
       strides = c_order_strides(shape, local_status)
@@ -85,12 +85,12 @@ contains
     allocate(array%data(element_count_value), stat=alloc_stat)
     if (alloc_stat /= 0) then
       array%owns_data = .false.
-      call set_optional_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "ndarray_r64 backing storage allocation failed")
       return
     end if
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function owned_descriptor_r64
 
   function metadata_descriptor_r64(shape, strides, offset, status) &
@@ -98,9 +98,9 @@ contains
     integer(int64), intent(in) :: shape(:)
     integer(int64), intent(in) :: strides(:)
     integer(int64), intent(in) :: offset
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
-    type(fenum_status) :: local_status
+    type(frumpy_status) :: local_status
 
     call assign_descriptor_metadata(array, shape, strides, offset, .false., &
       local_status)
@@ -113,12 +113,12 @@ contains
     integer(int64), intent(in) :: shape(:)
     integer(int64), intent(in) :: strides(:)
     integer(int64), intent(in) :: offset
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     type(ndarray_r64) :: array
-    type(fenum_status) :: local_status
+    type(frumpy_status) :: local_status
 
     if (.not. source%has_storage()) then
-      call set_optional_status(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+      call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
         "view_descriptor_r64 requires source storage")
       return
     end if
@@ -133,7 +133,7 @@ contains
     ! View lifetime is explicit in this phase: a view shares the source storage
     ! pointer and is valid only while that source storage remains alive.
     array%data => source%data
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function view_descriptor_r64
 
   function ndarray_r64_size(array) result(count)
@@ -171,42 +171,42 @@ contains
     integer(int64), intent(in) :: strides(:)
     integer(int64), intent(in) :: offset
     logical, intent(in) :: owns_data
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
     integer :: alloc_stat
 
     if (.not. is_valid_shape(shape)) then
-      call set_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "ndarray_r64 shape must be valid")
       return
     end if
 
     if (size(shape) /= size(strides)) then
-      call set_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "ndarray_r64 shape and stride ranks must match")
       return
     end if
 
     if (offset < 1_int64) then
-      call set_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "ndarray_r64 offset is 1-based and must be positive")
       return
     end if
 
     allocate(array%shape(size(shape)), stat=alloc_stat)
     if (alloc_stat /= 0) then
-      call set_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "ndarray_r64 shape allocation failed")
       return
     end if
 
     allocate(array%strides(size(strides)), stat=alloc_stat)
     if (alloc_stat /= 0) then
-      call set_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "ndarray_r64 stride allocation failed")
       return
     end if
 
-    array%dtype_id = FENUM_DTYPE_R64
+    array%dtype_id = FRUMPY_DTYPE_R64
     array%rank = int(size(shape), int32)
     array%shape = shape
     array%strides = strides
@@ -215,11 +215,11 @@ contains
     array%is_c_contiguous = is_c_contiguous(shape, strides)
     array%is_f_contiguous = is_f_contiguous(shape, strides)
 
-    call set_status(status, FENUM_STATUS_OK)
+    call set_status(status, FRUMPY_STATUS_OK)
   end subroutine assign_descriptor_metadata
 
   subroutine set_optional_status(status, code, message)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32), intent(in) :: code
     character(len=*), intent(in), optional :: message
 
@@ -233,11 +233,11 @@ contains
   end subroutine set_optional_status
 
   subroutine set_optional_status_value(status, source_status)
-    type(fenum_status), intent(out), optional :: status
-    type(fenum_status), intent(in) :: source_status
+    type(frumpy_status), intent(out), optional :: status
+    type(frumpy_status), intent(in) :: source_status
 
     if (.not. present(status)) return
 
     status = source_status
   end subroutine set_optional_status_value
-end module fenum_ndarray_r64
+end module frumpy_ndarray_r64

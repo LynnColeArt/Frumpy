@@ -1,11 +1,11 @@
 program test_broadcast
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_broadcast, only: broadcast_plan, broadcast_plan_r64
-  use fenum_constructors_r64, only: asarray_r64, empty_r64
-  use fenum_constants, only: FENUM_ORDER_C, FENUM_ORDER_F
-  use fenum_ndarray_r64, only: ndarray_r64
-  use fenum_statuses, only: FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
-    fenum_status
+  use frumpy_broadcast, only: broadcast_plan, broadcast_plan_r64
+  use frumpy_constructors_r64, only: asarray_r64, empty_r64
+  use frumpy_constants, only: FRUMPY_ORDER_C, FRUMPY_ORDER_F
+  use frumpy_ndarray_r64, only: ndarray_r64
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
+    frumpy_status
 
   implicit none
 
@@ -20,7 +20,7 @@ program test_broadcast
 contains
 
   subroutine test_trailing_dimension_plan()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: lhs
     type(ndarray_r64) :: rhs
     type(broadcast_plan) :: plan
@@ -47,7 +47,7 @@ contains
   end subroutine test_trailing_dimension_plan
 
   subroutine test_scalar_plan_uses_zero_strides()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: scalar
     type(ndarray_r64) :: vector
     type(broadcast_plan) :: plan
@@ -70,7 +70,7 @@ contains
   end subroutine test_scalar_plan_uses_zero_strides
 
   subroutine test_zero_extent_plan_keeps_zero_shape()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: lhs
     type(ndarray_r64) :: rhs
     type(broadcast_plan) :: plan
@@ -92,18 +92,18 @@ contains
   end subroutine test_zero_extent_plan_keeps_zero_shape
 
   subroutine test_fortran_order_strides_are_preserved()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: lhs
     type(ndarray_r64) :: rhs
     type(broadcast_plan) :: plan
 
     lhs = asarray_r64([1.0_real64, 2.0_real64, 3.0_real64, &
         4.0_real64, 5.0_real64, 6.0_real64], [2_int64, 3_int64], &
-      FENUM_ORDER_F, status)
+      FRUMPY_ORDER_F, status)
     call assert_status_ok(status, "Fortran lhs constructor")
 
     rhs = asarray_r64([10.0_real64, 20.0_real64], [2_int64, 1_int64], &
-      FENUM_ORDER_C, status)
+      FRUMPY_ORDER_C, status)
     call assert_status_ok(status, "broadcast column constructor")
 
     plan = broadcast_plan_r64(lhs, rhs, status)
@@ -117,7 +117,7 @@ contains
   end subroutine test_fortran_order_strides_are_preserved
 
   subroutine test_incompatible_shapes_fail()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: lhs
     type(ndarray_r64) :: rhs
     type(broadcast_plan) :: plan
@@ -131,19 +131,19 @@ contains
     call assert_status_ok(status, "incompatible rhs constructor")
 
     plan = broadcast_plan_r64(lhs, rhs, status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_SHAPE, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, &
       "incompatible broadcast status")
   end subroutine test_incompatible_shapes_fail
 
   subroutine assert_status_ok(status, message)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     character(len=*), intent(in) :: message
 
-    call assert_status_code(status, FENUM_STATUS_OK, message)
+    call assert_status_code(status, FRUMPY_STATUS_OK, message)
   end subroutine assert_status_ok
 
   subroutine assert_status_code(status, expected_code, message)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     integer(int32), intent(in) :: expected_code
     character(len=*), intent(in) :: message
 

@@ -1,10 +1,10 @@
 !> Signed element-stride and contiguity helpers for ndarray descriptors.
-module fenum_strides
+module frumpy_strides
   use iso_fortran_env, only: int32, int64
-  use fenum_shape, only: has_zero_extent, is_valid_shape
-  use fenum_statuses, only: FENUM_STATUS_ALLOCATION_FAILED, &
-    FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, FENUM_STATUS_OVERFLOW, &
-    fenum_status, set_status
+  use frumpy_shape, only: has_zero_extent, is_valid_shape
+  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
+    FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, FRUMPY_STATUS_OVERFLOW, &
+    frumpy_status, set_status
 
   implicit none
 
@@ -20,7 +20,7 @@ contains
 
   function c_order_strides(shape, status) result(strides)
     integer(int64), intent(in) :: shape(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int64), allocatable :: strides(:)
     integer(int32) :: dim1
     integer(int32) :: rank
@@ -32,13 +32,13 @@ contains
     strides = 0_int64
 
     if (.not. is_valid_shape(shape)) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "cannot compute strides for invalid shape")
       return
     end if
 
     if (has_zero_extent(shape)) then
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -51,7 +51,7 @@ contains
       if (dim1 > 1_int32) then
         if (.not. can_multiply_int64(stride_elements, shape(dim1))) then
           strides = 0_int64
-          call set_optional_status(status, FENUM_STATUS_OVERFLOW, &
+          call set_optional_status(status, FRUMPY_STATUS_OVERFLOW, &
             "C-order stride computation overflows int64")
           return
         end if
@@ -60,12 +60,12 @@ contains
       end if
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function c_order_strides
 
   function f_order_strides(shape, status) result(strides)
     integer(int64), intent(in) :: shape(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int64), allocatable :: strides(:)
     integer(int32) :: dim1
     integer(int32) :: rank
@@ -77,13 +77,13 @@ contains
     strides = 0_int64
 
     if (.not. is_valid_shape(shape)) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "cannot compute strides for invalid shape")
       return
     end if
 
     if (has_zero_extent(shape)) then
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -96,7 +96,7 @@ contains
       if (dim1 < rank) then
         if (.not. can_multiply_int64(stride_elements, shape(dim1))) then
           strides = 0_int64
-          call set_optional_status(status, FENUM_STATUS_OVERFLOW, &
+          call set_optional_status(status, FRUMPY_STATUS_OVERFLOW, &
             "Fortran-order stride computation overflows int64")
           return
         end if
@@ -105,13 +105,13 @@ contains
       end if
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function f_order_strides
 
   logical function is_c_contiguous(shape, strides, status)
     integer(int64), intent(in) :: shape(:)
     integer(int64), intent(in) :: strides(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32) :: dim1
     integer(int32) :: rank
     integer(int64) :: expected_stride_elements
@@ -123,7 +123,7 @@ contains
 
     if (size(shape) == 0 .or. has_zero_extent(shape)) then
       is_c_contiguous = .true.
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -142,7 +142,7 @@ contains
       if (dim1 > 1_int32) then
         if (.not. can_multiply_int64(expected_stride_elements, shape(dim1))) then
           is_c_contiguous = .false.
-          call set_optional_status(status, FENUM_STATUS_OVERFLOW, &
+          call set_optional_status(status, FRUMPY_STATUS_OVERFLOW, &
             "C-contiguity stride expectation overflows int64")
           return
         end if
@@ -151,13 +151,13 @@ contains
       end if
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function is_c_contiguous
 
   logical function is_f_contiguous(shape, strides, status)
     integer(int64), intent(in) :: shape(:)
     integer(int64), intent(in) :: strides(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32) :: dim1
     integer(int32) :: rank
     integer(int64) :: expected_stride_elements
@@ -169,7 +169,7 @@ contains
 
     if (size(shape) == 0 .or. has_zero_extent(shape)) then
       is_f_contiguous = .true.
-      call set_optional_status(status, FENUM_STATUS_OK)
+      call set_optional_status(status, FRUMPY_STATUS_OK)
       return
     end if
 
@@ -188,7 +188,7 @@ contains
       if (dim1 < rank) then
         if (.not. can_multiply_int64(expected_stride_elements, shape(dim1))) then
           is_f_contiguous = .false.
-          call set_optional_status(status, FENUM_STATUS_OVERFLOW, &
+          call set_optional_status(status, FRUMPY_STATUS_OVERFLOW, &
             "Fortran-contiguity stride expectation overflows int64")
           return
         end if
@@ -197,7 +197,7 @@ contains
       end if
     end do
 
-    call set_optional_status(status, FENUM_STATUS_OK)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
   end function is_f_contiguous
 
   logical function has_negative_stride(strides)
@@ -209,13 +209,13 @@ contains
   subroutine allocate_stride_vector(strides, rank, status)
     integer(int64), allocatable, intent(out) :: strides(:)
     integer, intent(in) :: rank
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer :: alloc_stat
 
     allocate(strides(rank), stat=alloc_stat)
 
     if (alloc_stat /= 0) then
-      call set_optional_status(status, FENUM_STATUS_ALLOCATION_FAILED, &
+      call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "stride vector allocation failed")
     end if
   end subroutine allocate_stride_vector
@@ -223,18 +223,18 @@ contains
   logical function validate_contiguity_inputs(shape, strides, status)
     integer(int64), intent(in) :: shape(:)
     integer(int64), intent(in) :: strides(:)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
 
     validate_contiguity_inputs = .false.
 
     if (.not. is_valid_shape(shape)) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "cannot check contiguity for invalid shape")
       return
     end if
 
     if (size(shape) /= size(strides)) then
-      call set_optional_status(status, FENUM_STATUS_INVALID_SHAPE, &
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
         "shape and stride ranks must match")
       return
     end if
@@ -254,7 +254,7 @@ contains
   end function can_multiply_int64
 
   subroutine set_optional_status(status, code, message)
-    type(fenum_status), intent(out), optional :: status
+    type(frumpy_status), intent(out), optional :: status
     integer(int32), intent(in) :: code
     character(len=*), intent(in), optional :: message
 
@@ -266,4 +266,4 @@ contains
       call set_status(status, code)
     end if
   end subroutine set_optional_status
-end module fenum_strides
+end module frumpy_strides

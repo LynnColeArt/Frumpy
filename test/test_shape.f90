@@ -1,10 +1,10 @@
 program test_shape
   use iso_fortran_env, only: int32, int64
-  use fenum_constants, only: FENUM_MAX_RANK
-  use fenum_shape, only: element_count, has_zero_extent, is_scalar_shape, &
+  use frumpy_constants, only: FRUMPY_MAX_RANK
+  use frumpy_shape, only: element_count, has_zero_extent, is_scalar_shape, &
     is_valid_shape, shape_rank, validate_shape
-  use fenum_statuses, only: FENUM_STATUS_INVALID_SHAPE, &
-    FENUM_STATUS_OVERFLOW, fenum_status
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_SHAPE, &
+    FRUMPY_STATUS_OVERFLOW, frumpy_status
 
   implicit none
 
@@ -14,8 +14,8 @@ program test_shape
   integer(int64) :: multidim_shape(3)
   integer(int64) :: invalid_shape(2)
   integer(int64) :: overflow_shape(2)
-  integer(int64) :: too_many_dims(FENUM_MAX_RANK + 1_int32)
-  type(fenum_status) :: status
+  integer(int64) :: too_many_dims(FRUMPY_MAX_RANK + 1_int32)
+  type(frumpy_status) :: status
   integer(int64) :: count
 
   empty_shape = [0_int64, 3_int64]
@@ -58,22 +58,22 @@ program test_shape
 
   call validate_shape(invalid_shape, status)
   call assert_true(status%is_failure(), "negative shape fails validation")
-  call assert_equal_int32(status%code, FENUM_STATUS_INVALID_SHAPE, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_INVALID_SHAPE, &
     "negative shape status code")
   call assert_false(is_valid_shape(invalid_shape), "negative shape invalid")
   count = element_count(invalid_shape, status)
   call assert_equal_int64(count, 0_int64, "negative shape count")
-  call assert_equal_int32(status%code, FENUM_STATUS_INVALID_SHAPE, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_INVALID_SHAPE, &
     "negative shape count status")
 
   call validate_shape(too_many_dims, status)
   call assert_true(status%is_failure(), "rank over max fails validation")
-  call assert_equal_int32(status%code, FENUM_STATUS_INVALID_SHAPE, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_INVALID_SHAPE, &
     "rank over max status code")
 
   count = element_count(overflow_shape, status)
   call assert_equal_int64(count, 0_int64, "overflow count returns zero")
-  call assert_equal_int32(status%code, FENUM_STATUS_OVERFLOW, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_OVERFLOW, &
     "overflow status code")
 
 contains

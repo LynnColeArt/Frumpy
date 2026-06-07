@@ -1,11 +1,11 @@
 program first_vertical_slice
   use iso_fortran_env, only: int32, int64, real64
-  use fenum, only: FENUM_STATUS_OK, add_r64, fenum_status, full_r64, &
+  use frumpy, only: FRUMPY_STATUS_OK, add_r64, frumpy_status, full_r64, &
     ndarray_r64, reshape_r64, sum_r64, zeros_r64
 
   implicit none
 
-  type(fenum_status) :: status
+  type(frumpy_status) :: status
   type(ndarray_r64) :: a
   type(ndarray_r64) :: b
   type(ndarray_r64) :: c
@@ -33,10 +33,10 @@ program first_vertical_slice
 contains
 
   subroutine require_ok(status, label)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     character(len=*), intent(in) :: label
 
-    if (status%code /= FENUM_STATUS_OK) then
+    if (status%code /= FRUMPY_STATUS_OK) then
       write (*, '(a,1x,a,1x,i0)') "FAIL:", label, status%code
       error stop 1
     end if

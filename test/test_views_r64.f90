@@ -1,12 +1,12 @@
 program test_views_r64
   use iso_fortran_env, only: int32, int64, real64
-  use fenum_constructors_r64, only: asarray_r64
-  use fenum_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64
-  use fenum_slices, only: slice_all, slice_range, slice_spec
-  use fenum_statuses, only: FENUM_STATUS_INVALID_AXIS, &
-    FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
-    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status
-  use fenum_views_r64, only: expand_dims_r64, flatten_r64, ravel_r64, &
+  use frumpy_constructors_r64, only: asarray_r64
+  use frumpy_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64
+  use frumpy_slices, only: slice_all, slice_range, slice_spec
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_AXIS, &
+    FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
+    FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status
+  use frumpy_views_r64, only: expand_dims_r64, flatten_r64, ravel_r64, &
     reshape_r64, slice_r64, squeeze_r64, swapaxes_r64, transpose_r64
 
   implicit none
@@ -23,7 +23,7 @@ program test_views_r64
 contains
 
   subroutine test_reshape_view_shares_storage()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: view
 
@@ -46,7 +46,7 @@ contains
   end subroutine test_reshape_view_shares_storage
 
   subroutine test_ravel_and_flatten_copy_behavior()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: transposed
     type(ndarray_r64) :: raveled
@@ -92,7 +92,7 @@ contains
   end subroutine test_ravel_and_flatten_copy_behavior
 
   subroutine test_transpose_and_swapaxes_views()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: transposed
     type(ndarray_r64) :: swapped
@@ -120,7 +120,7 @@ contains
   end subroutine test_transpose_and_swapaxes_views
 
   subroutine test_squeeze_and_expand_dims_views()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: squeezed
     type(ndarray_r64) :: expanded
@@ -152,7 +152,7 @@ contains
   end subroutine test_squeeze_and_expand_dims_views
 
   subroutine test_slice_views_and_negative_strides()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: sliced
     type(slice_spec) :: specs(2)
@@ -197,7 +197,7 @@ contains
   end subroutine test_slice_views_and_negative_strides
 
   subroutine test_view_status_paths()
-    type(fenum_status) :: status
+    type(frumpy_status) :: status
     type(ndarray_r64) :: source
     type(ndarray_r64) :: transposed
     type(ndarray_r64) :: result
@@ -206,40 +206,40 @@ contains
     source = matrix_source(status)
 
     result = reshape_r64(source, [4_int64, 2_int64], status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_SHAPE, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, &
       "reshape invalid shape status")
 
     transposed = transpose_r64(source, status)
     call assert_status_ok(status, "transpose for status path")
     result = reshape_r64(transposed, [6_int64], status)
-    call assert_status_code(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+    call assert_status_code(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
       "reshape non-contiguous status")
 
     result = swapaxes_r64(source, 0_int32, 2_int32, status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_AXIS, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_AXIS, &
       "swapaxes invalid axis status")
 
     result = squeeze_r64(source, axis0=0_int32, status=status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_SHAPE, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, &
       "squeeze non-singleton status")
 
     result = expand_dims_r64(source, 3_int32, status)
-    call assert_status_code(status, FENUM_STATUS_INVALID_AXIS, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_AXIS, &
       "expand dims invalid axis status")
 
     specs = [slice_range(0_int64, 1_int64, 0_int64, status)]
-    call assert_status_code(status, FENUM_STATUS_INVALID_SHAPE, &
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, &
       "zero step slice spec status")
 
     source = metadata_descriptor_r64([2_int64], [1_int64], 1_int64, status)
     call assert_status_ok(status, "metadata descriptor status")
     result = ravel_r64(source, status)
-    call assert_status_code(status, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, &
+    call assert_status_code(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
       "missing storage view status")
   end subroutine test_view_status_paths
 
   function matrix_source(status) result(source)
-    type(fenum_status), intent(out) :: status
+    type(frumpy_status), intent(out) :: status
     type(ndarray_r64) :: source
 
     source = asarray_r64([1.0_real64, 2.0_real64, 3.0_real64, &
@@ -313,14 +313,14 @@ contains
   end subroutine assert_same_storage
 
   subroutine assert_status_ok(status, message)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     character(len=*), intent(in) :: message
 
-    call assert_status_code(status, FENUM_STATUS_OK, message)
+    call assert_status_code(status, FRUMPY_STATUS_OK, message)
   end subroutine assert_status_ok
 
   subroutine assert_status_code(status, expected_code, message)
-    type(fenum_status), intent(in) :: status
+    type(frumpy_status), intent(in) :: status
     integer(int32), intent(in) :: expected_code
     character(len=*), intent(in) :: message
 

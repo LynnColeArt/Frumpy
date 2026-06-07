@@ -1,8 +1,8 @@
 # AGENTS.md
 
-This file is for agents and contributors working in Fenum.
+This file is for agents and contributors working in Frumpy.
 
-Fenum is a Fortran 2018 NumPy-compatible array engine. Treat that sentence as a
+Frumpy is a Fortran 2018 NumPy-compatible array engine. Treat that sentence as a
 scope boundary, not a slogan.
 
 Read these first:
@@ -22,7 +22,7 @@ shortest clear path from the current requirement to correct behavior, with the
 fewest moving parts required to keep the system testable, maintainable, and
 easy to reason about.
 
-Avoid ceremony unless the problem clearly earns it. Fenum should feel like
+Avoid ceremony unless the problem clearly earns it. Frumpy should feel like
 precise Fortran, not a framework that happens to compile.
 
 
@@ -36,7 +36,7 @@ Do not guess shape behavior, broadcasting, dtype promotion, axis handling,
 empty-array behavior, or copy-vs-view semantics. Check NumPy, encode the
 behavior in tests, and document intentional departures.
 
-If Fenum behaves differently from NumPy, the difference must be:
+If Frumpy behaves differently from NumPy, the difference must be:
 
 - Intentional.
 - Documented.
@@ -46,13 +46,13 @@ If Fenum behaves differently from NumPy, the difference must be:
 
 ### Scope Discipline
 
-Fenum is scoped to NumPy right now.
+Frumpy is scoped to NumPy right now.
 
 Do not implement Torch compatibility, autograd, Diffusers support, model
 loading, GPU runtime design, or training infrastructure in this repo unless the
 project scope has explicitly changed.
 
-Future ML ecosystem work may sit on top of Fenum. It must not distort the
+Future ML ecosystem work may sit on top of Frumpy. It must not distort the
 current ndarray design.
 
 
@@ -84,10 +84,10 @@ before the concrete `r64` path teaches us the real shape of the code.
 
 Use TDD as a design discipline.
 
-For Fenum, a test should usually prove one of two things:
+For Frumpy, a test should usually prove one of two things:
 
 - A Fortran invariant is true.
-- Fenum matches NumPy for a supported behavior.
+- Frumpy matches NumPy for a supported behavior.
 
 Remember the three rules of TDD:
 
@@ -168,7 +168,7 @@ semantics in Fortran with clarity and confidence.
 
 Library code should not casually terminate the process.
 
-Use `fenum_status` or another documented status path for:
+Use `frumpy_status` or another documented status path for:
 
 - Invalid shapes.
 - Invalid axes.
@@ -240,14 +240,14 @@ Avoid:
 - Treating Fortran's memory order as NumPy's public default.
 - Treating broadcasting as materialization.
 - Treating dtype promotion as an afterthought.
-- Writing Torch, Diffusers, or autograd code in Fenum.
+- Writing Torch, Diffusers, or autograd code in Frumpy.
 
 Prefer code that is boring, sharp, readable, and correct.
 
 
 ## Default Work Pattern
 
-When changing Fenum:
+When changing Frumpy:
 
 1. Identify the NumPy behavior being implemented.
 2. Add or update the smallest useful compatibility or invariant test.
@@ -262,7 +262,7 @@ Keep the mountain visible, but climb the next rock.
 
 Do not assume a rich host Python environment.
 
-Fenum may use Python to compare behavior against NumPy, but host Python
+Frumpy may use Python to compare behavior against NumPy, but host Python
 configuration can be unstable across machines. Treat the system `python3` as a
 minimal tool for basic scripts only.
 

@@ -1,46 +1,46 @@
 program test_dtypes
   use iso_fortran_env, only: int32, int64
-  use fenum_constants, only: FENUM_BYTE_SIZE_BOOL, FENUM_BYTE_SIZE_I32, &
-    FENUM_BYTE_SIZE_I64, FENUM_BYTE_SIZE_R32, FENUM_BYTE_SIZE_R64
-  use fenum_dtypes, only: FENUM_DTYPE_BOOL, FENUM_DTYPE_I32, &
-    FENUM_DTYPE_I64, FENUM_DTYPE_R32, FENUM_DTYPE_R64, dtype_byte_size, &
-    dtype_info, dtype_name, fenum_dtype_info, is_supported_dtype
-  use fenum_statuses, only: FENUM_STATUS_UNSUPPORTED_DTYPE, fenum_status
+  use frumpy_constants, only: FRUMPY_BYTE_SIZE_BOOL, FRUMPY_BYTE_SIZE_I32, &
+    FRUMPY_BYTE_SIZE_I64, FRUMPY_BYTE_SIZE_R32, FRUMPY_BYTE_SIZE_R64
+  use frumpy_dtypes, only: FRUMPY_DTYPE_BOOL, FRUMPY_DTYPE_I32, &
+    FRUMPY_DTYPE_I64, FRUMPY_DTYPE_R32, FRUMPY_DTYPE_R64, dtype_byte_size, &
+    dtype_info, dtype_name, frumpy_dtype_info, is_supported_dtype
+  use frumpy_statuses, only: FRUMPY_STATUS_UNSUPPORTED_DTYPE, frumpy_status
 
   implicit none
 
-  type(fenum_dtype_info) :: info
-  type(fenum_status) :: status
+  type(frumpy_dtype_info) :: info
+  type(frumpy_status) :: status
   integer(int64) :: byte_size
 
-  info = dtype_info(FENUM_DTYPE_R64, status)
-  call assert_equal_int32(info%id, FENUM_DTYPE_R64, "r64 dtype id")
+  info = dtype_info(FRUMPY_DTYPE_R64, status)
+  call assert_equal_int32(info%id, FRUMPY_DTYPE_R64, "r64 dtype id")
   call assert_equal_string(info%name, "r64", "r64 dtype name")
-  call assert_equal_int64(info%byte_size, FENUM_BYTE_SIZE_R64, &
+  call assert_equal_int64(info%byte_size, FRUMPY_BYTE_SIZE_R64, &
     "r64 byte size")
   call assert_true(info%is_supported, "r64 is supported")
   call assert_true(status%is_ok(), "r64 dtype status is ok")
-  call assert_true(is_supported_dtype(FENUM_DTYPE_R64), &
+  call assert_true(is_supported_dtype(FRUMPY_DTYPE_R64), &
     "r64 supported predicate")
-  call assert_equal_string(dtype_name(FENUM_DTYPE_R64), "r64", &
+  call assert_equal_string(dtype_name(FRUMPY_DTYPE_R64), "r64", &
     "r64 dtype_name")
 
-  byte_size = dtype_byte_size(FENUM_DTYPE_R64, status)
-  call assert_equal_int64(byte_size, FENUM_BYTE_SIZE_R64, &
+  byte_size = dtype_byte_size(FRUMPY_DTYPE_R64, status)
+  call assert_equal_int64(byte_size, FRUMPY_BYTE_SIZE_R64, &
     "r64 dtype_byte_size")
   call assert_true(status%is_ok(), "r64 dtype_byte_size status is ok")
 
-  call assert_planned_dtype(FENUM_DTYPE_BOOL, "bool", FENUM_BYTE_SIZE_BOOL)
-  call assert_planned_dtype(FENUM_DTYPE_I32, "i32", FENUM_BYTE_SIZE_I32)
-  call assert_planned_dtype(FENUM_DTYPE_I64, "i64", FENUM_BYTE_SIZE_I64)
-  call assert_planned_dtype(FENUM_DTYPE_R32, "r32", FENUM_BYTE_SIZE_R32)
+  call assert_planned_dtype(FRUMPY_DTYPE_BOOL, "bool", FRUMPY_BYTE_SIZE_BOOL)
+  call assert_planned_dtype(FRUMPY_DTYPE_I32, "i32", FRUMPY_BYTE_SIZE_I32)
+  call assert_planned_dtype(FRUMPY_DTYPE_I64, "i64", FRUMPY_BYTE_SIZE_I64)
+  call assert_planned_dtype(FRUMPY_DTYPE_R32, "r32", FRUMPY_BYTE_SIZE_R32)
 
   info = dtype_info(999_int32, status)
   call assert_equal_int32(info%id, -1_int32, "unknown dtype id")
   call assert_equal_string(info%name, "unsupported", "unknown dtype name")
   call assert_equal_int64(info%byte_size, 0_int64, "unknown dtype byte size")
   call assert_false(info%is_supported, "unknown dtype is not supported")
-  call assert_equal_int32(status%code, FENUM_STATUS_UNSUPPORTED_DTYPE, &
+  call assert_equal_int32(status%code, FRUMPY_STATUS_UNSUPPORTED_DTYPE, &
     "unknown dtype status code")
   call assert_true(status%is_failure(), "unknown dtype status fails")
 
@@ -50,8 +50,8 @@ contains
     integer(int32), intent(in) :: dtype_id
     character(len=*), intent(in) :: expected_name
     integer(int64), intent(in) :: expected_byte_size
-    type(fenum_dtype_info) :: planned
-    type(fenum_status) :: planned_status
+    type(frumpy_dtype_info) :: planned
+    type(frumpy_status) :: planned_status
     integer(int64) :: planned_byte_size
 
     planned = dtype_info(dtype_id, planned_status)
@@ -65,7 +65,7 @@ contains
     call assert_false(is_supported_dtype(dtype_id), &
       expected_name // " supported predicate")
     call assert_equal_int32(planned_status%code, &
-      FENUM_STATUS_UNSUPPORTED_DTYPE, expected_name // " status code")
+      FRUMPY_STATUS_UNSUPPORTED_DTYPE, expected_name // " status code")
     call assert_true(planned_status%is_failure(), &
       expected_name // " status fails")
 
@@ -73,7 +73,7 @@ contains
     call assert_equal_int64(planned_byte_size, expected_byte_size, &
       expected_name // " dtype_byte_size")
     call assert_equal_int32(planned_status%code, &
-      FENUM_STATUS_UNSUPPORTED_DTYPE, &
+      FRUMPY_STATUS_UNSUPPORTED_DTYPE, &
       expected_name // " dtype_byte_size status")
   end subroutine assert_planned_dtype
 

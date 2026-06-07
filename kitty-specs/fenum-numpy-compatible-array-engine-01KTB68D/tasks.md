@@ -107,12 +107,12 @@ model loading, tokenizers, GPU runtime design, or a SciPy replacement.
 **Requirements Refs**: FR-009
 **Owned Files**: src/fenum_reductions_r64.f90, test/test_reductions_r64.f90, examples/first_vertical_slice.f90, python/tests/test_numpy_reductions.py
 **Subtasks**: T034, T035, T036, T037, T038, T039
-- [ ] T034 Implement 0-based `axis0` validation helpers.
-- [ ] T035 Implement `sum_r64`, `prod_r64`, `min_r64`, `max_r64`, and `mean_r64`.
-- [ ] T036 Implement phased `keepdims` support for reductions.
-- [ ] T037 Document and test empty-reduction behavior.
-- [ ] T038 Add the first vertical slice example from `PROJECT_PLAN.md`.
-- [ ] T039 Add NumPy differential reduction tests.
+- [x] T034 Implement 0-based `axis0` validation helpers.
+- [x] T035 Implement `sum_r64`, `prod_r64`, `min_r64`, `max_r64`, and `mean_r64`.
+- [x] T036 Implement phased `keepdims` support for reductions.
+- [x] T037 Document and test empty-reduction behavior.
+- [x] T038 Add the first vertical slice example from `PROJECT_PLAN.md`.
+- [x] T039 Add NumPy differential reduction tests.
 
 ---
 

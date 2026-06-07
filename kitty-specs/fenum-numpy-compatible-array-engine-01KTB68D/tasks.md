@@ -92,12 +92,12 @@ model loading, tokenizers, GPU runtime design, or a SciPy replacement.
 **Requirements Refs**: FR-007, FR-008
 **Owned Files**: src/fenum_broadcast.f90, src/fenum_elementwise_r64.f90, test/test_broadcast.f90, test/test_elementwise_r64.f90, python/tests/test_numpy_broadcast_elementwise.py
 **Subtasks**: T028, T029, T030, T031, T032, T033
-- [ ] T028 Implement `broadcast_plan` and trailing-dimension shape negotiation.
-- [ ] T029 Represent broadcasted dimensions with zero strides.
-- [ ] T030 Implement binary add, subtract, multiply, and divide for `r64`.
-- [ ] T031 Implement unary negate, abs, exp, log, sqrt, sin, and cos for `r64`.
-- [ ] T032 Add strided fallback tests before optimized contiguous fast paths.
-- [ ] T033 Add NumPy differential tests for broadcasting and elementwise kernels.
+- [x] T028 Implement `broadcast_plan` and trailing-dimension shape negotiation.
+- [x] T029 Represent broadcasted dimensions with zero strides.
+- [x] T030 Implement binary add, subtract, multiply, and divide for `r64`.
+- [x] T031 Implement unary negate, abs, exp, log, sqrt, sin, and cos for `r64`.
+- [x] T032 Add strided fallback tests before optimized contiguous fast paths.
+- [x] T033 Add NumPy differential tests for broadcasting and elementwise kernels.
 
 ---
 

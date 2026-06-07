@@ -38,3 +38,10 @@
 venv/
 env/
 ENV/
+
+# Local build and test artifacts
+build/
+*.o
+*.mod
+__pycache__/
+.pytest_cache/

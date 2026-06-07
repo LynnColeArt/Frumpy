@@ -11,9 +11,11 @@ module fenum
     subtract_r64
   use fenum_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64, &
     owned_descriptor_r64
+  use fenum_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
+    min_r64, prod_r64, sum_r64
   use fenum_statuses, only: FENUM_STATUS_ALLOCATION_FAILED, &
-    FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, FENUM_STATUS_OVERFLOW, &
-    FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status
+    FENUM_STATUS_INVALID_AXIS, FENUM_STATUS_INVALID_SHAPE, FENUM_STATUS_OK, &
+    FENUM_STATUS_OVERFLOW, FENUM_STATUS_UNSUPPORTED_BEHAVIOR, fenum_status
 
   implicit none
 
@@ -24,6 +26,7 @@ module fenum
   public :: FENUM_ORDER_F
   public :: FENUM_ORDER_K
   public :: FENUM_STATUS_ALLOCATION_FAILED
+  public :: FENUM_STATUS_INVALID_AXIS
   public :: FENUM_STATUS_INVALID_SHAPE
   public :: FENUM_STATUS_OK
   public :: FENUM_STATUS_OVERFLOW
@@ -33,6 +36,7 @@ module fenum
   public :: asarray_r64
   public :: ascontiguousarray_r64
   public :: add_r64
+  public :: axis0_to_dim1
   public :: broadcast_plan
   public :: broadcast_plan_r64
   public :: cos_r64
@@ -44,14 +48,19 @@ module fenum
   public :: full_r64
   public :: linspace_r64
   public :: log_r64
+  public :: max_r64
+  public :: mean_r64
+  public :: min_r64
   public :: multiply_r64
   public :: negate_r64
   public :: ndarray_r64
   public :: ones_r64
   public :: owned_descriptor_r64
   public :: metadata_descriptor_r64
+  public :: prod_r64
   public :: sin_r64
   public :: sqrt_r64
   public :: subtract_r64
+  public :: sum_r64
   public :: zeros_r64
 end module fenum

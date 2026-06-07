@@ -70,3 +70,4 @@ reported through status.
 - 2026-06-07T01:25:56Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Assigned agent via action command
 - 2026-06-07T01:35:31Z – codex:gpt-5:implementer:implementer – shell_pid=377853 – Ready for review: r64 constructors, copy/asarray/ascontiguousarray, Fortran tests, and NumPy fixtures
 - 2026-06-07T01:35:55Z – codex:gpt-5:reviewer:reviewer – shell_pid=377853 – Started review via action command
+- 2026-06-07T01:38:40Z – user – shell_pid=377853 – Review passed: Fortran constructor stack/tests green; Python fixture py_compile green; pytest unavailable because pytest is not installed. Shared-file note: src/fenum.f90 exports WP05 constructors through the public umbrella API.

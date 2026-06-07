@@ -1,0 +1,65 @@
+---
+work_package_id: WP03
+title: Dtype Metadata Table And Support Docs
+dependencies:
+- WP01
+requirement_refs:
+- FR-004
+- FR-009
+- FR-011
+tracker_refs: []
+planning_base_branch: main
+merge_target_branch: main
+branch_strategy: Planning artifacts are generated on the mission coordination branch; completed changes must merge back into main.
+subtasks:
+- T010
+- T011
+- T012
+- T013
+- T014
+phase: Dtype Foundation
+assignee: ''
+agent: ''
+history:
+- timestamp: '2026-06-07T21:15:00Z'
+  agent: codex
+  action: Prompt generated during mission task authoring
+authoritative_surface: src/frumpy_dtypes.f90
+execution_mode: code_change
+owned_files:
+- src/frumpy_dtypes.f90
+- test/test_dtypes.f90
+- docs/DTYPE_SUPPORT.md
+tags: []
+---
+
+# Work Package Prompt: WP03 - Dtype Metadata Table And Support Docs
+
+## Objective
+
+Make `frumpy_dtypes` the authoritative dtype metadata source before adding
+promotion and casting behavior.
+
+## Context
+
+Frumpy currently has dtype IDs for `bool`, `i32`, `i64`, `r32`, and `r64`, but
+only `r64` is operationally supported. This WP turns that into an explicit table
+with support status and documentation.
+
+## Subtasks
+
+- T010 Expand `frumpy_dtypes` into a table-backed dtype metadata source.
+- T011 Track dtype IDs, names, byte sizes, support state, and planned/unsupported status messages.
+- T012 Keep `r64` supported while making non-r64 support claims explicit.
+- T013 Extend Fortran dtype tests for table lookup and unsupported statuses.
+- T014 Start `docs/DTYPE_SUPPORT.md` with supported, planned, and unsupported dtype categories.
+
+## Validation
+
+Run `make validate`, or direct full Fortran/Python validation if WP01 has not
+landed yet. Include focused dtype metadata tests.
+
+## Review Guidance
+
+Reject if docs claim non-r64 operations work before descriptors, promotion, and
+casting support actually land.

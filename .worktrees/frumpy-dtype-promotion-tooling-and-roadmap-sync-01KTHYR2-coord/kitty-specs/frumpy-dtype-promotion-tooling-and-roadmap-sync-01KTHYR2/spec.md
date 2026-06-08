@@ -42,7 +42,7 @@ dtypes, while preserving the current readable Fortran 2018 style.
 - Concrete array descriptors for `r32`, `i32`, `i64`, or boolean arrays.
 - Table-driven dtype promotion and casting behavior.
 - Updated mission task metadata that consistently uses Frumpy module paths
-  instead of historical Fenum paths.
+  instead of pre-rename paths.
 
 ## Scope
 
@@ -50,8 +50,8 @@ dtypes, while preserving the current readable Fortran 2018 style.
 
 - Update project-facing planning artifacts to treat Frumpy as the current
   project name.
-- Preserve historical mission slugs where they are identifiers, but avoid
-  presenting stale `fenum_*` paths as the current implementation surface.
+- Preserve pre-rename mission slugs where they are identifiers, but avoid
+  presenting stale module paths as the current implementation surface.
 - Add `Makefile` commands for clean, build, Fortran tests, Python tests, and
   full validation.
 - Add `fpm.toml` metadata if it can represent the project cleanly without
@@ -126,7 +126,8 @@ dtypes, while preserving the current readable Fortran 2018 style.
 - New dtype promotion/casting tests pass.
 - NumPy differential tests pin the NumPy version observed during validation.
 - `git diff --check` is clean.
-- `rg -n "fenum|Fenum|FENUM" -g '!kitty-specs/fenum-numpy-compatible-array-engine-01KTB68D/**'` does not find stale current-surface names.
+- The current-surface stale-name check documented in `AGENTS.md` prints no
+  matches.
 - Docs state what dtype subset is supported, what is planned, and what is
   intentionally unsupported.
 

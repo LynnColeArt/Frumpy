@@ -71,3 +71,4 @@ or casting modules.
 ## Activity Log
 
 - 2026-06-08T05:42:22Z – codex – shell_pid=377853 – Started review via action command
+- 2026-06-08T05:45:03Z – user – shell_pid=377853 – Review passed: centralized frumpy_promotion table matches NumPy 2.4.6 fixtures; make validate, build/bin/test_dtype_promotion, and python/tests/test_numpy_dtype_promotion.py passed; shared Makefile/BUILDING/frumpy umbrella/DTYPE_METADATA touches wire validation and keep docs/API consistent.

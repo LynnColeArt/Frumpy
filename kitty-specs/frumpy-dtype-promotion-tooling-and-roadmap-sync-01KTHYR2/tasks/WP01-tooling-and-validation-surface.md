@@ -21,7 +21,7 @@ subtasks:
 - T005
 phase: Tooling Foundation
 assignee: ''
-agent: ''
+agent: "codex"
 shell_pid: '377853'
 history:
 - timestamp: '2026-06-07T21:15:00Z'
@@ -68,3 +68,7 @@ tests from `.venv/`, and `git diff --check`.
 
 Reject if targets depend on host-global Python packages, hide failing test
 programs, or make fpm support look complete when it is only partial.
+
+## Activity Log
+
+- 2026-06-08T04:27:52Z – codex – shell_pid=377853 – Ready for review: WP01 tooling committed at 4197e8e; make clean && make validate && make fpm-test passed, with fpm absent and documented.

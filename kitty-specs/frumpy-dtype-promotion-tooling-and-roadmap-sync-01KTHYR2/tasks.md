@@ -20,11 +20,11 @@ replacement work in this mission.
 **Requirements Refs**: FR-001, FR-002, FR-012
 **Owned Files**: Makefile, fpm.toml, bench/**, docs/BUILDING.md, .gitignore
 **Subtasks**: T001, T002, T003, T004, T005
-- [ ] T001 Add a `Makefile` with `build`, `test`, `python-test`, `validate`, and `clean` targets.
-- [ ] T002 Encode the current strict `gfortran` source order and test programs in the Makefile.
-- [ ] T003 Add `fpm.toml` metadata or a documented limitation if fpm cannot cleanly run the current standalone tests.
-- [ ] T004 Add or reserve `bench/` with a minimal benchmark/readme surface.
-- [ ] T005 Add `docs/BUILDING.md` with the canonical local validation commands.
+- [x] T001 Add a `Makefile` with `build`, `test`, `python-test`, `validate`, and `clean` targets.
+- [x] T002 Encode the current strict `gfortran` source order and test programs in the Makefile.
+- [x] T003 Add `fpm.toml` metadata or a documented limitation if fpm cannot cleanly run the current standalone tests.
+- [x] T004 Add or reserve `bench/` with a minimal benchmark/readme surface.
+- [x] T005 Add `docs/BUILDING.md` with the canonical local validation commands.
 
 ---
 

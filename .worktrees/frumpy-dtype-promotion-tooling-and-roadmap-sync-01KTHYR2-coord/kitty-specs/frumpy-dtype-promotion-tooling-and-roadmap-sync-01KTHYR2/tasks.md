@@ -61,11 +61,11 @@ replacement work in this mission.
 **Requirements Refs**: FR-005, FR-006, FR-009, FR-010
 **Owned Files**: src/frumpy_promotion.f90, test/test_dtype_promotion.f90, python/tests/test_numpy_dtype_promotion.py, docs/DTYPE_PROMOTION.md
 **Subtasks**: T015, T016, T017, T018, T019
-- [ ] T015 Add `frumpy_promotion` with a table-driven promotion API for the selected dtype subset.
-- [ ] T016 Define unsupported promotion status behavior for pairs outside the selected subset.
-- [ ] T017 Add Fortran promotion tests for supported, unsupported, scalar-like, and identity pairs.
-- [ ] T018 Add Python NumPy fixtures for expected promotion behavior and record the observed NumPy version.
-- [ ] T019 Document the supported promotion subset and any intentional NumPy differences in `docs/DTYPE_PROMOTION.md`.
+- [x] T015 Add `frumpy_promotion` with a table-driven promotion API for the selected dtype subset.
+- [x] T016 Define unsupported promotion status behavior for pairs outside the selected subset.
+- [x] T017 Add Fortran promotion tests for supported, unsupported, scalar-like, and identity pairs.
+- [x] T018 Add Python NumPy fixtures for expected promotion behavior and record the observed NumPy version.
+- [x] T019 Document the supported promotion subset and any intentional NumPy differences in `docs/DTYPE_PROMOTION.md`.
 
 ---
 

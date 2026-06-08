@@ -12,7 +12,6 @@ module frumpy_promotion
 
   private
 
-  public :: frumpy_promotion_rule
   public :: promote_dtypes
   public :: promote_scalar_dtype
   public :: is_supported_promotion

@@ -11,6 +11,8 @@ module frumpy
     subtract_r64
   use frumpy_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64, &
     owned_descriptor_r64, view_descriptor_r64
+  use frumpy_promotion, only: is_supported_promotion, promote_dtypes, &
+    promote_scalar_dtype
   use frumpy_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
     min_r64, prod_r64, sum_r64
   use frumpy_slices, only: slice_all, slice_range, slice_spec
@@ -51,6 +53,7 @@ module frumpy
   public :: frumpy_status
   public :: flatten_r64
   public :: full_r64
+  public :: is_supported_promotion
   public :: linspace_r64
   public :: log_r64
   public :: max_r64
@@ -62,6 +65,8 @@ module frumpy
   public :: ones_r64
   public :: owned_descriptor_r64
   public :: metadata_descriptor_r64
+  public :: promote_dtypes
+  public :: promote_scalar_dtype
   public :: prod_r64
   public :: ravel_r64
   public :: reshape_r64

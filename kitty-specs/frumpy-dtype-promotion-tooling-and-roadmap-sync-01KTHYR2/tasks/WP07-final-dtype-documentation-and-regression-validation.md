@@ -67,5 +67,4 @@ Run `make validate`, Python dtype fixtures, stale-name checks, and
 ## Review Guidance
 
 Reject if documentation overclaims dtype support, omits the observed NumPy
-version for differential fixtures, or leaves current-facing stale pre-rename
-names.
+version for differential fixtures, or leaves current-facing stale Fenum names.

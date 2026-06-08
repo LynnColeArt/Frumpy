@@ -47,7 +47,8 @@ and documentation.
 
 ## Charter Check
 
-The runtime charter is current-facing Frumpy governance after the rename:
+The current generated runtime charter is still titled "Fenum Runtime Charter",
+but its active rules still apply to Frumpy after the rename:
 
 - NumPy compatibility is the contract.
 - Fortran 2018 is the core implementation language.
@@ -57,8 +58,9 @@ The runtime charter is current-facing Frumpy governance after the rename:
 - Torch, autograd, Diffusers, model loading, tokenizers, GPU runtime design, and
   SciPy replacement work remain out of scope.
 
-This mission may update project-facing charter references, but it must preserve
-pre-rename mission identifiers and avoid breaking existing Spec Kitty state.
+This mission may update project-facing charter references from Fenum to Frumpy,
+but it must preserve historical mission identifiers and avoid breaking existing
+Spec Kitty state.
 
 ## Project Structure
 
@@ -187,8 +189,8 @@ where they identify previous work.
 Rationale:
 
 - Blind renaming historical identifiers risks breaking Spec Kitty state.
-- Current-facing instructions must not send contributors to stale pre-rename
-  module paths.
+- Current-facing instructions must not send contributors to stale `fenum_*`
+  paths.
 
 ### AD-004: Dtype Metadata Is Centralized
 
@@ -254,8 +256,8 @@ Rationale:
   `STYLE_GUIDE.md`, `AGENTS.md`, current mission artifacts, old mission docs as
   manual-review surfaces only
 - **Sequencing/depends-on**: none
-- **Risks**: pre-rename Spec Kitty slugs still exist; those must not be renamed
-  in identifiers or event logs.
+- **Risks**: historical Spec Kitty slugs still contain `fenum`; those must not
+  be blindly renamed.
 
 ### IC-03 — Dtype Metadata Table
 
@@ -346,7 +348,7 @@ acceptable.
 
 | Risk | Mitigation |
 | --- | --- |
-| Spec Kitty state still contains pre-rename paths. | Classify current-facing vs historical identifiers; only rename current-facing surfaces. |
+| Spec Kitty state still contains historical Fenum paths. | Classify current-facing vs historical identifiers; only rename current-facing surfaces. |
 | Dtype support claims outrun implementation. | Track support state separately from planned dtype metadata. |
 | Promotion logic becomes scattered. | Require all promotion decisions to pass through `frumpy_promotion`. |
 | fpm support fights the current standalone tests. | Keep `make validate` canonical and document fpm limits if needed. |
@@ -364,5 +366,5 @@ The mission is ready for acceptance when:
   focused Fortran tests.
 - Python differential tests cover the supported promotion/casting subset.
 - Current-facing docs use Frumpy naming and accurately describe dtype support.
-- Pre-rename mission identifiers are preserved where required.
+- Historical Fenum mission identifiers are preserved where required.
 - `git diff --check` is clean.

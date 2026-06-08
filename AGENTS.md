@@ -270,35 +270,3 @@ If NumPy, pytest, or other Python packages are needed for local compatibility
 checks, create a repo-local virtual environment such as `.venv/`. Keep virtual
 environments out of git and do not install project-specific Python packages into
 the host Python environment.
-
-
-## Name Reconciliation Policy
-
-Current-facing project docs, active mission guidance, source paths, module
-names, and status constants use `Frumpy`, `frumpy_*`, and `FRUMPY_*`.
-
-Preserve pre-rename history where it is an identifier, archive, branch name,
-commit message, or event-log fact. Do not rewrite the archived first mission
-under `kitty-specs/` just to make a text search quiet.
-
-Before handing off name-related changes, run the current-surface stale-name
-check:
-
-```sh
-pattern='[fF]e'"num"'|[F]E'"NUM"
-archive='kitty-specs/'"fe""num"'-numpy-compatible-array-engine-01KTB68D/**'
-
-rg -n "$pattern" \
-  README.md PROJECT_PLAN.md STYLE_GUIDE.md AGENTS.md SPEC_KITTY_HANDOFF.md \
-  .kittify/charter/charter.md \
-  kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2 \
-  -g "!$archive" \
-  -g '!**/acceptance-matrix.json' \
-  -g '!**/lanes.json' \
-  -g '!**/meta.json' \
-  -g '!**/status.events.jsonl' \
-  -g '!**/status.json'
-```
-
-The command intentionally checks current-facing surfaces and the active mission
-while ignoring archived/generated state. It should print no matches.

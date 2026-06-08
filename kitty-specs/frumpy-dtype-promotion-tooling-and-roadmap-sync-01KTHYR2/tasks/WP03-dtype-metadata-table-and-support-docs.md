@@ -22,8 +22,8 @@ subtasks:
 - T014
 phase: Dtype Foundation
 assignee: ''
-agent: ''
-shell_pid: '377853'
+agent: "codex"
+shell_pid: "377853"
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex
@@ -67,3 +67,7 @@ landed yet. Include focused dtype metadata tests.
 
 Reject if metadata docs claim non-r64 operations work before descriptors,
 promotion, and casting support actually land.
+
+## Activity Log
+
+- 2026-06-08T04:59:37Z – codex – shell_pid=377853 – Started review via action command

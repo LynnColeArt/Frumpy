@@ -34,7 +34,7 @@ replacement work in this mission.
 **Requirements Refs**: FR-003
 **Owned Files**: .kittify/charter/charter.md, PROJECT_PLAN.md, STYLE_GUIDE.md, AGENTS.md, README.md, SPEC_KITTY_HANDOFF.md
 **Subtasks**: T006, T007, T008, T009
-- [ ] T006 Classify current-facing Frumpy names versus historical Fenum identifiers before editing.
+- [ ] T006 Classify current-facing Frumpy names versus historical pre-rename identifiers before editing.
 - [ ] T007 Update current-facing docs and active planning artifacts to use `frumpy_*` module paths.
 - [ ] T008 Preserve historical mission slugs and archived identifiers that Spec Kitty state depends on.
 - [ ] T009 Add a stale-name check that ignores intentionally historical mission paths.

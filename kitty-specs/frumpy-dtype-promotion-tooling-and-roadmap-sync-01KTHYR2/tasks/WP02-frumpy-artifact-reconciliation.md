@@ -43,12 +43,12 @@ breaking historical Spec Kitty identifiers.
 ## Context
 
 The source tree is now `frumpy_*`, but older mission files still contain
-historical `fenum_*` paths. Some are harmless identifiers. Some are current
-instructions that would mislead future agents.
+pre-rename paths. Some are harmless identifiers. Some are current instructions
+that would mislead future agents.
 
 ## Subtasks
 
-- T006 Classify current-facing Frumpy names versus historical Fenum identifiers before editing.
+- T006 Classify current-facing Frumpy names versus historical pre-rename identifiers before editing.
 - T007 Update current-facing docs and active planning artifacts to use `frumpy_*` module paths.
 - T008 Preserve historical mission slugs and archived identifiers that Spec Kitty state depends on.
 - T009 Add a stale-name check that ignores intentionally historical mission paths.
@@ -60,5 +60,5 @@ Run the stale-name check, `make validate`, and `git diff --check`.
 ## Review Guidance
 
 Reject blind global replacement. Historical mission slugs and branch names may
-remain `fenum`; current contributor instructions and active code paths should
-not.
+retain pre-rename text; current contributor instructions and active code paths
+should not.

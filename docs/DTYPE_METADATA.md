@@ -1,0 +1,53 @@
+# Frumpy Dtype Metadata
+
+Frumpy keeps dtype identity and support state in `frumpy_dtypes`. This module is
+the authoritative registry for dtype IDs, names, byte sizes, support state, and
+the status message callers should surface when a dtype is known but not usable
+yet.
+
+## Support States
+
+| State | Meaning |
+| --- | --- |
+| `FRUMPY_DTYPE_SUPPORT_SUPPORTED` | The dtype has working descriptors and kernels in the current tree. |
+| `FRUMPY_DTYPE_SUPPORT_PLANNED` | The dtype has stable metadata, but operations must return `FRUMPY_STATUS_UNSUPPORTED_DTYPE`. |
+| `FRUMPY_DTYPE_SUPPORT_UNSUPPORTED` | The dtype is not registered and has no operational support. |
+
+## Registered Dtypes
+
+| ID constant | Name | Byte size | Support state | Operational status |
+| --- | --- | ---: | --- | --- |
+| `FRUMPY_DTYPE_BOOL` | `bool` | 1 | Planned | Metadata only. No descriptors, casting, promotion, or kernels yet. |
+| `FRUMPY_DTYPE_I32` | `i32` | 4 | Planned | Metadata only. No descriptors, casting, promotion, or kernels yet. |
+| `FRUMPY_DTYPE_I64` | `i64` | 8 | Planned | Metadata only. No descriptors, casting, promotion, or kernels yet. |
+| `FRUMPY_DTYPE_R32` | `r32` | 4 | Planned | Metadata only. No descriptors, casting, promotion, or kernels yet. |
+| `FRUMPY_DTYPE_R64` | `r64` | 8 | Supported | Backed by the current concrete `r64` array descriptor and kernels. |
+
+`r64` is the only dtype with operational array support at this point. Planned
+dtypes are intentionally visible now so promotion, casting, and descriptor work
+can share one source of truth instead of creating competing dtype maps.
+
+## Status Policy
+
+`dtype_info(dtype_id, status)` returns table metadata for registered planned
+dtypes, but sets `status` to `FRUMPY_STATUS_UNSUPPORTED_DTYPE`. The returned
+message is dtype-specific, for example:
+
+```text
+dtype i32 is planned but not supported yet
+```
+
+Unknown dtype IDs return the default unsupported metadata:
+
+```text
+name = unsupported
+byte_size = 0
+support_state = FRUMPY_DTYPE_SUPPORT_UNSUPPORTED
+status_message = unknown dtype id
+```
+
+## Explicit Non-Scope
+
+NumPy object dtype, string dtype, datetime dtype, and complex dtypes do not have
+registered Frumpy IDs yet. They should be treated as unsupported until a later
+mission assigns metadata and operational policy for them.

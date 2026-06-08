@@ -22,7 +22,7 @@ subtasks:
 phase: Tooling Foundation
 assignee: ''
 agent: "codex"
-shell_pid: '377853'
+shell_pid: "377853"
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex
@@ -72,3 +72,4 @@ programs, or make fpm support look complete when it is only partial.
 ## Activity Log
 
 - 2026-06-08T04:27:52Z – codex – shell_pid=377853 – Ready for review: WP01 tooling committed at 4197e8e; make clean && make validate && make fpm-test passed, with fpm absent and documented.
+- 2026-06-08T04:28:52Z – codex – shell_pid=377853 – Started review via action command

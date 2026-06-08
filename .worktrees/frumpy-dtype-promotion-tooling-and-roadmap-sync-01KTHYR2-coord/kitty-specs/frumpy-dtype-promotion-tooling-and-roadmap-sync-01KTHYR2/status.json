@@ -1,12 +1,12 @@
 {
-  "event_count": 2,
-  "last_event_id": "01KTJQCSFX8V5EJVX6FZ9D754B",
-  "materialized_at": "2026-06-08T04:21:00.541045+00:00",
+  "event_count": 7,
+  "last_event_id": "01KTJR2TPJZBW58GTA9D5D97YM",
+  "materialized_at": "2026-06-08T04:33:02.674244+00:00",
   "mission_number": "",
   "mission_slug": "frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
   "mission_type": "software-dev",
   "summary": {
-    "approved": 0,
+    "approved": 1,
     "blocked": 0,
     "canceled": 0,
     "claimed": 0,
@@ -18,11 +18,18 @@
   },
   "work_packages": {
     "WP01": {
+      "actor": "user",
+      "force_count": 0,
+      "lane": "approved",
+      "last_event_id": "01KTJQWXY46DA0J926FKB5AAWQ",
+      "last_transition_at": "2026-06-08T04:29:49.380440+00:00"
+    },
+    "WP02": {
       "actor": "codex",
       "force_count": 0,
       "lane": "in_progress",
-      "last_event_id": "01KTJQCSFX8V5EJVX6FZ9D754B",
-      "last_transition_at": "2026-06-08T04:21:00.541045+00:00"
+      "last_event_id": "01KTJR2TPJZBW58GTA9D5D97YM",
+      "last_transition_at": "2026-06-08T04:33:02.674244+00:00"
     }
   }
 }

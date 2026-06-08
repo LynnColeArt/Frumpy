@@ -73,3 +73,4 @@ programs, or make fpm support look complete when it is only partial.
 
 - 2026-06-08T04:27:52Z – codex – shell_pid=377853 – Ready for review: WP01 tooling committed at 4197e8e; make clean && make validate && make fpm-test passed, with fpm absent and documented.
 - 2026-06-08T04:28:52Z – codex – shell_pid=377853 – Started review via action command
+- 2026-06-08T04:29:50Z – user – shell_pid=377853 – Review passed: WP01 adds scoped Makefile/fpm/docs/bench tooling, keeps Python dependencies repo-local, and make clean && make validate && make fpm-test passed.

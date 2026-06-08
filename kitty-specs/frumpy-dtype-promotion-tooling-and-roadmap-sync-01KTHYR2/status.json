@@ -1,9 +1,9 @@
 {
-  "event_count": 7,
-  "last_event_id": "01KTJQ8F4CXTDHVG9QQG5E52GD",
-  "materialized_at": "2026-06-08T04:18:38.860359+00:00",
+  "event_count": 0,
+  "last_event_id": null,
+  "materialized_at": "",
   "mission_number": "",
-  "mission_slug": "frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
+  "mission_slug": "",
   "mission_type": "software-dev",
   "summary": {
     "approved": 0,
@@ -14,57 +14,7 @@
     "for_review": 0,
     "in_progress": 0,
     "in_review": 0,
-    "planned": 7
+    "planned": 0
   },
-  "work_packages": {
-    "WP01": {
-      "actor": "finalize-tasks",
-      "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01KTJQ85PGJ873VBFEX9ZFPC1M",
-      "last_transition_at": "2026-06-08T04:18:29.200535+00:00"
-    },
-    "WP02": {
-      "actor": "finalize-tasks",
-      "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01KTJQ875R1K0NC4BJ1WS24AKE",
-      "last_transition_at": "2026-06-08T04:18:30.712620+00:00"
-    },
-    "WP03": {
-      "actor": "finalize-tasks",
-      "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01KTJQ88S01T9C41QSC9JHSR3Z",
-      "last_transition_at": "2026-06-08T04:18:32.352388+00:00"
-    },
-    "WP04": {
-      "actor": "finalize-tasks",
-      "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01KTJQ8AGPN4XE5G5VGM8CZF71",
-      "last_transition_at": "2026-06-08T04:18:34.134705+00:00"
-    },
-    "WP05": {
-      "actor": "finalize-tasks",
-      "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01KTJQ8C7JQ6ST6SMZ7N7RQNAB",
-      "last_transition_at": "2026-06-08T04:18:35.890779+00:00"
-    },
-    "WP06": {
-      "actor": "finalize-tasks",
-      "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01KTJQ8DP1M03TWHXF1Q7EKTYB",
-      "last_transition_at": "2026-06-08T04:18:37.377564+00:00"
-    },
-    "WP07": {
-      "actor": "finalize-tasks",
-      "force_count": 1,
-      "lane": "planned",
-      "last_event_id": "01KTJQ8F4CXTDHVG9QQG5E52GD",
-      "last_transition_at": "2026-06-08T04:18:38.860359+00:00"
-    }
-  }
+  "work_packages": {}
 }

@@ -9,5 +9,7 @@
   "purpose_context": "This mission advances frumpy dtype promotion tooling and roadmap sync on main so stakeholders can track the work from mission creation onward.",
   "purpose_tldr": "frumpy dtype promotion tooling and roadmap sync",
   "slug": "frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
-  "target_branch": "main"
+  "target_branch": "main",
+  "vcs": "git",
+  "vcs_locked_at": "2026-06-08T04:21:32.067578+00:00"
 }

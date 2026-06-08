@@ -25,8 +25,6 @@ module frumpy_dtypes
   public :: dtype_name
   public :: dtype_byte_size
   public :: dtype_support_state
-  public :: dtype_status_message
-  public :: is_planned_dtype
   public :: is_supported_dtype
 
   integer(int32), parameter :: FRUMPY_DTYPE_UNSUPPORTED = -1_int32
@@ -141,22 +139,6 @@ contains
     info = dtype_info(dtype_id)
     support_state = info%support_state
   end function dtype_support_state
-
-  function dtype_status_message(dtype_id) result(message)
-    integer(int32), intent(in) :: dtype_id
-    character(len=FRUMPY_STATUS_MESSAGE_LEN) :: message
-    type(frumpy_dtype_info) :: info
-
-    info = dtype_info(dtype_id)
-    message = info%status_message
-  end function dtype_status_message
-
-  logical function is_planned_dtype(dtype_id)
-    integer(int32), intent(in) :: dtype_id
-
-    is_planned_dtype = dtype_support_state(dtype_id) == &
-      FRUMPY_DTYPE_SUPPORT_PLANNED
-  end function is_planned_dtype
 
   logical function is_supported_dtype(dtype_id)
     integer(int32), intent(in) :: dtype_id

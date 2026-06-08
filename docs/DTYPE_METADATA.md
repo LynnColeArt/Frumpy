@@ -51,3 +51,8 @@ status_message = unknown dtype id
 NumPy object dtype, string dtype, datetime dtype, and complex dtypes do not have
 registered Frumpy IDs yet. They should be treated as unsupported until a later
 mission assigns metadata and operational policy for them.
+
+Object dtype is intentionally non-scope for the current Frumpy core. The complex
+dtype plan is to document candidate IDs, byte sizes, promotion rules, and casting
+rules before adding descriptors or kernels, so complex support does not arrive as
+an ad hoc special case.

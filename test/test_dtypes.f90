@@ -6,8 +6,7 @@ program test_dtypes
     FRUMPY_DTYPE_I64, FRUMPY_DTYPE_R32, FRUMPY_DTYPE_R64, &
     FRUMPY_DTYPE_SUPPORT_PLANNED, FRUMPY_DTYPE_SUPPORT_SUPPORTED, &
     FRUMPY_DTYPE_SUPPORT_UNSUPPORTED, dtype_byte_size, dtype_info, &
-    dtype_name, dtype_status_message, dtype_support_state, &
-    frumpy_dtype_info, is_planned_dtype, is_supported_dtype
+    dtype_name, dtype_support_state, frumpy_dtype_info, is_supported_dtype
   use frumpy_statuses, only: FRUMPY_STATUS_UNSUPPORTED_DTYPE, frumpy_status
 
   implicit none
@@ -29,12 +28,8 @@ program test_dtypes
   call assert_true(status%is_ok(), "r64 dtype status is ok")
   call assert_true(is_supported_dtype(FRUMPY_DTYPE_R64), &
     "r64 supported predicate")
-  call assert_false(is_planned_dtype(FRUMPY_DTYPE_R64), &
-    "r64 planned predicate")
   call assert_equal_int32(dtype_support_state(FRUMPY_DTYPE_R64), &
     FRUMPY_DTYPE_SUPPORT_SUPPORTED, "r64 dtype_support_state")
-  call assert_equal_string(dtype_status_message(FRUMPY_DTYPE_R64), &
-    "dtype r64 is supported", "r64 dtype_status_message")
   call assert_equal_string(dtype_name(FRUMPY_DTYPE_R64), "r64", &
     "r64 dtype_name")
 
@@ -59,8 +54,6 @@ program test_dtypes
     "unknown dtype message")
   call assert_equal_int32(dtype_support_state(999_int32), &
     FRUMPY_DTYPE_SUPPORT_UNSUPPORTED, "unknown dtype_support_state")
-  call assert_equal_string(dtype_status_message(999_int32), &
-    "unknown dtype id", "unknown dtype_status_message")
   call assert_equal_int32(status%code, FRUMPY_STATUS_UNSUPPORTED_DTYPE, &
     "unknown dtype status code")
   call assert_equal_string(status%message, "unknown dtype id", &
@@ -92,15 +85,11 @@ contains
       expected_name // " is planned but not supported")
     call assert_equal_string(planned%status_message, &
       trim(expected_message), expected_name // " status message")
-    call assert_true(is_planned_dtype(dtype_id), &
-      expected_name // " planned predicate")
     call assert_false(is_supported_dtype(dtype_id), &
       expected_name // " supported predicate")
     call assert_equal_int32(dtype_support_state(dtype_id), &
       FRUMPY_DTYPE_SUPPORT_PLANNED, &
       expected_name // " dtype_support_state")
-    call assert_equal_string(dtype_status_message(dtype_id), &
-      trim(expected_message), expected_name // " dtype_status_message")
     call assert_equal_int32(planned_status%code, &
       FRUMPY_STATUS_UNSUPPORTED_DTYPE, expected_name // " status code")
     call assert_equal_string(planned_status%message, trim(expected_message), &

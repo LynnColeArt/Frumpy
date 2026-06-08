@@ -11,6 +11,9 @@ tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
 branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2
+base_commit: a45415f9e6a37a3819179547b9f7461896ed1846
+created_at: '2026-06-08T04:53:53.471238+00:00'
 subtasks:
 - T010
 - T011
@@ -20,6 +23,7 @@ subtasks:
 phase: Dtype Foundation
 assignee: ''
 agent: ''
+shell_pid: '377853'
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex

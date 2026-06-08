@@ -47,11 +47,11 @@ replacement work in this mission.
 **Requirements Refs**: FR-004, FR-009, FR-011
 **Owned Files**: src/frumpy_dtypes.f90, test/test_dtypes.f90, docs/DTYPE_METADATA.md
 **Subtasks**: T010, T011, T012, T013, T014
-- [ ] T010 Expand `frumpy_dtypes` into a table-backed dtype metadata source.
-- [ ] T011 Track dtype IDs, names, byte sizes, support state, and planned/unsupported status messages.
-- [ ] T012 Keep `r64` supported while making non-r64 support claims explicit.
-- [ ] T013 Extend Fortran dtype tests for table lookup and unsupported statuses.
-- [ ] T014 Start `docs/DTYPE_METADATA.md` with dtype IDs, support states, and unsupported dtype categories.
+- [x] T010 Expand `frumpy_dtypes` into a table-backed dtype metadata source.
+- [x] T011 Track dtype IDs, names, byte sizes, support state, and planned/unsupported status messages.
+- [x] T012 Keep `r64` supported while making non-r64 support claims explicit.
+- [x] T013 Extend Fortran dtype tests for table lookup and unsupported statuses.
+- [x] T014 Start `docs/DTYPE_METADATA.md` with dtype IDs, support states, and unsupported dtype categories.
 
 ---
 

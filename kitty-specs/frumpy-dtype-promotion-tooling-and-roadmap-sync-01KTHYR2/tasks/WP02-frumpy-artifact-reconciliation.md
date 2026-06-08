@@ -20,7 +20,7 @@ subtasks:
 phase: Project Reconciliation
 assignee: ''
 agent: "codex"
-shell_pid: '377853'
+shell_pid: "377853"
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex
@@ -70,3 +70,4 @@ should not.
 ## Activity Log
 
 - 2026-06-08T04:41:24Z – codex – shell_pid=377853 – Ready for review: classified current-facing vs historical pre-rename references; stale-name check clean; make validate and make fpm-test passed with fpm absent and documented.
+- 2026-06-08T04:42:05Z – codex – shell_pid=377853 – Started review via action command

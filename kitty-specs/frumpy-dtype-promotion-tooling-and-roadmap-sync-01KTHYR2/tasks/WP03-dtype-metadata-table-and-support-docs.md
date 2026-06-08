@@ -71,3 +71,4 @@ promotion, and casting support actually land.
 ## Activity Log
 
 - 2026-06-08T04:59:37Z – codex – shell_pid=377853 – Started review via action command
+- 2026-06-08T05:03:07Z – user – shell_pid=377853 – Review passed: table-backed dtype metadata, focused dtype tests, and docs validated with make validate

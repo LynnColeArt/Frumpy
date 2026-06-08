@@ -19,7 +19,7 @@ subtasks:
 - T009
 phase: Project Reconciliation
 assignee: ''
-agent: ''
+agent: "codex"
 shell_pid: '377853'
 history:
 - timestamp: '2026-06-07T21:15:00Z'
@@ -66,3 +66,7 @@ Run the stale-name check, `make validate`, and `git diff --check`.
 Reject blind global replacement. Historical mission slugs and branch names may
 retain pre-rename text; current contributor instructions and active code paths
 should not.
+
+## Activity Log
+
+- 2026-06-08T04:41:24Z – codex – shell_pid=377853 – Ready for review: classified current-facing vs historical pre-rename references; stale-name check clean; make validate and make fpm-test passed with fpm absent and documented.

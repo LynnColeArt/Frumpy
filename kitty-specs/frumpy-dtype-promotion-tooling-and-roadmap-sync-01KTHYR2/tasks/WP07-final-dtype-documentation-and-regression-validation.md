@@ -77,3 +77,4 @@ names.
 ## Activity Log
 
 - 2026-06-09T05:50:41Z – codex – shell_pid=1947072 – Started review via action command
+- 2026-06-09T05:51:44Z – user – shell_pid=1947072 – Review passed: closeout docs accurately describe implemented, planned, and unsupported dtype behavior; complex/object dtype policy is documented; make validate, focused dtype fixtures, stale-name check, and git diff --check pass.

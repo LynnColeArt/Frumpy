@@ -75,11 +75,11 @@ replacement work in this mission.
 **Requirements Refs**: FR-007, FR-009, FR-010
 **Owned Files**: src/frumpy_casting.f90, test/test_casting.f90, python/tests/test_numpy_casting.py, docs/CASTING_POLICY.md
 **Subtasks**: T020, T021, T022, T023, T024
-- [ ] T020 Add `frumpy_casting` with explicit cast/copy kernels for the selected dtype pairs.
-- [ ] T021 Separate promotion decisions from cast execution.
-- [ ] T022 Define status behavior for lossy, overflowing, or unsupported casts.
-- [ ] T023 Add Fortran cast tests for supported and rejected casts.
-- [ ] T024 Add Python fixtures for NumPy cast expectations.
+- [x] T020 Add `frumpy_casting` with explicit cast/copy kernels for the selected dtype pairs.
+- [x] T021 Separate promotion decisions from cast execution.
+- [x] T022 Define status behavior for lossy, overflowing, or unsupported casts.
+- [x] T023 Add Fortran cast tests for supported and rejected casts.
+- [x] T024 Add Python fixtures for NumPy cast expectations.
 
 ---
 

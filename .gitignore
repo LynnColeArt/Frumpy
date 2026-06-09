@@ -43,5 +43,6 @@ ENV/
 build/
 *.o
 *.mod
+*.smod
 __pycache__/
 .pytest_cache/

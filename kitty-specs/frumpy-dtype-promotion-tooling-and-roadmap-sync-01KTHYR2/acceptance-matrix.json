@@ -2,128 +2,145 @@
   "mission_slug": "frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
   "mission_number": "",
   "mission_type": "software-dev",
-  "overall_verdict": "pending",
+  "overall_verdict": "pass",
   "criteria": [
     {
       "criterion_id": "FR-001",
-      "description": "Verify FR-001 is satisfied",
+      "description": "Provide a boring local build/test surface with make targets for build, Fortran tests, Python differential tests, clean, and full validation.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "Makefile exposes build, test, python-test, fpm-test, validate, diff-check, and clean. `make validate` passed on 2026-06-09.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "The validation surface is intentionally simple and repo-local."
     },
     {
       "criterion_id": "FR-002",
-      "description": "Verify FR-002 is satisfied",
-      "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "description": "Provide fpm.toml package metadata or document precisely why fpm cannot yet represent the current layout.",
+      "proof_type": "artifact_review",
+      "evidence": "fpm.toml exists. `make fpm-test` reports fpm is not installed on this host, and docs/BUILDING.md documents `make validate` as the canonical local validation path.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "fpm support is represented as package metadata plus a non-fatal optional test path until fpm is available locally."
     },
     {
       "criterion_id": "FR-003",
-      "description": "Verify FR-003 is satisfied",
-      "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "description": "Ensure project-facing docs and active mission artifacts use Frumpy names for current modules and paths while preserving historical identifiers where required.",
+      "proof_type": "artifact_review",
+      "evidence": "Current-facing stale pre-rename-name check printed no matches across README.md, PROJECT_PLAN.md, STYLE_GUIDE.md, AGENTS.md, SPEC_KITTY_HANDOFF.md, .kittify/charter/charter.md, and the active mission docs, excluding historical/generated metadata.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "Historical mission slugs and generated status metadata retain old identifiers only where required for traceability."
     },
     {
       "criterion_id": "FR-004",
-      "description": "Verify FR-004 is satisfied",
+      "description": "Make frumpy_dtypes the single authoritative source for dtype IDs, names, byte sizes, support state, and planned/unsupported status behavior.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "src/frumpy_dtypes.f90 defines dtype IDs, names, byte sizes, support states, and status behavior. test/test_dtypes.f90 and docs/DTYPE_METADATA.md verify and document the registry.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "The metadata table remains the authority used by later promotion, casting, and descriptor work."
     },
     {
       "criterion_id": "FR-005",
-      "description": "Verify FR-005 is satisfied",
+      "description": "Define a table-driven dtype promotion API for the supported dtype subset.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "src/frumpy_promotion.f90 implements table-driven promote_dtypes, promote_scalar_dtype, and is_supported_promotion APIs. test/test_dtype_promotion.f90 passed through `make validate`.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "Promotion policy is centralized rather than duplicated inside kernels."
     },
     {
       "criterion_id": "FR-006",
-      "description": "Verify FR-006 is satisfied",
+      "description": "Match NumPy promotion behavior for the supported dtype pairs, or document and test any intentional difference.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "python/tests/test_numpy_dtype_promotion.py passed against NumPy 2.4.6. docs/DTYPE_PROMOTION.md records the supported policy and no intentional differences for covered pairs.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "The supported promotion subset is pinned to differential fixtures rather than memory or guesswork."
     },
     {
       "criterion_id": "FR-007",
-      "description": "Verify FR-007 is satisfied",
+      "description": "Implement cast/copy kernels for the selected supported dtype pairs without duplicating promotion logic in kernel modules.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "src/frumpy_casting.f90 implements cast status policy and scalar cast helpers. test/test_casting.f90 and python/tests/test_numpy_casting.py passed.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "Casting checks status and safety policy directly while leaving promotion decisions in frumpy_promotion."
     },
     {
       "criterion_id": "FR-008",
-      "description": "Verify FR-008 is satisfied",
+      "description": "Add concrete descriptor/storage modules for selected non-r64 dtypes in a way that keeps the r64 path readable.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "src/frumpy_ndarray_bool.f90, src/frumpy_ndarray_i32.f90, src/frumpy_ndarray_i64.f90, and src/frumpy_ndarray_r32.f90 add concrete descriptor/storage modules with matching Fortran tests.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "The bool descriptor uses a one-byte int8 payload to keep representation explicit."
     },
     {
       "criterion_id": "FR-009",
-      "description": "Verify FR-009 is satisfied",
+      "description": "Add Fortran tests for dtype metadata, support state, promotion decisions, cast behavior, and unsupported dtype statuses.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "`make validate` passed the dtype-focused Fortran tests: test_dtypes, test_dtype_promotion, test_casting, non-r64 descriptor tests, and existing r64 tests.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "Unsupported and planned dtype statuses are covered by registry and policy tests."
     },
     {
       "criterion_id": "FR-010",
-      "description": "Verify FR-010 is satisfied",
+      "description": "Add Python NumPy differential fixtures for the supported promotion and casting subset.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "Focused Python fixtures passed with `.venv/bin/python -m pytest -q python/tests/test_numpy_dtype_promotion.py python/tests/test_numpy_casting.py`: 6 passed under NumPy 2.4.6.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "The repo-local virtual environment preserves the project's host Python policy."
     },
     {
       "criterion_id": "FR-011",
-      "description": "Verify FR-011 is satisfied",
-      "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "description": "Document the complex dtype plan and object dtype non-support.",
+      "proof_type": "artifact_review",
+      "evidence": "docs/DTYPE_SUPPORT.md documents object dtype as unsupported, docs/COMPLEX_DTYPE_PLAN.md records the complex dtype roadmap, and docs/DTYPE_METADATA.md lists unsupported categories.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "The documentation keeps planned dtype work visible without implying implementation."
     },
     {
       "criterion_id": "FR-012",
-      "description": "Verify FR-012 is satisfied",
+      "description": "Preserve existing r64 constructor, broadcasting, elementwise, reduction, and view behavior.",
       "proof_type": "automated_test",
-      "evidence": null,
-      "pass_fail": "pending",
-      "verified_by": null,
-      "verified_at": null,
-      "notes": "TODO: replace with a real acceptance criterion"
+      "evidence": "`make validate` passed existing r64 constructors, broadcasting, elementwise operations, reductions, views, and descriptor tests after the dtype expansion work.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z",
+      "notes": "The mission adds dtype infrastructure without regressing the original r64 path."
     }
   ],
-  "negative_invariants": []
+  "negative_invariants": [
+    {
+      "invariant_id": "NI-001",
+      "description": "Do not expand project scope into Torch, Diffusers, autograd, GPU runtime design, model loading, or training infrastructure.",
+      "evidence": "Mission changes are limited to Frumpy build/test tooling, project naming reconciliation, dtype metadata, promotion, casting, non-r64 descriptors, and dtype documentation.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z"
+    },
+    {
+      "invariant_id": "NI-002",
+      "description": "Do not install project-specific Python packages into the host Python environment.",
+      "evidence": "Python validation used the repo-local .venv path.",
+      "pass_fail": "pass",
+      "verified_by": "codex",
+      "verified_at": "2026-06-09T05:57:21Z"
+    }
+  ]
 }

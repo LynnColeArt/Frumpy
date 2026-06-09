@@ -9,6 +9,14 @@ module frumpy
   use frumpy_elementwise_r64, only: abs_r64, add_r64, cos_r64, divide_r64, &
     exp_r64, log_r64, multiply_r64, negate_r64, sin_r64, sqrt_r64, &
     subtract_r64
+  use frumpy_ndarray_bool, only: metadata_descriptor_bool, ndarray_bool, &
+    owned_descriptor_bool, view_descriptor_bool
+  use frumpy_ndarray_i32, only: metadata_descriptor_i32, ndarray_i32, &
+    owned_descriptor_i32, view_descriptor_i32
+  use frumpy_ndarray_i64, only: metadata_descriptor_i64, ndarray_i64, &
+    owned_descriptor_i64, view_descriptor_i64
+  use frumpy_ndarray_r32, only: metadata_descriptor_r32, ndarray_r32, &
+    owned_descriptor_r32, view_descriptor_r32
   use frumpy_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64, &
     owned_descriptor_r64, view_descriptor_r64
   use frumpy_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
@@ -55,13 +63,25 @@ module frumpy
   public :: log_r64
   public :: max_r64
   public :: mean_r64
+  public :: metadata_descriptor_bool
+  public :: metadata_descriptor_i32
+  public :: metadata_descriptor_i64
+  public :: metadata_descriptor_r32
+  public :: metadata_descriptor_r64
   public :: min_r64
   public :: multiply_r64
   public :: negate_r64
+  public :: ndarray_bool
+  public :: ndarray_i32
+  public :: ndarray_i64
+  public :: ndarray_r32
   public :: ndarray_r64
   public :: ones_r64
+  public :: owned_descriptor_bool
+  public :: owned_descriptor_i32
+  public :: owned_descriptor_i64
+  public :: owned_descriptor_r32
   public :: owned_descriptor_r64
-  public :: metadata_descriptor_r64
   public :: prod_r64
   public :: ravel_r64
   public :: reshape_r64
@@ -76,6 +96,10 @@ module frumpy
   public :: squeeze_r64
   public :: swapaxes_r64
   public :: transpose_r64
+  public :: view_descriptor_bool
+  public :: view_descriptor_i32
+  public :: view_descriptor_i64
+  public :: view_descriptor_r32
   public :: view_descriptor_r64
   public :: zeros_r64
 end module frumpy

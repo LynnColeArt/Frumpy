@@ -22,6 +22,8 @@ program test_ndarray_r32
     "scalar r32 storage size")
   array%data(1) = 1.5_real32
   call assert_equal_r32(array%data(1), 1.5_real32, "r32 storage kind")
+  call assert_equal_int64(int(storage_size(array%data(1)) / 8, int64), &
+    4_int64, "r32 storage byte size")
 
   array = owned_descriptor_r32([0_int64, 3_int64], status=status)
   call assert_true(status%is_ok(), "empty r32 descriptor status")

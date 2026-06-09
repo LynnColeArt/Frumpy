@@ -22,6 +22,8 @@ program test_ndarray_i32
     "scalar i32 storage size")
   array%data(1) = 42_int32
   call assert_equal_int32(array%data(1), 42_int32, "i32 storage kind")
+  call assert_equal_int64(int(storage_size(array%data(1)) / 8, int64), &
+    4_int64, "i32 storage byte size")
 
   array = owned_descriptor_i32([0_int64, 3_int64], status=status)
   call assert_true(status%is_ok(), "empty i32 descriptor status")

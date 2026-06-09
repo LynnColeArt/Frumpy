@@ -27,6 +27,10 @@ yet.
 are intentionally visible now so promotion, casting, and descriptor work can
 share one source of truth instead of creating competing dtype maps.
 
+The `bool` descriptor stores payload values as `0`/`1` bytes rather than
+default Fortran `logical` values. NumPy bool is a one-byte dtype, while default
+Fortran `logical` storage is compiler-dependent and may be wider.
+
 ## Status Policy
 
 `dtype_info(dtype_id, status)` returns table metadata for registered planned

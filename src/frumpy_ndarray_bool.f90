@@ -1,6 +1,6 @@
 !> Concrete bool ndarray descriptor.
 module frumpy_ndarray_bool
-  use iso_fortran_env, only: int32, int64
+  use iso_fortran_env, only: int8, int32, int64
   use frumpy_constants, only: FRUMPY_ORDER_C, FRUMPY_ORDER_F
   use frumpy_dtypes, only: FRUMPY_DTYPE_BOOL
   use frumpy_shape, only: element_count, is_valid_shape
@@ -28,7 +28,9 @@ module frumpy_ndarray_bool
     logical :: owns_data = .false.
     logical :: is_c_contiguous = .false.
     logical :: is_f_contiguous = .false.
-    logical, pointer :: data(:) => null()
+    ! Store NumPy-compatible bool payloads as 0/1 bytes; default Fortran
+    ! LOGICAL storage is compiler-dependent and often wider than one byte.
+    integer(int8), pointer :: data(:) => null()
   contains
     procedure :: size => ndarray_bool_size
     procedure :: storage_size => ndarray_bool_storage_size

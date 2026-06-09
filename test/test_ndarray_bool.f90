@@ -1,5 +1,5 @@
 program test_ndarray_bool
-  use iso_fortran_env, only: int32, int64
+  use iso_fortran_env, only: int8, int32, int64
   use frumpy, only: FRUMPY_ORDER_C, FRUMPY_ORDER_F, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
     frumpy_status, metadata_descriptor_bool, ndarray_bool, &
@@ -20,8 +20,10 @@ program test_ndarray_bool
   call assert_true(array%has_storage(), "scalar bool has storage")
   call assert_equal_int64(array%storage_size(), 1_int64, &
     "scalar bool storage size")
-  array%data(1) = .true.
-  call assert_true(array%data(1), "bool storage kind")
+  array%data(1) = 1_int8
+  call assert_equal_int8(array%data(1), 1_int8, "bool storage value")
+  call assert_equal_int64(int(storage_size(array%data(1)) / 8, int64), &
+    1_int64, "bool storage byte size")
 
   array = owned_descriptor_bool([0_int64, 3_int64], status=status)
   call assert_true(status%is_ok(), "empty bool descriptor status")
@@ -162,6 +164,18 @@ contains
       error stop 1
     end if
   end subroutine assert_equal_int32
+
+  subroutine assert_equal_int8(actual, expected, message)
+    integer(int8), intent(in) :: actual
+    integer(int8), intent(in) :: expected
+    character(len=*), intent(in) :: message
+
+    if (actual /= expected) then
+      write (*, '(a,1x,i0,1x,a,1x,i0)') "FAIL:", actual, "/=", expected
+      write (*, '(a)') message
+      error stop 1
+    end if
+  end subroutine assert_equal_int8
 
   subroutine assert_equal_int64(actual, expected, message)
     integer(int64), intent(in) :: actual

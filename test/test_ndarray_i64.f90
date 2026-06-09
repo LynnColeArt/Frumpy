@@ -22,6 +22,8 @@ program test_ndarray_i64
     "scalar i64 storage size")
   array%data(1) = 42_int64
   call assert_equal_int64(array%data(1), 42_int64, "i64 storage kind")
+  call assert_equal_int64(int(storage_size(array%data(1)) / 8, int64), &
+    8_int64, "i64 storage byte size")
 
   array = owned_descriptor_i64([0_int64, 3_int64], status=status)
   call assert_true(status%is_ok(), "empty i64 descriptor status")

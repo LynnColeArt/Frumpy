@@ -4,7 +4,9 @@ Frumpy promotion answers one question: given two dtype IDs, what dtype should a
 result use? Promotion does not allocate arrays, convert data, or imply that a
 non-`r64` descriptor or kernel exists yet.
 
-The authoritative Fortran API is `frumpy_promotion`.
+The authoritative Fortran API is `frumpy_promotion`. Explicit conversion policy
+and scalar casting live in `frumpy_casting` and are documented in
+`docs/CASTING_POLICY.md`.
 
 ## API
 
@@ -44,10 +46,10 @@ matching NumPy's dtype-pair result.
 
 ## Operational Boundary
 
-Promotion support is not the same as array operation support. As of this mission,
-only `r64` has concrete Frumpy array descriptors and kernels. The other dtype IDs
-are visible so casting, promotion, and future descriptors can share stable
-metadata without inventing separate maps.
+Promotion support is not the same as cast support or array operation support. As
+of this mission, only `r64` has concrete Frumpy array descriptors and kernels.
+The other dtype IDs are visible so casting, promotion, and future descriptors can
+share stable metadata without inventing separate maps.
 
 ## Unsupported Pairs
 

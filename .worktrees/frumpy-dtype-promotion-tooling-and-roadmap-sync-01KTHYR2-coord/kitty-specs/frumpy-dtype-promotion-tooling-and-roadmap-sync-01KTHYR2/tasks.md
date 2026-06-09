@@ -89,11 +89,11 @@ replacement work in this mission.
 **Requirements Refs**: FR-008, FR-009, FR-012
 **Owned Files**: src/frumpy_ndarray_r32.f90, src/frumpy_ndarray_i32.f90, src/frumpy_ndarray_i64.f90, src/frumpy_ndarray_bool.f90, test/test_ndarray_r32.f90, test/test_ndarray_i32.f90, test/test_ndarray_i64.f90, test/test_ndarray_bool.f90, src/frumpy.f90
 **Subtasks**: T025, T026, T027, T028, T029
-- [ ] T025 Choose the smallest concrete non-r64 descriptor subset for this mission.
-- [ ] T026 Implement descriptor/storage modules for the selected non-r64 dtypes.
-- [ ] T027 Preserve the `ndarray_r64` invariants for shape, strides, offset, ownership, and contiguity.
-- [ ] T028 Add descriptor tests for selected non-r64 dtypes.
-- [ ] T029 Expose only reviewed descriptor surfaces through the umbrella `frumpy` module.
+- [x] T025 Choose the smallest concrete non-r64 descriptor subset for this mission.
+- [x] T026 Implement descriptor/storage modules for the selected non-r64 dtypes.
+- [x] T027 Preserve the `ndarray_r64` invariants for shape, strides, offset, ownership, and contiguity.
+- [x] T028 Add descriptor tests for selected non-r64 dtypes.
+- [x] T029 Expose only reviewed descriptor surfaces through the umbrella `frumpy` module.
 
 ---
 

@@ -5,10 +5,22 @@
       "accepted_at": "2026-06-09T06:13:44.356639+00:00",
       "accepted_by": "lynn",
       "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3"
+    },
+    {
+      "acceptance_mode": "pr",
+      "accepted_at": "2026-06-09T06:46:37.295862+00:00",
+      "accepted_by": "lynn",
+      "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3"
+    },
+    {
+      "acceptance_mode": "pr",
+      "accepted_at": "2026-06-09T06:48:45.707335+00:00",
+      "accepted_by": "lynn",
+      "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3"
     }
   ],
-  "acceptance_mode": "local",
-  "accepted_at": "2026-06-09T06:13:44.356639+00:00",
+  "acceptance_mode": "pr",
+  "accepted_at": "2026-06-09T06:48:45.707335+00:00",
   "accepted_by": "lynn",
   "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3",
   "coordination_branch": "kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",

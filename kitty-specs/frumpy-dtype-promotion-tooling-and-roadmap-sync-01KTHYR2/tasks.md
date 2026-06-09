@@ -75,11 +75,11 @@ replacement work in this mission.
 **Requirements Refs**: FR-007, FR-009, FR-010
 **Owned Files**: src/frumpy_casting.f90, test/test_casting.f90, python/tests/test_numpy_casting.py, docs/CASTING_POLICY.md
 **Subtasks**: T020, T021, T022, T023, T024
-- [ ] T020 Add `frumpy_casting` with explicit cast/copy kernels for the selected dtype pairs.
-- [ ] T021 Separate promotion decisions from cast execution.
-- [ ] T022 Define status behavior for lossy, overflowing, or unsupported casts.
-- [ ] T023 Add Fortran cast tests for supported and rejected casts.
-- [ ] T024 Add Python fixtures for NumPy cast expectations.
+- [x] T020 Add `frumpy_casting` with explicit cast/copy kernels for the selected dtype pairs.
+- [x] T021 Separate promotion decisions from cast execution.
+- [x] T022 Define status behavior for lossy, overflowing, or unsupported casts.
+- [x] T023 Add Fortran cast tests for supported and rejected casts.
+- [x] T024 Add Python fixtures for NumPy cast expectations.
 
 ---
 
@@ -89,11 +89,11 @@ replacement work in this mission.
 **Requirements Refs**: FR-008, FR-009, FR-012
 **Owned Files**: src/frumpy_ndarray_r32.f90, src/frumpy_ndarray_i32.f90, src/frumpy_ndarray_i64.f90, src/frumpy_ndarray_bool.f90, test/test_ndarray_r32.f90, test/test_ndarray_i32.f90, test/test_ndarray_i64.f90, test/test_ndarray_bool.f90, src/frumpy.f90
 **Subtasks**: T025, T026, T027, T028, T029
-- [ ] T025 Choose the smallest concrete non-r64 descriptor subset for this mission.
-- [ ] T026 Implement descriptor/storage modules for the selected non-r64 dtypes.
-- [ ] T027 Preserve the `ndarray_r64` invariants for shape, strides, offset, ownership, and contiguity.
-- [ ] T028 Add descriptor tests for selected non-r64 dtypes.
-- [ ] T029 Expose only reviewed descriptor surfaces through the umbrella `frumpy` module.
+- [x] T025 Choose the smallest concrete non-r64 descriptor subset for this mission.
+- [x] T026 Implement descriptor/storage modules for the selected non-r64 dtypes.
+- [x] T027 Preserve the `ndarray_r64` invariants for shape, strides, offset, ownership, and contiguity.
+- [x] T028 Add descriptor tests for selected non-r64 dtypes.
+- [x] T029 Expose only reviewed descriptor surfaces through the umbrella `frumpy` module.
 
 ---
 
@@ -103,12 +103,12 @@ replacement work in this mission.
 **Requirements Refs**: FR-003, FR-011, FR-012
 **Owned Files**: docs/DTYPE_SUPPORT.md, docs/COMPLEX_DTYPE_PLAN.md, docs/DTYPE_VALIDATION.md
 **Subtasks**: T030, T031, T032, T033, T034, T035
-- [ ] T030 Write `docs/COMPLEX_DTYPE_PLAN.md`.
-- [ ] T031 Document object dtype as intentionally unsupported.
-- [ ] T032 Finalize `docs/DTYPE_SUPPORT.md` with implemented, planned, and unsupported dtype behavior.
-- [ ] T033 Run `make validate`, Python differential tests, stale-name checks, and `git diff --check`.
-- [ ] T034 Confirm existing r64 constructors, broadcasting, elementwise, reductions, and views still pass.
-- [ ] T035 Prepare mission acceptance notes with exact validation commands and observed NumPy version.
+- [x] T030 Write `docs/COMPLEX_DTYPE_PLAN.md`.
+- [x] T031 Document object dtype as intentionally unsupported.
+- [x] T032 Finalize `docs/DTYPE_SUPPORT.md` with implemented, planned, and unsupported dtype behavior.
+- [x] T033 Run `make validate`, Python differential tests, stale-name checks, and `git diff --check`.
+- [x] T034 Confirm existing r64 constructors, broadcasting, elementwise, reductions, and views still pass.
+- [x] T035 Prepare mission acceptance notes with exact validation commands and observed NumPy version.
 
 ---
 

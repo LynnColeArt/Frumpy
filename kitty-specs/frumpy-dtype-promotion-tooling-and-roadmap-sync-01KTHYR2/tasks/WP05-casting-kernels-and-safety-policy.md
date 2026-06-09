@@ -11,6 +11,9 @@ tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
 branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2
+base_commit: b10157ea99d8788a94646d0c79f4bd8df2265283
+created_at: '2026-06-08T07:38:05.911702+00:00'
 subtasks:
 - T020
 - T021
@@ -19,7 +22,8 @@ subtasks:
 - T024
 phase: Dtype Casting
 assignee: ''
-agent: ''
+agent: "codex"
+shell_pid: "1947072"
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex
@@ -62,3 +66,8 @@ fixtures.
 ## Review Guidance
 
 Reject if casts silently overflow, silently narrow, or bypass status handling.
+
+## Activity Log
+
+- 2026-06-09T02:35:12Z – codex – shell_pid=1947072 – Started review via action command
+- 2026-06-09T02:36:45Z – user – shell_pid=1947072 – Review passed: explicit casting policy stays separate from promotion, scalar narrowing/overflow paths report frumpy_status, and validation passed via make validate plus focused casting/promotion NumPy fixtures.

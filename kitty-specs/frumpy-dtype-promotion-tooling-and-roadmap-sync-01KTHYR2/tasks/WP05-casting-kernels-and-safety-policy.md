@@ -70,3 +70,4 @@ Reject if casts silently overflow, silently narrow, or bypass status handling.
 ## Activity Log
 
 - 2026-06-09T02:35:12Z – codex – shell_pid=1947072 – Started review via action command
+- 2026-06-09T02:36:45Z – user – shell_pid=1947072 – Review passed: explicit casting policy stays separate from promotion, scalar narrowing/overflow paths report frumpy_status, and validation passed via make validate plus focused casting/promotion NumPy fixtures.

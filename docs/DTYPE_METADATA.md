@@ -17,16 +17,17 @@ yet.
 
 | ID constant | Name | Byte size | Support state | Operational status |
 | --- | --- | ---: | --- | --- |
-| `FRUMPY_DTYPE_BOOL` | `bool` | 1 | Planned | Metadata and promotion policy only. No descriptors, casting, or kernels yet. |
-| `FRUMPY_DTYPE_I32` | `i32` | 4 | Planned | Metadata and promotion policy only. No descriptors, casting, or kernels yet. |
-| `FRUMPY_DTYPE_I64` | `i64` | 8 | Planned | Metadata and promotion policy only. No descriptors, casting, or kernels yet. |
-| `FRUMPY_DTYPE_R32` | `r32` | 4 | Planned | Metadata and promotion policy only. No descriptors, casting, or kernels yet. |
+| `FRUMPY_DTYPE_BOOL` | `bool` | 1 | Planned | Metadata, promotion policy, and selected scalar casting only. No descriptors or array kernels yet. |
+| `FRUMPY_DTYPE_I32` | `i32` | 4 | Planned | Metadata, promotion policy, and selected scalar casting only. No descriptors or array kernels yet. |
+| `FRUMPY_DTYPE_I64` | `i64` | 8 | Planned | Metadata, promotion policy, and selected scalar casting only. No descriptors or array kernels yet. |
+| `FRUMPY_DTYPE_R32` | `r32` | 4 | Planned | Metadata, promotion policy, and selected scalar casting only. No descriptors or array kernels yet. |
 | `FRUMPY_DTYPE_R64` | `r64` | 8 | Supported | Backed by the current concrete `r64` array descriptor and kernels. |
 
 `r64` is the only dtype with operational array support at this point. Planned
 dtypes are intentionally visible now so promotion, casting, and descriptor work
 can share one source of truth instead of creating competing dtype maps. Promotion
-policy is documented separately in `docs/DTYPE_PROMOTION.md`.
+policy is documented separately in `docs/DTYPE_PROMOTION.md`; casting policy is
+documented separately in `docs/CASTING_POLICY.md`.
 
 ## Status Policy
 

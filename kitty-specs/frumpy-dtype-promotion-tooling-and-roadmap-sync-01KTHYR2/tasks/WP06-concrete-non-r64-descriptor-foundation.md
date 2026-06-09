@@ -11,6 +11,9 @@ tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
 branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2
+base_commit: 572e0eebcc0c7a6f7c2e52a503e2bb401bfbb4be
+created_at: '2026-06-09T03:27:23.089780+00:00'
 subtasks:
 - T025
 - T026
@@ -19,7 +22,8 @@ subtasks:
 - T029
 phase: Descriptor Expansion
 assignee: ''
-agent: ''
+agent: "codex"
+shell_pid: "1947072"
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex
@@ -67,3 +71,8 @@ Run `make validate` and the selected non-r64 descriptor tests.
 
 Reject if the implementation changes `ndarray_r64` behavior without explicit
 tests, or if the umbrella module exposes unreviewed dtype surfaces.
+
+## Activity Log
+
+- 2026-06-09T03:40:20Z – codex – shell_pid=1947072 – Started review via action command
+- 2026-06-09T03:44:00Z – user – shell_pid=1947072 – Review passed: bool/i32/i64/r32 descriptors preserve r64 metadata invariants, bool payload storage is one-byte 0/1 data, and make validate passes.

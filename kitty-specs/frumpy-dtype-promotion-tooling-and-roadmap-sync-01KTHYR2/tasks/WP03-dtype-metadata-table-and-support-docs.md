@@ -11,9 +11,6 @@ tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
 branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
-base_branch: kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2
-base_commit: a45415f9e6a37a3819179547b9f7461896ed1846
-created_at: '2026-06-08T04:53:53.471238+00:00'
 subtasks:
 - T010
 - T011
@@ -22,8 +19,7 @@ subtasks:
 - T014
 phase: Dtype Foundation
 assignee: ''
-agent: "codex"
-shell_pid: "377853"
+agent: ''
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex
@@ -67,8 +63,3 @@ landed yet. Include focused dtype metadata tests.
 
 Reject if metadata docs claim non-r64 operations work before descriptors,
 promotion, and casting support actually land.
-
-## Activity Log
-
-- 2026-06-08T04:59:37Z – codex – shell_pid=377853 – Started review via action command
-- 2026-06-08T05:03:07Z – user – shell_pid=377853 – Review passed: table-backed dtype metadata, focused dtype tests, and docs validated with make validate

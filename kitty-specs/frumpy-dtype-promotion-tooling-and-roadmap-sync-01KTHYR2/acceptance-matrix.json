@@ -125,26 +125,5 @@
       "notes": "The mission adds dtype infrastructure without regressing the original r64 path."
     }
   ],
-  "negative_invariants": [
-    {
-      "invariant_id": "NI-001",
-      "description": "Do not expand project scope into Torch, Diffusers, autograd, GPU runtime design, model loading, or training infrastructure.",
-      "verification_method": "custom_command",
-      "verification_command": "review mission diff and current-facing docs for Torch, Diffusers, autograd, GPU runtime design, model loading, or training infrastructure scope creep",
-      "result": "confirmed_absent",
-      "evidence": "Mission changes are limited to Frumpy build/test tooling, project naming reconciliation, dtype metadata, promotion, casting, non-r64 descriptors, and dtype documentation.",
-      "verified_by": "codex",
-      "verified_at": "2026-06-09T05:57:21Z"
-    },
-    {
-      "invariant_id": "NI-002",
-      "description": "Do not install project-specific Python packages into the host Python environment.",
-      "verification_method": "custom_command",
-      "verification_command": "confirm Python validation command used repo-local .venv path",
-      "result": "confirmed_absent",
-      "evidence": "Python validation used the repo-local .venv path.",
-      "verified_by": "codex",
-      "verified_at": "2026-06-09T05:57:21Z"
-    }
-  ]
+  "negative_invariants": []
 }

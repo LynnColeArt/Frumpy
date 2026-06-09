@@ -22,6 +22,10 @@ SOURCES := \
 	src/frumpy_dtypes.f90 \
 	src/frumpy_promotion.f90 \
 	src/frumpy_casting.f90 \
+	src/frumpy_ndarray_bool.f90 \
+	src/frumpy_ndarray_i32.f90 \
+	src/frumpy_ndarray_i64.f90 \
+	src/frumpy_ndarray_r32.f90 \
 	src/frumpy_ndarray_r64.f90 \
 	src/frumpy_constructors_r64.f90 \
 	src/frumpy_broadcast.f90 \
@@ -38,6 +42,10 @@ FORTRAN_TESTS := \
 	test/test_casting.f90 \
 	test/test_shape.f90 \
 	test/test_strides.f90 \
+	test/test_ndarray_bool.f90 \
+	test/test_ndarray_i32.f90 \
+	test/test_ndarray_i64.f90 \
+	test/test_ndarray_r32.f90 \
 	test/test_ndarray_r64.f90 \
 	test/test_constructors_r64.f90 \
 	test/test_broadcast.f90 \

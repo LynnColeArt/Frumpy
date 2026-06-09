@@ -1,0 +1,16 @@
+name = "frumpy"
+version = "0.1.0"
+license = "MIT"
+author = "Lynn Cole"
+maintainer = "Lynn Cole"
+copyright = "Copyright 2026"
+description = "A Fortran 2018 NumPy-compatible array engine."
+
+[build]
+auto-executables = false
+auto-tests = true
+auto-examples = true
+module-naming = false
+
+[install]
+library = true

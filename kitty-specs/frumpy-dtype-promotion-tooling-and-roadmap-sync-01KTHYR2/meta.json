@@ -1,13 +1,39 @@
 {
+  "acceptance_history": [
+    {
+      "acceptance_mode": "local",
+      "accepted_at": "2026-06-09T06:13:44.356639+00:00",
+      "accepted_by": "lynn",
+      "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3"
+    },
+    {
+      "acceptance_mode": "pr",
+      "accepted_at": "2026-06-09T06:46:37.295862+00:00",
+      "accepted_by": "lynn",
+      "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3"
+    },
+    {
+      "acceptance_mode": "pr",
+      "accepted_at": "2026-06-09T06:48:45.707335+00:00",
+      "accepted_by": "lynn",
+      "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3"
+    }
+  ],
+  "acceptance_mode": "pr",
+  "accepted_at": "2026-06-09T06:48:45.707335+00:00",
+  "accepted_by": "lynn",
+  "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3",
   "coordination_branch": "kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
   "created_at": "2026-06-07T21:10:16.068741+00:00",
   "friendly_name": "frumpy dtype promotion tooling and roadmap sync",
   "mission_id": "01KTHYR2R4YXFGHWT1EEPEKZK4",
-  "mission_number": null,
+  "mission_number": 1,
   "mission_slug": "frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
   "mission_type": "software-dev",
   "purpose_context": "This mission advances frumpy dtype promotion tooling and roadmap sync on main so stakeholders can track the work from mission creation onward.",
   "purpose_tldr": "frumpy dtype promotion tooling and roadmap sync",
   "slug": "frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
-  "target_branch": "main"
+  "target_branch": "main",
+  "vcs": "git",
+  "vcs_locked_at": "2026-06-08T04:21:32.067578+00:00"
 }

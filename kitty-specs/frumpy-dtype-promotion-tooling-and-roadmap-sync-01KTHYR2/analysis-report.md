@@ -8,16 +8,16 @@ generated_at: '2026-06-09T03:25:30+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
-    path: /home/lynn/projects/fenum/.worktrees/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2-coord/kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2/spec.md
+    path: kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2/spec.md
     sha256: 3c464b2cb5fe1dec4eee0126aa75e35093e0fb69edc1bd435c93417d0283c3e0
   plan.md:
-    path: /home/lynn/projects/fenum/.worktrees/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2-coord/kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2/plan.md
+    path: kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2/plan.md
     sha256: 7f3f2ab98a55fbf376c0167b2599fed2ca41532e9e0bc14171e6094bc4443abd
   tasks.md:
-    path: /home/lynn/projects/fenum/.worktrees/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2-coord/kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2/tasks.md
+    path: kitty-specs/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2/tasks.md
     sha256: c8f93a8a1f96b00cdc330c6a075358719352e695d93815217781070d5b0a510e
   charter:
-    path: /home/lynn/projects/fenum/.worktrees/frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2-coord/.kittify/charter/charter.md
+    path: .kittify/charter/charter.md
     sha256: c0ea2361a1e1284a645981fad6426862c6cd99967eb0260f723022f1b6fc02da
 verdict: ready
 issue_counts:

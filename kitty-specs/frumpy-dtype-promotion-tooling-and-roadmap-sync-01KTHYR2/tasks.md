@@ -103,12 +103,12 @@ replacement work in this mission.
 **Requirements Refs**: FR-003, FR-011, FR-012
 **Owned Files**: docs/DTYPE_SUPPORT.md, docs/COMPLEX_DTYPE_PLAN.md, docs/DTYPE_VALIDATION.md
 **Subtasks**: T030, T031, T032, T033, T034, T035
-- [x] T030 Write `docs/COMPLEX_DTYPE_PLAN.md`.
-- [x] T031 Document object dtype as intentionally unsupported.
-- [x] T032 Finalize `docs/DTYPE_SUPPORT.md` with implemented, planned, and unsupported dtype behavior.
-- [x] T033 Run `make validate`, Python differential tests, stale-name checks, and `git diff --check`.
-- [x] T034 Confirm existing r64 constructors, broadcasting, elementwise, reductions, and views still pass.
-- [x] T035 Prepare mission acceptance notes with exact validation commands and observed NumPy version.
+- [ ] T030 Write `docs/COMPLEX_DTYPE_PLAN.md`.
+- [ ] T031 Document object dtype as intentionally unsupported.
+- [ ] T032 Finalize `docs/DTYPE_SUPPORT.md` with implemented, planned, and unsupported dtype behavior.
+- [ ] T033 Run `make validate`, Python differential tests, stale-name checks, and `git diff --check`.
+- [ ] T034 Confirm existing r64 constructors, broadcasting, elementwise, reductions, and views still pass.
+- [ ] T035 Prepare mission acceptance notes with exact validation commands and observed NumPy version.
 
 ---
 

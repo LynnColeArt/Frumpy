@@ -12,6 +12,9 @@ tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
 branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2
+base_commit: e078b3d1c944a0cf22f00cb369ce81aa8056bb51
+created_at: '2026-06-08T05:35:15.632887+00:00'
 subtasks:
 - T015
 - T016
@@ -20,7 +23,8 @@ subtasks:
 - T019
 phase: Dtype Promotion
 assignee: ''
-agent: ''
+agent: "codex"
+shell_pid: "377853"
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex
@@ -63,3 +67,8 @@ Run `make validate`, `test/test_dtype_promotion.f90`, and
 
 Reject if promotion rules are duplicated in constructor, elementwise, reduction,
 or casting modules.
+
+## Activity Log
+
+- 2026-06-08T05:42:22Z – codex – shell_pid=377853 – Started review via action command
+- 2026-06-08T05:45:03Z – user – shell_pid=377853 – Review passed: centralized frumpy_promotion table matches NumPy 2.4.6 fixtures; make validate, build/bin/test_dtype_promotion, and python/tests/test_numpy_dtype_promotion.py passed; shared Makefile/BUILDING/frumpy umbrella/DTYPE_METADATA touches wire validation and keep docs/API consistent.

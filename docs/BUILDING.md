@@ -70,6 +70,7 @@ until the fpm-specific issue is documented and fixed.
 
 - `test/test_statuses.f90`
 - `test/test_dtypes.f90`
+- `test/test_dtype_promotion.f90`
 - `test/test_shape.f90`
 - `test/test_strides.f90`
 - `test/test_ndarray_bool.f90`

@@ -14,6 +14,9 @@ tracker_refs: []
 planning_base_branch: main
 merge_target_branch: main
 branch_strategy: Planning artifacts for this mission were generated on main. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into main unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2
+base_commit: b32fd0aa68ea5ddd25da4d45205a68bed242f169
+created_at: '2026-06-09T05:41:15.269904+00:00'
 subtasks:
 - T030
 - T031
@@ -23,7 +26,8 @@ subtasks:
 - T035
 phase: Mission Closeout
 assignee: ''
-agent: ''
+agent: "codex"
+shell_pid: "1947072"
 history:
 - timestamp: '2026-06-07T21:15:00Z'
   agent: codex
@@ -69,3 +73,8 @@ Run `make validate`, Python dtype fixtures, stale-name checks, and
 Reject if documentation overclaims dtype support, omits the observed NumPy
 version for differential fixtures, or leaves current-facing stale pre-rename
 names.
+
+## Activity Log
+
+- 2026-06-09T05:50:41Z – codex – shell_pid=1947072 – Started review via action command
+- 2026-06-09T05:51:44Z – user – shell_pid=1947072 – Review passed: closeout docs accurately describe implemented, planned, and unsupported dtype behavior; complex/object dtype policy is documented; make validate, focused dtype fixtures, stale-name check, and git diff --check pass.

@@ -74,6 +74,10 @@ until the fpm-specific issue is documented and fixed.
 - `test/test_casting.f90`
 - `test/test_shape.f90`
 - `test/test_strides.f90`
+- `test/test_ndarray_bool.f90`
+- `test/test_ndarray_i32.f90`
+- `test/test_ndarray_i64.f90`
+- `test/test_ndarray_r32.f90`
 - `test/test_ndarray_r64.f90`
 - `test/test_constructors_r64.f90`
 - `test/test_broadcast.f90`

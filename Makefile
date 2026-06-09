@@ -20,8 +20,6 @@ SOURCES := \
 	src/frumpy_shape.f90 \
 	src/frumpy_strides.f90 \
 	src/frumpy_dtypes.f90 \
-	src/frumpy_promotion.f90 \
-	src/frumpy_casting.f90 \
 	src/frumpy_ndarray_bool.f90 \
 	src/frumpy_ndarray_i32.f90 \
 	src/frumpy_ndarray_i64.f90 \
@@ -38,8 +36,6 @@ SOURCES := \
 FORTRAN_TESTS := \
 	test/test_statuses.f90 \
 	test/test_dtypes.f90 \
-	test/test_dtype_promotion.f90 \
-	test/test_casting.f90 \
 	test/test_shape.f90 \
 	test/test_strides.f90 \
 	test/test_ndarray_bool.f90 \

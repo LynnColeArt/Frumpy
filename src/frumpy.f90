@@ -114,8 +114,6 @@ module frumpy
   public :: owned_descriptor_i64
   public :: owned_descriptor_r32
   public :: owned_descriptor_r64
-  public :: promote_dtypes
-  public :: promote_scalar_dtype
   public :: prod_r64
   public :: ravel_r64
   public :: reshape_r64

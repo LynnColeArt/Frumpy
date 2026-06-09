@@ -17,10 +17,10 @@ yet.
 
 | ID constant | Name | Byte size | Support state | Operational status |
 | --- | --- | ---: | --- | --- |
-| `FRUMPY_DTYPE_BOOL` | `bool` | 1 | Planned | Metadata, promotion policy, selected scalar casting, and descriptor foundation. No array kernels yet. |
-| `FRUMPY_DTYPE_I32` | `i32` | 4 | Planned | Metadata, promotion policy, selected scalar casting, and descriptor foundation. No array kernels yet. |
-| `FRUMPY_DTYPE_I64` | `i64` | 8 | Planned | Metadata, promotion policy, selected scalar casting, and descriptor foundation. No array kernels yet. |
-| `FRUMPY_DTYPE_R32` | `r32` | 4 | Planned | Metadata, promotion policy, selected scalar casting, and descriptor foundation. No array kernels yet. |
+| `FRUMPY_DTYPE_BOOL` | `bool` | 1 | Planned | Metadata and descriptor foundation only. No casting, promotion, or kernels yet. |
+| `FRUMPY_DTYPE_I32` | `i32` | 4 | Planned | Metadata and descriptor foundation only. No casting, promotion, or kernels yet. |
+| `FRUMPY_DTYPE_I64` | `i64` | 8 | Planned | Metadata and descriptor foundation only. No casting, promotion, or kernels yet. |
+| `FRUMPY_DTYPE_R32` | `r32` | 4 | Planned | Metadata and descriptor foundation only. No casting, promotion, or kernels yet. |
 | `FRUMPY_DTYPE_R64` | `r64` | 8 | Supported | Backed by the current concrete `r64` array descriptor and kernels. |
 
 `r64` is the only dtype with arithmetic kernels at this point. Planned dtypes

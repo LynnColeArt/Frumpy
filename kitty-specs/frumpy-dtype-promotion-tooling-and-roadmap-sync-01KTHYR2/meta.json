@@ -23,6 +23,7 @@
   "accepted_at": "2026-06-09T06:48:45.707335+00:00",
   "accepted_by": "lynn",
   "accepted_from_commit": "61b151735d44d03af0603bdbd8cf418d220a2dc3",
+  "baseline_merge_commit": "c06e92eb6fccab4da495d13e375c8115187ae46a",
   "coordination_branch": "kitty/mission-frumpy-dtype-promotion-tooling-and-roadmap-sync-01KTHYR2",
   "created_at": "2026-06-07T21:10:16.068741+00:00",
   "friendly_name": "frumpy dtype promotion tooling and roadmap sync",

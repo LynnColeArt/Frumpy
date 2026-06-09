@@ -75,3 +75,4 @@ tests, or if the umbrella module exposes unreviewed dtype surfaces.
 ## Activity Log
 
 - 2026-06-09T03:40:20Z – codex – shell_pid=1947072 – Started review via action command
+- 2026-06-09T03:44:00Z – user – shell_pid=1947072 – Review passed: bool/i32/i64/r32 descriptors preserve r64 metadata invariants, bool payload storage is one-byte 0/1 data, and make validate passes.

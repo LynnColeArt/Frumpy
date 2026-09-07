@@ -49,6 +49,11 @@ bounded indexing/ordering contract. Advanced indexing, linear algebra, random
 generation, FFTs, Python bindings, and C ABI work remain outside the current
 implementation.
 
+All five registered descriptors use managed backing storage. Views and explicit
+sharing retain that storage; release and finalization drop references. This does
+not add missing dtype kernels. See [storage lifetime](STORAGE_LIFETIME.md) for
+the required explicit-sharing APIs and restrictions on Fortran container copies.
+
 ## Non-r64 Descriptor Foundation
 
 The current non-`r64` descriptor modules are:

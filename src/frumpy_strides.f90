@@ -10,7 +10,9 @@ module frumpy_strides
 
   private
 
+  public :: allocate_c_order_strides
   public :: c_order_strides
+  public :: allocate_f_order_strides
   public :: f_order_strides
   public :: is_c_contiguous
   public :: is_f_contiguous
@@ -58,6 +60,15 @@ contains
     integer(int64), intent(in) :: shape(:)
     type(frumpy_status), intent(out), optional :: status
     integer(int64), allocatable :: strides(:)
+
+    call allocate_c_order_strides(shape, strides, status)
+  end function c_order_strides
+
+  !> Output argument avoids an unchecked allocation when assigning a function result.
+  subroutine allocate_c_order_strides(shape, strides, status)
+    integer(int64), intent(in) :: shape(:)
+    type(frumpy_status), intent(out), optional :: status
+    integer(int64), allocatable, intent(out) :: strides(:)
     integer(int32) :: dim1
     integer(int32) :: rank
     integer(int64) :: stride_elements
@@ -97,12 +108,21 @@ contains
     end do
 
     call set_optional_status(status, FRUMPY_STATUS_OK)
-  end function c_order_strides
+  end subroutine allocate_c_order_strides
 
   function f_order_strides(shape, status) result(strides)
     integer(int64), intent(in) :: shape(:)
     type(frumpy_status), intent(out), optional :: status
     integer(int64), allocatable :: strides(:)
+
+    call allocate_f_order_strides(shape, strides, status)
+  end function f_order_strides
+
+  !> Output argument avoids an unchecked allocation when assigning a function result.
+  subroutine allocate_f_order_strides(shape, strides, status)
+    integer(int64), intent(in) :: shape(:)
+    type(frumpy_status), intent(out), optional :: status
+    integer(int64), allocatable, intent(out) :: strides(:)
     integer(int32) :: dim1
     integer(int32) :: rank
     integer(int64) :: stride_elements
@@ -142,7 +162,7 @@ contains
     end do
 
     call set_optional_status(status, FRUMPY_STATUS_OK)
-  end function f_order_strides
+  end subroutine allocate_f_order_strides
 
   logical function is_c_contiguous(shape, strides, status)
     integer(int64), intent(in) :: shape(:)

@@ -17,12 +17,16 @@ module frumpy
     exp_r64, log_r64, multiply_r64, negate_r64, sin_r64, sqrt_r64, &
     subtract_r64
   use frumpy_ndarray_bool, only: metadata_descriptor_bool, ndarray_bool, &
+    share_descriptors_bool, &
     owned_descriptor_bool, view_descriptor_bool
   use frumpy_ndarray_i32, only: metadata_descriptor_i32, ndarray_i32, &
+    share_descriptors_i32, &
     owned_descriptor_i32, view_descriptor_i32
   use frumpy_ndarray_i64, only: metadata_descriptor_i64, ndarray_i64, &
+    share_descriptors_i64, &
     owned_descriptor_i64, view_descriptor_i64
   use frumpy_ndarray_r32, only: metadata_descriptor_r32, ndarray_r32, &
+    share_descriptors_r32, &
     owned_descriptor_r32, view_descriptor_r32
   use frumpy_ndarray_r64, only: share_descriptors_r64, metadata_descriptor_r64, ndarray_r64, &
     owned_descriptor_r64, view_descriptor_r64
@@ -46,6 +50,10 @@ module frumpy
 
   private
 
+  public :: share_descriptors_bool
+  public :: share_descriptors_i32
+  public :: share_descriptors_i64
+  public :: share_descriptors_r32
   public :: share_descriptors_r64
 
   public :: FRUMPY_ORDER_A

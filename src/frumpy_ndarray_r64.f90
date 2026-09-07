@@ -7,7 +7,7 @@ module frumpy_ndarray_r64
   use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status, set_status
-  use frumpy_strides, only: c_order_strides, f_order_strides, &
+  use frumpy_strides, only: allocate_c_order_strides, allocate_f_order_strides, &
     is_c_contiguous, is_f_contiguous
 
   implicit none
@@ -77,9 +77,9 @@ contains
     end if
 
     if (resolved_order == FRUMPY_ORDER_F) then
-      strides = f_order_strides(shape, local_status)
+      call allocate_f_order_strides(shape, strides, local_status)
     else
-      strides = c_order_strides(shape, local_status)
+      call allocate_c_order_strides(shape, strides, local_status)
     end if
 
     if (local_status%is_failure()) then
@@ -217,12 +217,9 @@ contains
         return
       end if
     end do
+    ! Commit already-staged metadata without allocation: failure cannot leave a prefix updated.
     do item1 = 1_int64, size(destination, kind=int64)
-      call destination(item1)%share_from(retained(item1), local_status)
-      if (local_status%is_failure()) then
-        call set_optional_status_value(status, local_status)
-        return
-      end if
+      call move_descriptor_r64(destination(item1), retained(item1))
     end do
     call set_optional_status(status, FRUMPY_STATUS_OK)
   end subroutine share_descriptors_r64
@@ -270,6 +267,15 @@ contains
       retained%backing%references = retained%backing%references + 1_int64
     end if
 
+    call move_descriptor_r64(destination, retained)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
+  end subroutine ndarray_r64_share_from
+
+  ! The source is a private staged descriptor, distinct from destination.
+  subroutine move_descriptor_r64(destination, retained)
+    class(ndarray_r64), intent(inout) :: destination
+    type(ndarray_r64), intent(inout) :: retained
+
     call destination%release()
     call move_alloc(retained%shape, destination%shape)
     call move_alloc(retained%strides, destination%strides)
@@ -282,8 +288,7 @@ contains
     destination%data => retained%data
     destination%backing => retained%backing
     nullify(retained%backing, retained%data)
-    call set_optional_status(status, FRUMPY_STATUS_OK)
-  end subroutine ndarray_r64_share_from
+  end subroutine move_descriptor_r64
 
   logical function same_descriptor(lhs, rhs) result(same)
     class(ndarray_r64), intent(in) :: lhs
@@ -296,7 +301,11 @@ contains
     else
       if (associated(lhs%data) .neqv. associated(rhs%data)) return
       if (associated(lhs%data)) then
-        if (.not. associated(lhs%data, rhs%data)) return
+        ! ASSOCIATED(a,b) is false for zero-sized targets, including a itself.
+        if (size(lhs%data, kind=int64) /= 0_int64 .or. &
+            size(rhs%data, kind=int64) /= 0_int64) then
+          if (.not. associated(lhs%data, rhs%data)) return
+        end if
       end if
     end if
     if (lhs%dtype_id /= rhs%dtype_id .or. lhs%rank /= rhs%rank) return

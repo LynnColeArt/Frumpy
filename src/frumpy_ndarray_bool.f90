@@ -7,7 +7,7 @@ module frumpy_ndarray_bool
   use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status, set_status
-  use frumpy_strides, only: c_order_strides, f_order_strides, &
+  use frumpy_strides, only: allocate_c_order_strides, allocate_f_order_strides, &
     is_c_contiguous, is_f_contiguous
 
   implicit none
@@ -18,6 +18,12 @@ module frumpy_ndarray_bool
   public :: owned_descriptor_bool
   public :: metadata_descriptor_bool
   public :: view_descriptor_bool
+  public :: share_descriptors_bool
+
+  type :: storage_bool
+    integer(int64) :: references = 1_int64
+    integer(int8), pointer :: values(:) => null()
+  end type storage_bool
 
   type :: ndarray_bool
     integer(int32) :: dtype_id = FRUMPY_DTYPE_BOOL
@@ -28,10 +34,15 @@ module frumpy_ndarray_bool
     logical :: owns_data = .false.
     logical :: is_c_contiguous = .false.
     logical :: is_f_contiguous = .false.
-    ! Store NumPy-compatible bool payloads as 0/1 bytes; default Fortran
-    ! LOGICAL storage is compiler-dependent and often wider than one byte.
+    ! Bool payloads are 0/1 bytes; default Fortran LOGICAL storage is compiler-dependent.
     integer(int8), pointer :: data(:) => null()
+    type(storage_bool), pointer, private :: backing => null()
   contains
+    procedure :: release => ndarray_bool_release
+    procedure :: share_from => ndarray_bool_share_from
+    procedure, private :: assign => ndarray_bool_assign
+    generic, public :: assignment(=) => assign
+    final :: ndarray_bool_finalize
     procedure :: size => ndarray_bool_size
     procedure :: storage_size => ndarray_bool_storage_size
     procedure :: has_storage => ndarray_bool_has_storage
@@ -67,9 +78,9 @@ contains
     end if
 
     if (resolved_order == FRUMPY_ORDER_F) then
-      strides = f_order_strides(shape, local_status)
+      call allocate_f_order_strides(shape, strides, local_status)
     else
-      strides = c_order_strides(shape, local_status)
+      call allocate_c_order_strides(shape, strides, local_status)
     end if
 
     if (local_status%is_failure()) then
@@ -84,14 +95,18 @@ contains
       return
     end if
 
-    allocate(array%data(element_count_value), stat=alloc_stat)
+    allocate(array%backing, stat=alloc_stat)
+    if (alloc_stat == 0) then
+      allocate(array%backing%values(element_count_value), stat=alloc_stat)
+    end if
     if (alloc_stat /= 0) then
-      array%owns_data = .false.
+      call array%release()
       call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "ndarray_bool backing storage allocation failed")
       return
     end if
 
+    array%data => array%backing%values
     call set_optional_status(status, FRUMPY_STATUS_OK)
   end function owned_descriptor_bool
 
@@ -132,9 +147,185 @@ contains
       return
     end if
 
+    ! Managed views retain the backing allocation, independently of the source descriptor.
+    array%backing => source%backing
+    if (associated(array%backing)) array%backing%references = array%backing%references + 1_int64
     array%data => source%data
     call set_optional_status(status, FRUMPY_STATUS_OK)
   end function view_descriptor_bool
+
+  !> Release this descriptor's reference; other managed aliases remain valid.
+  subroutine ndarray_bool_release(array)
+    class(ndarray_bool), intent(inout) :: array
+
+    nullify(array%data)
+    if (associated(array%backing)) then
+      array%backing%references = array%backing%references - 1_int64
+      if (array%backing%references == 0_int64) then
+        if (associated(array%backing%values)) deallocate(array%backing%values)
+        deallocate(array%backing)
+      end if
+      nullify(array%backing)
+    end if
+    if (allocated(array%shape)) deallocate(array%shape)
+    if (allocated(array%strides)) deallocate(array%strides)
+    array%dtype_id = FRUMPY_DTYPE_BOOL
+    array%rank = 0_int32
+    array%offset = 1_int64
+    array%owns_data = .false.
+    array%is_c_contiguous = .false.
+    array%is_f_contiguous = .false.
+  end subroutine ndarray_bool_release
+
+  impure elemental subroutine ndarray_bool_finalize(array)
+    type(ndarray_bool), intent(inout) :: array
+
+    call array%release()
+  end subroutine ndarray_bool_finalize
+
+  subroutine ndarray_bool_assign(destination, source)
+    class(ndarray_bool), intent(inout) :: destination
+    type(ndarray_bool), intent(in) :: source
+
+    call destination%share_from(source)
+  end subroutine ndarray_bool_assign
+
+  subroutine share_descriptors_bool(destination, source, status)
+    class(ndarray_bool), intent(inout) :: destination(:)
+    type(ndarray_bool), intent(in) :: source(:)
+    type(ndarray_bool), allocatable :: retained(:)
+    type(frumpy_status), intent(out), optional :: status
+    type(frumpy_status) :: local_status
+    integer :: alloc_stat
+    integer(int64) :: item1
+
+    if (size(destination) /= size(source)) then
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
+        "descriptor vectors must have equal lengths")
+      return
+    end if
+    allocate(retained(size(source)), stat=alloc_stat)
+    if (alloc_stat /= 0) then
+      call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+        "descriptor vector snapshot allocation failed")
+      return
+    end if
+    ! Snapshot every RHS descriptor before replacing overlapping array sections.
+    do item1 = 1_int64, size(source, kind=int64)
+      call retained(item1)%share_from(source(item1), local_status)
+      if (local_status%is_failure()) then
+        call set_optional_status_value(status, local_status)
+        return
+      end if
+    end do
+    ! Commit already-staged metadata without allocation: failure cannot leave a prefix updated.
+    do item1 = 1_int64, size(destination, kind=int64)
+      call move_descriptor_bool(destination(item1), retained(item1))
+    end do
+    call set_optional_status(status, FRUMPY_STATUS_OK)
+  end subroutine share_descriptors_bool
+
+  !> Copy descriptor metadata and retain storage; failure leaves destination unchanged.
+  subroutine ndarray_bool_share_from(destination, source, status)
+    class(ndarray_bool), intent(inout) :: destination
+    type(ndarray_bool), intent(in) :: source
+    type(frumpy_status), intent(out), optional :: status
+    type(ndarray_bool) :: retained
+    integer :: alloc_stat
+
+    ! Avoid invalidating metadata in GFortran's shallow self-assignment temporary.
+    if (same_descriptor(destination, source)) then
+      call set_optional_status(status, FRUMPY_STATUS_OK)
+      return
+    end if
+
+    ! Snapshot and retain before releasing: source can alias destination's buffer.
+    if (allocated(source%shape)) then
+      allocate(retained%shape, source=source%shape, stat=alloc_stat)
+      if (alloc_stat /= 0) then
+        call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+          "ndarray_bool assignment shape allocation failed")
+        return
+      end if
+    end if
+    if (allocated(source%strides)) then
+      allocate(retained%strides, source=source%strides, stat=alloc_stat)
+      if (alloc_stat /= 0) then
+        call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+          "ndarray_bool assignment strides allocation failed")
+        return
+      end if
+    end if
+    retained%dtype_id = source%dtype_id
+    retained%rank = source%rank
+    retained%offset = source%offset
+    retained%owns_data = source%owns_data
+    retained%is_c_contiguous = source%is_c_contiguous
+    retained%is_f_contiguous = source%is_f_contiguous
+    retained%data => source%data
+    retained%backing => source%backing
+    if (associated(retained%backing)) then
+      retained%backing%references = retained%backing%references + 1_int64
+    end if
+
+    call move_descriptor_bool(destination, retained)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
+  end subroutine ndarray_bool_share_from
+
+  ! The source is a private staged descriptor, distinct from destination.
+  subroutine move_descriptor_bool(destination, retained)
+    class(ndarray_bool), intent(inout) :: destination
+    type(ndarray_bool), intent(inout) :: retained
+
+    call destination%release()
+    call move_alloc(retained%shape, destination%shape)
+    call move_alloc(retained%strides, destination%strides)
+    destination%dtype_id = retained%dtype_id
+    destination%rank = retained%rank
+    destination%offset = retained%offset
+    destination%owns_data = retained%owns_data
+    destination%is_c_contiguous = retained%is_c_contiguous
+    destination%is_f_contiguous = retained%is_f_contiguous
+    destination%data => retained%data
+    destination%backing => retained%backing
+    nullify(retained%backing, retained%data)
+  end subroutine move_descriptor_bool
+
+  logical function same_descriptor(lhs, rhs) result(same)
+    class(ndarray_bool), intent(in) :: lhs
+    type(ndarray_bool), intent(in) :: rhs
+
+    same = .false.
+    if (associated(lhs%backing) .neqv. associated(rhs%backing)) return
+    if (associated(lhs%backing)) then
+      if (.not. associated(lhs%backing, rhs%backing)) return
+    else
+      if (associated(lhs%data) .neqv. associated(rhs%data)) return
+      if (associated(lhs%data)) then
+        ! ASSOCIATED(a,b) is false for zero-sized targets, including a itself.
+        if (size(lhs%data, kind=int64) /= 0_int64 .or. &
+            size(rhs%data, kind=int64) /= 0_int64) then
+          if (.not. associated(lhs%data, rhs%data)) return
+        end if
+      end if
+    end if
+    if (lhs%dtype_id /= rhs%dtype_id .or. lhs%rank /= rhs%rank) return
+    if (lhs%offset /= rhs%offset) return
+    if (lhs%owns_data .neqv. rhs%owns_data) return
+    if (lhs%is_c_contiguous .neqv. rhs%is_c_contiguous) return
+    if (lhs%is_f_contiguous .neqv. rhs%is_f_contiguous) return
+    if (allocated(lhs%shape) .neqv. allocated(rhs%shape)) return
+    if (allocated(lhs%strides) .neqv. allocated(rhs%strides)) return
+    if (allocated(lhs%shape)) then
+      if (size(lhs%shape) /= size(rhs%shape)) return
+      if (any(lhs%shape /= rhs%shape)) return
+    end if
+    if (allocated(lhs%strides)) then
+      if (size(lhs%strides) /= size(rhs%strides)) return
+      if (any(lhs%strides /= rhs%strides)) return
+    end if
+    same = .true.
+  end function same_descriptor
 
   function ndarray_bool_size(array) result(count)
     class(ndarray_bool), intent(in) :: array

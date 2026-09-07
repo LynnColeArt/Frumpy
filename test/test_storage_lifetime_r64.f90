@@ -9,6 +9,7 @@ program test_storage_lifetime_r64
   call exercise_lifetimes()
   call exercise_array_assignment()
   call exercise_borrowed_storage()
+  call exercise_allocatable_owners()
 
 contains
 
@@ -99,7 +100,7 @@ contains
   end subroutine exercise_array_assignment
 
   subroutine exercise_borrowed_storage()
-    real(real64), target :: external(2)
+    real(real64), target :: external(2), empty_external(0)
     type(ndarray_r64) :: borrowed, alias
 
     external = 3.0_real64
@@ -111,7 +112,39 @@ contains
     alias%data(1) = 8.0_real64
     call alias%release()
     call require(abs(external(1) - 8.0_real64) < 1e-12_real64, 'borrowed buffer not freed')
+    borrowed = metadata_descriptor_r64([0_int64], [0_int64], 1_int64)
+    borrowed%data => empty_external
+    borrowed = borrowed
+    call require(borrowed%has_storage(), 'empty borrowed self assignment')
+    call borrowed%release()
   end subroutine exercise_borrowed_storage
+
+  subroutine exercise_allocatable_owners()
+    type :: container
+      type(ndarray_r64) :: value
+    end type container
+    type(container), allocatable :: enclosing
+    type(ndarray_r64), allocatable :: owner
+    type(ndarray_r64) :: alias
+    type(frumpy_status) :: status
+
+    allocate(owner, enclosing)
+    owner = full_r64([2_int64], 6.0_real64)
+    call enclosing%value%share_from(owner, status)
+    call require(status%is_ok(), 'explicit enclosing component share')
+    deallocate(owner)
+    alias = enclosing%value
+    deallocate(enclosing)
+    call require(all(abs(alias%data - 6.0_real64) < 1e-12_real64), 'enclosing owner finalized')
+    call replace_intent_out(alias)
+    call require(all(abs(alias%data - 3.0_real64) < 1e-12_real64), 'intent out replacement')
+  end subroutine exercise_allocatable_owners
+
+  subroutine replace_intent_out(array)
+    type(ndarray_r64), intent(out) :: array
+
+    array = full_r64([3_int64], 3.0_real64)
+  end subroutine replace_intent_out
 
   subroutine require(condition, message)
     logical, intent(in) :: condition

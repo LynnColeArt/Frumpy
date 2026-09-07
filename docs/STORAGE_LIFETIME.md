@@ -1,19 +1,21 @@
-# Float64 Storage Lifetime — First Implementation
+# Storage Lifetime for Registered Numeric Dtypes
 
-This branch introduces reference-counted storage for `ndarray_r64`. It is a first
-slice, not a complete lifetime guarantee for every Fortran copying construct or
-every Frumpy dtype. The current implementation is checked with GNU Fortran
-13.3.0, Fortran 2018 runtime checks, and AddressSanitizer with leak detection.
+The five registered descriptor types (`ndarray_bool`, `ndarray_i32`,
+`ndarray_i64`, `ndarray_r32`, and `ndarray_r64`) now use the same managed lifetime
+contract. This remains a bounded contract: intrinsic Fortran container copying
+is not supported. The implementation is checked with GNU Fortran 13.3.0,
+Fortran 2018 runtime checks, and AddressSanitizer with leak detection.
 
-## Managed float64 arrays
+## Managed arrays
 
-Float64 constructors allocate a private backing block containing the reference
+Owned descriptors allocate a private, dtype-specific backing block containing the reference
 count and data buffer. Ordinary scalar descriptor assignment copies metadata and
 retains that block; it does not copy values. Views retain the same block. A view
 therefore remains valid after its original descriptor is released, reassigned,
 or finalized on leaving a procedure.
 
-`copy_r64` remains the way to request independent values. The public `data`
+`copy_r64` remains the way to request independent float64 values; this lifetime
+work does not add general value-copy or arithmetic kernels for other dtypes. The public `data`
 pointer remains available for value access; do not deallocate or retarget it on
 a managed descriptor. The backing block is private and determines reclamation.
 `owns_data` continues to distinguish original allocated results from views; it
@@ -41,7 +43,7 @@ reclamation is needed; do not rely on finalization at program termination.
 
 `call destination%share_from(source, status)` is the recoverable assignment API.
 It snapshots metadata and retains the source before releasing the destination,
-so allocation failure leaves the destination unchanged. Scalar `destination =
+so a reported allocation failure leaves the destination unchanged. Scalar `destination =
 source` invokes the same operation without a status argument; as with other
 status-optional APIs, use the explicit call when failure must be observed.
 Self-assignment and replacement with a view of the destination are tested.
@@ -66,31 +68,55 @@ call share_descriptors_r64(destinations, sources, status)
 call share_descriptors_r64(destinations, destinations(2:1:-1), status)
 ```
 
+The suffix follows the descriptor dtype: `share_descriptors_bool`,
+`share_descriptors_i32`, `share_descriptors_i64`, `share_descriptors_r32`, or
+`share_descriptors_r64`; all are exported by the umbrella `frumpy` module.
+
 Both vectors must have equal length. The operation retains every source before
-replacing any destination, including overlapping/reversed sections. A length
-mismatch or snapshot allocation failure leaves the destination unchanged. A
-later allocation failure during destination replacement may leave a prefix
-updated; all descriptors retain valid lifetime bookkeeping and status reports
-the failure. Passing `[a, b]` transiently to concatenate/stack is also tested.
+replacing any destination, including overlapping/reversed sections. It stages
+all metadata first, then commits without allocating. A length mismatch or any
+staging allocation failure leaves every destination unchanged. Passing `[a, b]`
+transiently to concatenate/stack is also tested.
 
 ## Explicit limits and remaining work
 
 - **Do not use intrinsic bulk descriptor copying**: whole descriptor-array `=`,
   `allocate(..., source=descriptor)`, or intrinsic copying of enclosing derived
   types can bypass scalar defined assignment and its retain operation. Use
-  `share_from` or `share_descriptors_r64`. General container-copy support remains
-  an open design issue; these restrictions must be resolved or deliberately
-  accepted before treating lifetime management as complete.
+  `share_from` or the matching `share_descriptors_*` routine. General container-copy support remains
+  an explicit API restriction. Fortran does not route these operations through
+  the scalar assignment binding, so they cannot safely retain managed buffers.
+  This restriction is not equivalent to full NumPy-style container behavior.
 - A metadata-only descriptor with a caller-attached `data` pointer borrows the
   storage. Release/finalization only detach it; the caller must keep it alive and
   free it. Borrowed aliases do not acquire ownership of an external allocation.
-- Boolean, int32, int64, and float32 descriptors still use the earlier unmanaged
-  storage model. Generalizing the float64 design comes after this contract is
-  reviewed, not by copying it into every dtype immediately.
 - Reference counts are not atomic. Concurrent descriptor retention/release of a
   shared block requires external synchronization. No thread-safety claim is made.
+- Compiler-generated allocations for finalizer scratch arrays and function-result
+  metadata do not expose a `STAT` recovery path. The status contract covers
+  Frumpy's explicit allocations; it does not promise recovery from arbitrary
+  process-wide memory exhaustion. Prefer status-bearing `share_from` to observe
+  assignment failures.
 - Higher-rank Fortran containers and compiler portability beyond the tested
   configuration need additional work. ndarray rank itself is unaffected.
+
+## Allocatable descriptors and enclosing objects
+
+Allocate a descriptor before assigning or sharing into it. The safe alternative
+to `allocate(destination, source=source)` is:
+
+```fortran
+type(ndarray_r64), allocatable :: destination
+
+allocate(destination)
+call destination%share_from(source, status)
+```
+
+For an enclosing derived type, share its ndarray components explicitly or write
+an enclosing assignment routine that does so. Do not intrinsically assign the
+whole enclosing object. Finalization of a component when its enclosing object
+is deallocated is supported and tested. Replacing an `intent(out)` descriptor
+also releases its previous reference automatically.
 
 The GCC project has dedicated finalization regression tests covering function
 results, scope exit, and allocatable components. Those are useful background,
@@ -100,27 +126,44 @@ implementation:
 
 ## Validation
 
-`test/test_storage_lifetime_r64.f90` runs constructor/function temporaries,
+`test/test_storage_lifetime_r64.f90` exercises constructor/function temporaries,
 repeated reassignment, independent copies, returned local views, reverse views,
 self-assignment, scalar/empty storage, explicit repeated release, borrowed
-buffers, and overlapping descriptor vectors. Tests run inside procedures so
-scope-exit finalization is exercised, rather than relying on program shutdown.
+buffers, allocatable/enclosing owners, `intent(out)` replacement, and overlapping
+descriptor vectors. `test/test_storage_lifetime_dtypes.f90` exercises the same
+storage foundation for bool, int32, int64, and float32, including exact int64
+payloads beyond float64's integer precision. Empty borrowed self-assignment is
+covered for all five types.
+
+`python/fortran/differential_driver.f90` now reads inputs into managed storage
+and runs each case in procedure scope. All its inputs, intermediates, float64
+outputs, and integer index outputs finalize before process exit.
 
 Run the standard gate with `make validate`. On the tested Linux/GFortran host,
-run the focused memory check with a separate build directory:
+run the dedicated memory gate with:
 
 ```sh
-make BUILD_DIR=build/lifetime-asan \
-  FFLAGS='-std=f2018 -Wall -Wextra -Werror -fimplicit-none -fcheck=all -fbacktrace -g -fsanitize=address -fno-omit-frame-pointer -no-pie' \
-  build/lifetime-asan/bin/test_storage_lifetime_r64
-ASAN_OPTIONS=detect_leaks=1 build/lifetime-asan/bin/test_storage_lifetime_r64
+make memory-test
 ```
 
-The focused executable uses only managed float64 allocations and borrowed stack
-storage. Its leak-free result does not claim that older dtype tests or the
-entire current library are leak-free.
+It builds separate AddressSanitizer executables in `build/memory`, enables leak
+detection, runs both lifetime test programs and allocation-failure sweeps, and
+runs all compiled Frumpy/NumPy
+differential cases through the instrumented driver. The gate uses `-no-pie` on
+the tested host; it is optional and not a compiler/platform portability claim.
 
-Observed on 2026-09-07: `make validate` passed 21 standalone Fortran programs,
-the example, and 157 Python tests. The focused AddressSanitizer executable
-passed with leak detection enabled and no reported leaks or memory errors.
-Two expected NumPy warnings remained in the existing empty-mean reference test.
+The test-only C shim uses GNU linker wrappers to fail selected allocations in
+scalar sharing, vector sharing, and C/F-order constructors for all five dtypes.
+Sharing sweeps every allocation until success and checks that failures preserve
+all destinations. Constructor sweeps cover its five explicit allocations; they
+exclude later compiler-generated function-result copies. The fault driver alone
+uses `-fstack-arrays` to move compiler finalizer scratch off the injected heap.
+The lifetime programs and differential driver use the ordinary compiler flags
+plus sanitizer instrumentation. This gate needs a C compiler and GNU linker.
+
+Observed on 2026-09-07: `make validate` passed 22 standalone Fortran programs,
+the example, and 157 Python tests. `make memory-test` passed both lifetime
+programs, the allocation-failure sweeps, and all 129 compiled differential cases with no reported leaks or
+memory errors. Two expected NumPy warnings remained in the standard gate's
+existing empty-mean reference test. These checks cover the exercised paths;
+they do not establish safety for the unsupported intrinsic copying forms above.

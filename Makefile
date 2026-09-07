@@ -54,6 +54,7 @@ FORTRAN_TESTS := \
 	test/test_ndarray_r32.f90 \
 	test/test_ndarray_r64.f90 \
 	test/test_storage_lifetime_r64.f90 \
+	test/test_storage_lifetime_dtypes.f90 \
 	test/test_constructors_r64.f90 \
 	test/test_broadcast.f90 \
 	test/test_elementwise_r64.f90 \
@@ -70,7 +71,7 @@ EXAMPLES := \
 TEST_BINS := $(patsubst test/%.f90,$(BIN_DIR)/%,$(FORTRAN_TESTS))
 EXAMPLE_BINS := $(patsubst examples/%.f90,$(BIN_DIR)/example_%,$(EXAMPLES))
 
-.PHONY: all build test examples python-test fpm-test validate diff-check clean
+.PHONY: all build test examples python-test memory-test fpm-test validate diff-check clean
 
 all: build
 
@@ -100,6 +101,21 @@ python-test: $(PY_DEPS_STAMP) $(BIN_DIR)/differential_driver
 	FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BIN_DIR)/differential_driver)" \
 		$(VENV_PY) -m pytest -q python/tests
 
+# Optional GNU/Linux memory gate; keep instrumentation out of normal build products.
+memory-test: $(PY_DEPS_STAMP)
+	$(MAKE) BUILD_DIR="$(BUILD_DIR)/memory" \
+		FFLAGS="$(FFLAGS) -g -fsanitize=address -fno-omit-frame-pointer -no-pie" \
+		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64" \
+		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes" \
+		"$(BUILD_DIR)/memory/bin/allocation_failure_driver" \
+		"$(BUILD_DIR)/memory/bin/differential_driver"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/allocation_failure_driver"
+	ASAN_OPTIONS=detect_leaks=1 \
+		FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/memory/bin/differential_driver)" \
+		$(VENV_PY) -m pytest -q python/tests/test_frumpy_differential.py
+
 fpm-test:
 	@if command -v $(FPM) >/dev/null 2>&1; then \
 		$(FPM) test; \
@@ -124,6 +140,15 @@ $(BIN_DIR)/example_%: examples/%.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
 
 $(BIN_DIR)/differential_driver: python/fortran/differential_driver.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
 	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
+
+$(OBJ_DIR)/allocation_failure.o: python/fortran/allocation_failure.c | $(OBJ_DIR)
+	$(CC) -g -Wall -Wextra -Werror -fsanitize=address -c $< -o $@
+
+# GFortran finalizers allocate unchecked scratch arrays; keep only those on the
+# stack in the fault driver so injection exercises Frumpy allocation/status paths.
+$(BIN_DIR)/allocation_failure_driver: python/fortran/allocation_failure_driver.f90 $(SOURCES) $(OBJ_DIR)/allocation_failure.o | $(BIN_DIR) $(MOD_DIR)
+	$(FC) $(FFLAGS) -fstack-arrays -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< \
+		$(OBJ_DIR)/allocation_failure.o -Wl,--wrap=malloc,--wrap=calloc,--wrap=realloc -o $@
 
 $(PY_DEPS_STAMP): python/requirements-test.txt
 	@test -x "$(VENV_PY)" || "$(PYTHON)" -m venv "$(VENV)"

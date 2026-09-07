@@ -7,7 +7,7 @@ module frumpy_ndarray_r32
   use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status, set_status
-  use frumpy_strides, only: c_order_strides, f_order_strides, &
+  use frumpy_strides, only: allocate_c_order_strides, allocate_f_order_strides, &
     is_c_contiguous, is_f_contiguous
 
   implicit none
@@ -18,6 +18,12 @@ module frumpy_ndarray_r32
   public :: owned_descriptor_r32
   public :: metadata_descriptor_r32
   public :: view_descriptor_r32
+  public :: share_descriptors_r32
+
+  type :: storage_r32
+    integer(int64) :: references = 1_int64
+    real(real32), pointer :: values(:) => null()
+  end type storage_r32
 
   type :: ndarray_r32
     integer(int32) :: dtype_id = FRUMPY_DTYPE_R32
@@ -29,7 +35,13 @@ module frumpy_ndarray_r32
     logical :: is_c_contiguous = .false.
     logical :: is_f_contiguous = .false.
     real(real32), pointer :: data(:) => null()
+    type(storage_r32), pointer, private :: backing => null()
   contains
+    procedure :: release => ndarray_r32_release
+    procedure :: share_from => ndarray_r32_share_from
+    procedure, private :: assign => ndarray_r32_assign
+    generic, public :: assignment(=) => assign
+    final :: ndarray_r32_finalize
     procedure :: size => ndarray_r32_size
     procedure :: storage_size => ndarray_r32_storage_size
     procedure :: has_storage => ndarray_r32_has_storage
@@ -65,9 +77,9 @@ contains
     end if
 
     if (resolved_order == FRUMPY_ORDER_F) then
-      strides = f_order_strides(shape, local_status)
+      call allocate_f_order_strides(shape, strides, local_status)
     else
-      strides = c_order_strides(shape, local_status)
+      call allocate_c_order_strides(shape, strides, local_status)
     end if
 
     if (local_status%is_failure()) then
@@ -82,14 +94,18 @@ contains
       return
     end if
 
-    allocate(array%data(element_count_value), stat=alloc_stat)
+    allocate(array%backing, stat=alloc_stat)
+    if (alloc_stat == 0) then
+      allocate(array%backing%values(element_count_value), stat=alloc_stat)
+    end if
     if (alloc_stat /= 0) then
-      array%owns_data = .false.
+      call array%release()
       call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "ndarray_r32 backing storage allocation failed")
       return
     end if
 
+    array%data => array%backing%values
     call set_optional_status(status, FRUMPY_STATUS_OK)
   end function owned_descriptor_r32
 
@@ -130,9 +146,185 @@ contains
       return
     end if
 
+    ! Managed views retain the backing allocation, independently of the source descriptor.
+    array%backing => source%backing
+    if (associated(array%backing)) array%backing%references = array%backing%references + 1_int64
     array%data => source%data
     call set_optional_status(status, FRUMPY_STATUS_OK)
   end function view_descriptor_r32
+
+  !> Release this descriptor's reference; other managed aliases remain valid.
+  subroutine ndarray_r32_release(array)
+    class(ndarray_r32), intent(inout) :: array
+
+    nullify(array%data)
+    if (associated(array%backing)) then
+      array%backing%references = array%backing%references - 1_int64
+      if (array%backing%references == 0_int64) then
+        if (associated(array%backing%values)) deallocate(array%backing%values)
+        deallocate(array%backing)
+      end if
+      nullify(array%backing)
+    end if
+    if (allocated(array%shape)) deallocate(array%shape)
+    if (allocated(array%strides)) deallocate(array%strides)
+    array%dtype_id = FRUMPY_DTYPE_R32
+    array%rank = 0_int32
+    array%offset = 1_int64
+    array%owns_data = .false.
+    array%is_c_contiguous = .false.
+    array%is_f_contiguous = .false.
+  end subroutine ndarray_r32_release
+
+  impure elemental subroutine ndarray_r32_finalize(array)
+    type(ndarray_r32), intent(inout) :: array
+
+    call array%release()
+  end subroutine ndarray_r32_finalize
+
+  subroutine ndarray_r32_assign(destination, source)
+    class(ndarray_r32), intent(inout) :: destination
+    type(ndarray_r32), intent(in) :: source
+
+    call destination%share_from(source)
+  end subroutine ndarray_r32_assign
+
+  subroutine share_descriptors_r32(destination, source, status)
+    class(ndarray_r32), intent(inout) :: destination(:)
+    type(ndarray_r32), intent(in) :: source(:)
+    type(ndarray_r32), allocatable :: retained(:)
+    type(frumpy_status), intent(out), optional :: status
+    type(frumpy_status) :: local_status
+    integer :: alloc_stat
+    integer(int64) :: item1
+
+    if (size(destination) /= size(source)) then
+      call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
+        "descriptor vectors must have equal lengths")
+      return
+    end if
+    allocate(retained(size(source)), stat=alloc_stat)
+    if (alloc_stat /= 0) then
+      call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+        "descriptor vector snapshot allocation failed")
+      return
+    end if
+    ! Snapshot every RHS descriptor before replacing overlapping array sections.
+    do item1 = 1_int64, size(source, kind=int64)
+      call retained(item1)%share_from(source(item1), local_status)
+      if (local_status%is_failure()) then
+        call set_optional_status_value(status, local_status)
+        return
+      end if
+    end do
+    ! Commit already-staged metadata without allocation: failure cannot leave a prefix updated.
+    do item1 = 1_int64, size(destination, kind=int64)
+      call move_descriptor_r32(destination(item1), retained(item1))
+    end do
+    call set_optional_status(status, FRUMPY_STATUS_OK)
+  end subroutine share_descriptors_r32
+
+  !> Copy descriptor metadata and retain storage; failure leaves destination unchanged.
+  subroutine ndarray_r32_share_from(destination, source, status)
+    class(ndarray_r32), intent(inout) :: destination
+    type(ndarray_r32), intent(in) :: source
+    type(frumpy_status), intent(out), optional :: status
+    type(ndarray_r32) :: retained
+    integer :: alloc_stat
+
+    ! Avoid invalidating metadata in GFortran's shallow self-assignment temporary.
+    if (same_descriptor(destination, source)) then
+      call set_optional_status(status, FRUMPY_STATUS_OK)
+      return
+    end if
+
+    ! Snapshot and retain before releasing: source can alias destination's buffer.
+    if (allocated(source%shape)) then
+      allocate(retained%shape, source=source%shape, stat=alloc_stat)
+      if (alloc_stat /= 0) then
+        call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+          "ndarray_r32 assignment shape allocation failed")
+        return
+      end if
+    end if
+    if (allocated(source%strides)) then
+      allocate(retained%strides, source=source%strides, stat=alloc_stat)
+      if (alloc_stat /= 0) then
+        call set_optional_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+          "ndarray_r32 assignment strides allocation failed")
+        return
+      end if
+    end if
+    retained%dtype_id = source%dtype_id
+    retained%rank = source%rank
+    retained%offset = source%offset
+    retained%owns_data = source%owns_data
+    retained%is_c_contiguous = source%is_c_contiguous
+    retained%is_f_contiguous = source%is_f_contiguous
+    retained%data => source%data
+    retained%backing => source%backing
+    if (associated(retained%backing)) then
+      retained%backing%references = retained%backing%references + 1_int64
+    end if
+
+    call move_descriptor_r32(destination, retained)
+    call set_optional_status(status, FRUMPY_STATUS_OK)
+  end subroutine ndarray_r32_share_from
+
+  ! The source is a private staged descriptor, distinct from destination.
+  subroutine move_descriptor_r32(destination, retained)
+    class(ndarray_r32), intent(inout) :: destination
+    type(ndarray_r32), intent(inout) :: retained
+
+    call destination%release()
+    call move_alloc(retained%shape, destination%shape)
+    call move_alloc(retained%strides, destination%strides)
+    destination%dtype_id = retained%dtype_id
+    destination%rank = retained%rank
+    destination%offset = retained%offset
+    destination%owns_data = retained%owns_data
+    destination%is_c_contiguous = retained%is_c_contiguous
+    destination%is_f_contiguous = retained%is_f_contiguous
+    destination%data => retained%data
+    destination%backing => retained%backing
+    nullify(retained%backing, retained%data)
+  end subroutine move_descriptor_r32
+
+  logical function same_descriptor(lhs, rhs) result(same)
+    class(ndarray_r32), intent(in) :: lhs
+    type(ndarray_r32), intent(in) :: rhs
+
+    same = .false.
+    if (associated(lhs%backing) .neqv. associated(rhs%backing)) return
+    if (associated(lhs%backing)) then
+      if (.not. associated(lhs%backing, rhs%backing)) return
+    else
+      if (associated(lhs%data) .neqv. associated(rhs%data)) return
+      if (associated(lhs%data)) then
+        ! ASSOCIATED(a,b) is false for zero-sized targets, including a itself.
+        if (size(lhs%data, kind=int64) /= 0_int64 .or. &
+            size(rhs%data, kind=int64) /= 0_int64) then
+          if (.not. associated(lhs%data, rhs%data)) return
+        end if
+      end if
+    end if
+    if (lhs%dtype_id /= rhs%dtype_id .or. lhs%rank /= rhs%rank) return
+    if (lhs%offset /= rhs%offset) return
+    if (lhs%owns_data .neqv. rhs%owns_data) return
+    if (lhs%is_c_contiguous .neqv. rhs%is_c_contiguous) return
+    if (lhs%is_f_contiguous .neqv. rhs%is_f_contiguous) return
+    if (allocated(lhs%shape) .neqv. allocated(rhs%shape)) return
+    if (allocated(lhs%strides) .neqv. allocated(rhs%strides)) return
+    if (allocated(lhs%shape)) then
+      if (size(lhs%shape) /= size(rhs%shape)) return
+      if (any(lhs%shape /= rhs%shape)) return
+    end if
+    if (allocated(lhs%strides)) then
+      if (size(lhs%strides) /= size(rhs%strides)) return
+      if (any(lhs%strides /= rhs%strides)) return
+    end if
+    same = .true.
+  end function same_descriptor
 
   function ndarray_r32_size(array) result(count)
     class(ndarray_r32), intent(in) :: array

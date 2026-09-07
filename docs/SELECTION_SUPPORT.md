@@ -51,10 +51,10 @@ it does not scan for sortedness before each binary search.
 
 Sorting currently uses stable insertion sort, with quadratic worst-case time
 per axis slice. No large-array performance claim is made. Non-float64 value
-kernels and mixed-dtype array execution remain separate work. Float64 results
-now use managed shared storage; see [storage lifetime](STORAGE_LIFETIME.md) for
-supported assignment/release operations and container-copy limits. Index and
-boolean descriptors still require explicit caller lifetime management.
+kernels and mixed-dtype array execution remain separate work. Float64 results,
+boolean masks, and integer index results now use managed shared storage; see
+[storage lifetime](STORAGE_LIFETIME.md) for supported assignment/release
+operations, borrowed-buffer rules, and container-copy limits.
 
 ## Verification
 

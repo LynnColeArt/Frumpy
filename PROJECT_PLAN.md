@@ -32,8 +32,9 @@ a compiled Frumpy-versus-NumPy bridge. Existing NumPy-only fixtures remain usefu
 oracle references, but are not themselves differential execution tests.
 
 Phases 1–8 have implementation coverage of varying depth; none of that implies
-full NumPy compatibility. Non-float64 kernels, completion of shared-storage lifetime management,
-advanced indexing, linear algebra/random, C/Python interop, and benchmarks remain
+full NumPy compatibility. All five registered dtypes now have managed storage,
+with explicit restrictions on intrinsic Fortran container copying. Non-float64
+kernels, compiler portability, advanced indexing, linear algebra/random, C/Python interop, and benchmarks remain
 open. The next work should preserve the validated subset while closing those
 explicit gaps.
 
@@ -571,8 +572,8 @@ At every phase boundary, ask:
 
 ## Immediate Next Steps
 
-1. Review the first managed float64 lifetime slice; settle intrinsic container
-   copying and compiler portability, then extend it to the other dtypes.
+1. Review managed lifetime across all five registered dtypes and its explicit
+   Fortran container-copy restriction; broaden compiler portability checks.
 2. Expand dtype execution beyond float64 without duplicating promotion policy.
 3. Add the first BLAS/LAPACK-backed linear algebra slice.
 4. Design the C ABI and Python package around explicit ownership.

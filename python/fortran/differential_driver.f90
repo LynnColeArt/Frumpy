@@ -2,96 +2,102 @@
 program differential_driver
   use iso_fortran_env, only: int8, int32, int64, real64
   use frumpy, only: ndarray_r64, ndarray_i64, ndarray_bool, frumpy_status, &
-    metadata_descriptor_r64, metadata_descriptor_bool, where_r64, take_r64, &
+    owned_descriptor_r64, owned_descriptor_bool, view_descriptor_r64, &
+    view_descriptor_bool, where_r64, take_r64, &
     concatenate_r64, stack_r64, nonzero_bool, sort_r64, argsort_r64, &
     searchsorted_r64, zeros_r64, full_r64, add_r64, reshape_r64, sum_r64
   implicit none
 
-  type(ndarray_r64) :: lhs, rhs, output, intermediate, reshaped
-  type(ndarray_i64) :: indices_output
-  type(ndarray_bool) :: condition
-  type(frumpy_status) :: status
-  integer(int64), allocatable :: indices(:)
-  integer(int32) :: axis0, count, side
-  character(len=32) :: operation
-  logical :: integer_output
-
-  read (*, *) operation, axis0, side
-  integer_output = .false.
-  select case (trim(operation))
-  case ('vertical_slice')
-    lhs = zeros_r64([2_int64, 3_int64], status=status)
-    call require_ok(status)
-    rhs = full_r64([3_int64], 2.0_real64, status=status)
-    call require_ok(status)
-    intermediate = add_r64(lhs, rhs, status)
-    call require_ok(status)
-    reshaped = reshape_r64(intermediate, [3_int64, 2_int64], status)
-    call require_ok(status)
-    output = sum_r64(reshaped, axis0=1_int32, status=status)
-  case ('where')
-    call read_bool(condition)
-    call read_r64(lhs)
-    call read_r64(rhs)
-    output = where_r64(condition, lhs, rhs, status)
-  case ('nonzero')
-    call read_bool(condition)
-    indices_output = nonzero_bool(condition, status)
-    integer_output = .true.
-  case ('take')
-    call read_r64(lhs)
-    read (*, *) count
-    allocate(indices(count))
-    read (*, *) indices
-    if (side == 1_int32) then
-      output = take_r64(lhs, indices, status=status)
-    else
-      output = take_r64(lhs, indices, axis0, status)
-    end if
-  case ('concatenate', 'stack')
-    call read_r64(lhs)
-    call read_r64(rhs)
-    if (operation == 'concatenate') then
-      output = concatenate_r64([lhs, rhs], axis0, status)
-    else
-      output = stack_r64([lhs, rhs], axis0, status)
-    end if
-  case ('sort', 'argsort')
-    call read_r64(lhs)
-    if (operation == 'sort') then
-      output = sort_r64(lhs, axis0, status)
-    else
-      indices_output = argsort_r64(lhs, axis0, status)
-      integer_output = .true.
-    end if
-  case ('searchsorted')
-    call read_r64(lhs)
-    call read_r64(rhs)
-    indices_output = searchsorted_r64(lhs, rhs, side == 1_int32, status)
-    integer_output = .true.
-  case default
-    error stop 'unknown differential operation'
-  end select
-
-  write (*, '(i0)') status%code
-  if (status%is_failure()) then
-    write (*, '(a)') trim(status%message)
-  else if (integer_output) then
-    call emit_metadata(indices_output%shape, indices_output%strides, indices_output%offset, &
-      indices_output%is_c_contiguous, indices_output%is_f_contiguous, indices_output%owns_data)
-    write (*, '(*(i0,1x))') indices_output%data
-  else
-    ! These operations promise independent results; sharing is a test failure.
-    if (operation /= 'vertical_slice') then
-      if (associated(output%data, lhs%data)) error stop 'result aliases lhs'
-      if (associated(output%data, rhs%data)) error stop 'result aliases rhs'
-    end if
-    call emit_metadata(output%shape, output%strides, output%offset, &
-      output%is_c_contiguous, output%is_f_contiguous, output%owns_data)
-    write (*, '(*(es26.17e3,1x))') output%data
-  end if
+  call run_case()
 
 contains
+
+  ! Procedure scope makes all test-owned descriptors finalize before process exit.
+  subroutine run_case()
+    type(ndarray_r64) :: lhs, rhs, output, intermediate, reshaped
+    type(ndarray_i64) :: indices_output
+    type(ndarray_bool) :: condition
+    type(frumpy_status) :: status
+    integer(int64), allocatable :: indices(:)
+    integer(int32) :: axis0, count, side
+    character(len=32) :: operation
+    logical :: integer_output
+
+    read (*, *) operation, axis0, side
+    integer_output = .false.
+    select case (trim(operation))
+    case ('vertical_slice')
+      lhs = zeros_r64([2_int64, 3_int64], status=status)
+      call require_ok(status)
+      rhs = full_r64([3_int64], 2.0_real64, status=status)
+      call require_ok(status)
+      intermediate = add_r64(lhs, rhs, status)
+      call require_ok(status)
+      reshaped = reshape_r64(intermediate, [3_int64, 2_int64], status)
+      call require_ok(status)
+      output = sum_r64(reshaped, axis0=1_int32, status=status)
+    case ('where')
+      call read_bool(condition)
+      call read_r64(lhs)
+      call read_r64(rhs)
+      output = where_r64(condition, lhs, rhs, status)
+    case ('nonzero')
+      call read_bool(condition)
+      indices_output = nonzero_bool(condition, status)
+      integer_output = .true.
+    case ('take')
+      call read_r64(lhs)
+      read (*, *) count
+      allocate(indices(count))
+      read (*, *) indices
+      if (side == 1_int32) then
+        output = take_r64(lhs, indices, status=status)
+      else
+        output = take_r64(lhs, indices, axis0, status)
+      end if
+    case ('concatenate', 'stack')
+      call read_r64(lhs)
+      call read_r64(rhs)
+      if (operation == 'concatenate') then
+        output = concatenate_r64([lhs, rhs], axis0, status)
+      else
+        output = stack_r64([lhs, rhs], axis0, status)
+      end if
+    case ('sort', 'argsort')
+      call read_r64(lhs)
+      if (operation == 'sort') then
+        output = sort_r64(lhs, axis0, status)
+      else
+        indices_output = argsort_r64(lhs, axis0, status)
+        integer_output = .true.
+      end if
+    case ('searchsorted')
+      call read_r64(lhs)
+      call read_r64(rhs)
+      indices_output = searchsorted_r64(lhs, rhs, side == 1_int32, status)
+      integer_output = .true.
+    case default
+      error stop 'unknown differential operation'
+    end select
+
+    write (*, '(i0)') status%code
+    if (status%is_failure()) then
+      write (*, '(a)') trim(status%message)
+    else if (integer_output) then
+      call emit_metadata(indices_output%shape, indices_output%strides, indices_output%offset, &
+        indices_output%is_c_contiguous, indices_output%is_f_contiguous, indices_output%owns_data)
+      write (*, '(*(i0,1x))') indices_output%data
+    else
+      ! These operations promise independent results; sharing is a test failure.
+      if (operation /= 'vertical_slice') then
+        if (associated(output%data, lhs%data)) error stop 'result aliases lhs'
+        if (associated(output%data, rhs%data)) error stop 'result aliases rhs'
+      end if
+      call emit_metadata(output%shape, output%strides, output%offset, &
+        output%is_c_contiguous, output%is_f_contiguous, output%owns_data)
+      write (*, '(*(es26.17e3,1x))') output%data
+    end if
+  end subroutine run_case
 
   subroutine read_metadata(shape, strides, offset, storage_count)
     integer(int64), allocatable, intent(out) :: shape(:), strides(:)
@@ -106,28 +112,32 @@ contains
 
   subroutine read_r64(array)
     type(ndarray_r64), intent(out) :: array
+    type(ndarray_r64) :: backing
     integer(int64), allocatable :: shape(:), strides(:)
     integer(int64) :: offset, storage_count
     type(frumpy_status) :: read_status
 
     call read_metadata(shape, strides, offset, storage_count)
-    array = metadata_descriptor_r64(shape, strides, offset, read_status)
+    backing = owned_descriptor_r64([storage_count], status=read_status)
     call require_ok(read_status)
-    allocate(array%data(storage_count))
-    read (*, *) array%data
+    read (*, *) backing%data
+    array = view_descriptor_r64(backing, shape, strides, offset, read_status)
+    call require_ok(read_status)
   end subroutine read_r64
 
   subroutine read_bool(array)
     type(ndarray_bool), intent(out) :: array
+    type(ndarray_bool) :: backing
     integer(int64), allocatable :: shape(:), strides(:)
     integer(int64) :: offset, storage_count
     type(frumpy_status) :: read_status
 
     call read_metadata(shape, strides, offset, storage_count)
-    array = metadata_descriptor_bool(shape, strides, offset, read_status)
+    backing = owned_descriptor_bool([storage_count], status=read_status)
     call require_ok(read_status)
-    allocate(array%data(storage_count))
-    read (*, *) array%data
+    read (*, *) backing%data
+    array = view_descriptor_bool(backing, shape, strides, offset, read_status)
+    call require_ok(read_status)
   end subroutine read_bool
 
   subroutine emit_metadata(shape, strides, offset, c_order, f_order, owns_data)

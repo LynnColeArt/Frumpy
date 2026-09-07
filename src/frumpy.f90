@@ -28,6 +28,10 @@ module frumpy
     owned_descriptor_r64, view_descriptor_r64
   use frumpy_promotion, only: is_supported_promotion, promote_dtypes, &
     promote_scalar_dtype
+  use frumpy_selection_r64, only: concatenate_r64, nonzero_bool, stack_r64, &
+    take_r64, where_r64
+  use frumpy_searching_r64, only: searchsorted_r64
+  use frumpy_sorting_r64, only: argsort_r64, sort_r64
   use frumpy_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
     min_r64, prod_r64, sum_r64
   use frumpy_slices, only: slice_all, slice_range, slice_spec
@@ -83,6 +87,10 @@ module frumpy
   public :: cos_r64
   public :: copy_r64_value
   public :: copy_r64
+  public :: concatenate_r64
+  public :: argsort_r64
+  public :: nonzero_bool
+  public :: searchsorted_r64
   public :: divide_r64
   public :: empty_r64
   public :: expand_dims_r64
@@ -128,7 +136,11 @@ module frumpy
   public :: sum_r64
   public :: squeeze_r64
   public :: swapaxes_r64
+  public :: take_r64
+  public :: sort_r64
+  public :: stack_r64
   public :: transpose_r64
+  public :: where_r64
   public :: view_descriptor_bool
   public :: view_descriptor_i32
   public :: view_descriptor_i64

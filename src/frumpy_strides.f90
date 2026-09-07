@@ -1,7 +1,7 @@
 !> Signed element-stride and contiguity helpers for ndarray descriptors.
 module frumpy_strides
   use iso_fortran_env, only: int32, int64
-  use frumpy_shape, only: has_zero_extent, is_valid_shape
+  use frumpy_shape, only: element_count, has_zero_extent, is_valid_shape
   use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, FRUMPY_STATUS_OVERFLOW, &
     frumpy_status, set_status
@@ -15,8 +15,44 @@ module frumpy_strides
   public :: is_c_contiguous
   public :: is_f_contiguous
   public :: has_negative_stride
+  public :: storage_bounds_are_valid
 
 contains
+
+  !> Check reachable storage without overflowing on malformed signed strides.
+  logical function storage_bounds_are_valid(shape, strides, offset, storage_count) result(valid)
+    integer(int64), intent(in) :: shape(:), strides(:), offset, storage_count
+    integer(int64) :: count, lower, upper, steps
+    integer(int32) :: dim1
+    type(frumpy_status) :: status
+
+    valid = .false.
+    if (size(shape) /= size(strides)) return
+    if (offset < 1_int64 .or. storage_count < 0_int64) return
+    count = element_count(shape, status)
+    if (status%is_failure()) return
+    if (count == 0_int64) then
+      valid = .true.
+      return
+    end if
+    if (offset > storage_count) return
+
+    lower = offset
+    upper = offset
+    do dim1 = 1_int32, int(size(shape), int32)
+      steps = shape(dim1) - 1_int64
+      if (steps == 0_int64) cycle
+      if (strides(dim1) > 0_int64) then
+        if (strides(dim1) > (storage_count - upper) / steps) return
+        upper = upper + steps * strides(dim1)
+      else if (strides(dim1) < 0_int64) then
+        ! Compare before multiplying or negating a potentially minimum int64.
+        if (strides(dim1) < -((lower - 1_int64) / steps)) return
+        lower = lower + steps * strides(dim1)
+      end if
+    end do
+    valid = .true.
+  end function storage_bounds_are_valid
 
   function c_order_strides(shape, status) result(strides)
     integer(int64), intent(in) :: shape(:)

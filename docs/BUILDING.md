@@ -45,7 +45,15 @@ hidden build-system behavior while Frumpy is still small.
 .venv/bin/python -m pytest -q python/tests
 ```
 
-On first run it creates `.venv/` and installs `pytest` and `numpy` there. If
+The target also compiles `python/fortran/differential_driver.f90` and passes its
+absolute path to pytest. `test_frumpy_differential.py` executes that driver and
+compares actual Frumpy outputs with NumPy. The older `test_numpy_*.py` files
+check NumPy reference fixtures only. Direct pytest invocation builds the driver
+in an isolated temporary directory and fails if the compiler/build fails.
+
+On first run it creates `.venv/` and installs `python/requirements-test.txt`
+there. NumPy is pinned to `2.4.6`, matching the dtype oracle fixtures; changing
+the oracle requires updating those fixtures and the requirement together. If
 dependencies need to be refreshed, remove `.venv/.frumpy-python-deps` or recreate
 the virtual environment.
 
@@ -84,6 +92,10 @@ until the fpm-specific issue is documented and fixed.
 - `test/test_elementwise_r64.f90`
 - `test/test_reductions_r64.f90`
 - `test/test_views_r64.f90`
+- `test/test_selection_r64.f90`
+- `test/test_selection_validation.f90`
+- `test/test_sorting_r64.f90`
+- `test/test_searching_r64.f90`
 
 Compiler flags default to:
 
@@ -93,3 +105,12 @@ Compiler flags default to:
 
 Override `FC`, `FFLAGS`, `PYTHON`, `FPM`, `BUILD_DIR`, or `VENV` on the command
 line when needed.
+
+For an independent fresh build without removing existing build products:
+
+```sh
+make validate BUILD_DIR=build/review
+```
+
+Make serializes builds because compiler module files are shared within a build directory. Use separate
+`BUILD_DIR` values for concurrent make processes.

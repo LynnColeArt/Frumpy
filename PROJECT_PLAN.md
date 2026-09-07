@@ -19,6 +19,25 @@ packages. The mission is large by design; the work packages must still be
 small, concrete, testable, and reviewable.
 
 
+## Implementation Snapshot — 2026-09-07
+
+The phase descriptions below remain the roadmap, not a completion ledger.
+The repository now contains a working float64 descriptor/constructor/arithmetic/
+reduction/view core, dtype policy and non-float64 descriptors, and the bounded
+selection, sorting, and searching surface documented in
+[SELECTION_SUPPORT.md](docs/SELECTION_SUPPORT.md).
+
+The local validation gate includes standalone casting and promotion tests and
+a compiled Frumpy-versus-NumPy bridge. Existing NumPy-only fixtures remain useful
+oracle references, but are not themselves differential execution tests.
+
+Phases 1–8 have implementation coverage of varying depth; none of that implies
+full NumPy compatibility. Non-float64 kernels, shared-storage lifetime management,
+advanced indexing, linear algebra/random, C/Python interop, and benchmarks remain
+open. The next work should preserve the validated subset while closing those
+explicit gaps.
+
+
 ## Planning Anchors
 
 These external contracts shape the plan:
@@ -137,7 +156,7 @@ Exit criteria:
 
 Status:
 
-- In progress.
+- Identity, standards, architecture, and roadmap documents are present.
 
 
 ## Phase 1: Toolchain and Test Harness
@@ -552,11 +571,12 @@ At every phase boundary, ask:
 
 ## Immediate Next Steps
 
-1. Scaffold the Fortran package and local build/test commands.
-2. Create the status, constants, shape, and stride modules.
-3. Implement `ndarray_r64` descriptor tests before math kernels.
-4. Add the first NumPy differential smoke test.
-5. Build the first vertical slice one operation at a time.
+1. Define and test owned/view storage lifetime and release behavior.
+2. Expand dtype execution beyond float64 without duplicating promotion policy.
+3. Add the first BLAS/LAPACK-backed linear algebra slice.
+4. Design the C ABI and Python package around explicit ownership.
+5. Extend direct NumPy differential coverage alongside each supported operation,
+   then benchmark representative contiguous and strided workloads.
 
 
 ## Spec Kitty Handoff Model

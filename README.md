@@ -110,16 +110,20 @@ The short version:
 
 ## Status
 
-Frumpy is at the beginning.
+Frumpy has a working float64 array core: descriptors, constructors, broadcasting,
+elementwise arithmetic, reductions, views, and slicing. Boolean, int32, int64,
+and float32 descriptors plus dtype promotion and scalar casting policies are
+also implemented; general kernels for those dtypes remain future work.
 
-The current focus is project definition and the ndarray foundation:
+The selection subset adds `where`, `take`, `concatenate`, `stack`, stable sorting,
+`argsort`, `searchsorted`, and flat nonzero indices. See
+[selection support](docs/SELECTION_SUPPORT.md) for the exact contract and limits,
+and [dtype support](docs/DTYPE_SUPPORT.md) for the type coverage matrix.
 
-- Array descriptor.
-- Shape and stride utilities.
-- Constructors.
-- Elementwise kernels.
-- Broadcasting.
-- Reductions.
-- NumPy differential tests.
+Run `make validate` to compile/run Fortran tests and the example, execute Python
+reference fixtures and direct Frumpy-versus-NumPy comparisons, and check patch
+whitespace. See [building](docs/BUILDING.md).
 
-The ambition is large, but the first steps are intentionally concrete.
+Linear algebra, random generation, a C ABI, Python bindings, and measured
+performance work remain unfinished. Storage lifetime still requires explicit
+caller management; this is not yet a drop-in NumPy replacement.

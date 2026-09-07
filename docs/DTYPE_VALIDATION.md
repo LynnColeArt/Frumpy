@@ -65,7 +65,7 @@ rg -n "$pattern" \
 
 The command should print no matches.
 
-## Latest Local Validation
+## Dtype Mission Validation — 2026-06-09
 
 Observed on 2026-06-09 in the WP07 closeout lane:
 
@@ -102,3 +102,17 @@ It must also keep the dtype foundation green:
 If a future NumPy release changes dtype promotion or casting behavior, update
 the Python fixtures and docs together so the observed oracle version remains
 visible.
+
+## Selection and Validation Follow-up — 2026-09-07
+
+A fresh `make validate` build passed 20 standalone Fortran programs, the example,
+and 157 Python tests (129 compiled differential cases plus 28 NumPy reference
+fixtures). Two expected NumPy warnings came from the empty-mean fixture.
+`git diff --check` passed. NumPy was `2.4.6`; pytest was `9.0.3`.
+
+The Makefile now explicitly includes `test_dtype_promotion` and `test_casting`;
+the previous test list omitted them despite the documentation above. NumPy's
+oracle version is now pinned in `python/requirements-test.txt` for fresh setups.
+The new bridge and selection contract are described in
+[SELECTION_SUPPORT.md](SELECTION_SUPPORT.md). `fpm` remains unavailable on this
+host, so its optional build path was not validated.

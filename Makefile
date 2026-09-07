@@ -14,6 +14,9 @@ PY_DEPS_STAMP := $(VENV)/.frumpy-python-deps
 
 FFLAGS ?= -std=f2018 -Wall -Wextra -Werror -fimplicit-none -fcheck=all -fbacktrace
 
+# Each executable build writes the same Fortran module files.
+.NOTPARALLEL:
+
 SOURCES := \
 	src/frumpy_constants.f90 \
 	src/frumpy_statuses.f90 \
@@ -26,16 +29,23 @@ SOURCES := \
 	src/frumpy_ndarray_r32.f90 \
 	src/frumpy_ndarray_r64.f90 \
 	src/frumpy_constructors_r64.f90 \
+	src/frumpy_casting.f90 \
 	src/frumpy_broadcast.f90 \
 	src/frumpy_elementwise_r64.f90 \
+	src/frumpy_promotion.f90 \
 	src/frumpy_reductions_r64.f90 \
 	src/frumpy_slices.f90 \
+	src/frumpy_selection_r64.f90 \
+	src/frumpy_searching_r64.f90 \
+	src/frumpy_sorting_r64.f90 \
 	src/frumpy_views_r64.f90 \
 	src/frumpy.f90
 
 FORTRAN_TESTS := \
 	test/test_statuses.f90 \
 	test/test_dtypes.f90 \
+	test/test_dtype_promotion.f90 \
+	test/test_casting.f90 \
 	test/test_shape.f90 \
 	test/test_strides.f90 \
 	test/test_ndarray_bool.f90 \
@@ -47,6 +57,10 @@ FORTRAN_TESTS := \
 	test/test_broadcast.f90 \
 	test/test_elementwise_r64.f90 \
 	test/test_reductions_r64.f90 \
+	test/test_selection_r64.f90 \
+	test/test_selection_validation.f90 \
+	test/test_searching_r64.f90 \
+	test/test_sorting_r64.f90 \
 	test/test_views_r64.f90
 
 EXAMPLES := \
@@ -81,8 +95,9 @@ examples: $(EXAMPLE_BINS)
 		"$$example_bin"; \
 	done
 
-python-test: $(PY_DEPS_STAMP)
-	$(VENV_PY) -m pytest -q python/tests
+python-test: $(PY_DEPS_STAMP) $(BIN_DIR)/differential_driver
+	FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BIN_DIR)/differential_driver)" \
+		$(VENV_PY) -m pytest -q python/tests
 
 fpm-test:
 	@if command -v $(FPM) >/dev/null 2>&1; then \
@@ -106,10 +121,12 @@ $(BIN_DIR)/%: test/%.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
 $(BIN_DIR)/example_%: examples/%.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
 	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
 
-$(PY_DEPS_STAMP):
+$(BIN_DIR)/differential_driver: python/fortran/differential_driver.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
+
+$(PY_DEPS_STAMP): python/requirements-test.txt
 	@test -x "$(VENV_PY)" || "$(PYTHON)" -m venv "$(VENV)"
-	$(VENV_PY) -m pip install --upgrade pip
-	$(VENV_PY) -m pip install pytest numpy
+	$(VENV_PY) -m pip install -r python/requirements-test.txt
 	@touch "$@"
 
 $(BIN_DIR) $(MOD_DIR) $(OBJ_DIR):

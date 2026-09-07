@@ -19,9 +19,9 @@ boundary, not as a roadmap wish list.
 
 | Dtype | ID | Bytes | Level | Current behavior |
 | --- | --- | ---: | --- | --- |
-| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No bool array kernels yet. |
+| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; no general bool arithmetic/reduction kernels yet. |
 | `i32` | `FRUMPY_DTYPE_I32` | 4 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No i32 array kernels yet. |
-| `i64` | `FRUMPY_DTYPE_I64` | 8 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No i64 array kernels yet. |
+| `i64` | `FRUMPY_DTYPE_I64` | 8 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; no general i64 value kernels yet. |
 | `r32` | `FRUMPY_DTYPE_R32` | 4 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No r32 array kernels yet. |
 | `r64` | `FRUMPY_DTYPE_R64` | 8 | Full current array support | Concrete descriptor/storage metadata, constructors, broadcasting, elementwise kernels, reductions, views, promotion policy, and casting policy. |
 
@@ -41,11 +41,13 @@ The current `r64` path includes:
 | Broadcasting | `broadcast_plan_r64`, `broadcast_plan` |
 | Elementwise kernels | `add_r64`, `subtract_r64`, `multiply_r64`, `divide_r64`, `negate_r64`, `abs_r64`, `sqrt_r64`, `sin_r64`, `cos_r64`, `exp_r64`, `log_r64` |
 | Reductions | `sum_r64`, `prod_r64`, `mean_r64`, `min_r64`, `max_r64` |
+| Selection and ordering | `where_r64`, `take_r64`, `concatenate_r64`, `stack_r64`, `sort_r64`, `argsort_r64`, `searchsorted_r64`, `nonzero_bool` (flat indices) |
 | Views and slicing | `reshape_r64`, `ravel_r64`, `flatten_r64`, `transpose_r64`, `swapaxes_r64`, `squeeze_r64`, `expand_dims_r64`, `slice_r64` |
 
-This is not full NumPy. Linear algebra, random generation, indexing beyond the
-current slice helpers, sorting, searching, FFTs, Python bindings, and C ABI work
-remain outside the current implementation.
+This is not full NumPy. See [selection support](SELECTION_SUPPORT.md) for the
+bounded indexing/ordering contract. Advanced indexing, linear algebra, random
+generation, FFTs, Python bindings, and C ABI work remain outside the current
+implementation.
 
 ## Non-r64 Descriptor Foundation
 
@@ -70,8 +72,10 @@ Each descriptor preserves the same metadata invariants as `ndarray_r64`:
 - Copy-vs-view storage sharing.
 
 The non-`r64` descriptor APIs are descriptor foundations only. They do not add
-NumPy constructors, elementwise kernels, reductions, view helpers, or mixed-dtype
-array execution for those dtypes.
+NumPy constructors, general elementwise kernels, reductions, view helpers, or
+mixed-dtype array execution for those dtypes. The selection subset consumes
+boolean conditions and produces int64 indices without adding general dtype
+execution.
 
 ## Promotion
 

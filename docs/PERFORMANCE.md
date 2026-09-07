@@ -51,6 +51,29 @@ test environment; no additional Python dependency is needed.
   NumPy uses its installed wheel's runtime CPU dispatch. This compares the
   recorded library configurations, not the speed of the two languages.
 
+## Recorded results — 2026-09-07
+
+Measured source: `13af24e`, with a clean working tree. Host: AMD Ryzen 5 5600X; NumPy 2.4.6.
+
+Representative medians for the default GNU Fortran 13 build:
+
+| Operation | Elements | Frumpy (ms) | NumPy (ms) | Frumpy / NumPy time |
+| --- | ---: | ---: | ---: | ---: |
+| add_r64 | 1,048,576 | 9.501 | 0.481 | 19.7× |
+| add_r32 | 1,048,576 | 3.323 | 0.116 | 28.6× |
+| sum_r64 | 1,048,576 | 4.647 | 0.164 | 28.3× |
+| sort_r64 | 8,192 | 9.896 | 0.039 | 254.2× |
+
+See the [full three-compiler/layout table](performance/2026-09-07.md) and
+[raw timing samples and environment](performance/2026-09-07.json). A ratio
+above 1 means Frumpy took longer. These measurements do not support a
+claim that Fortran is inherently slower: the general loops and sorting
+algorithm differ from NumPy’s optimized implementations.
+
+The compiler comparison also matters: the float32 fallback took about
+3.3 ms under GNU and 22.8 ms under Flang on the million-element case.
+This is a useful compiler-sensitive performance regression case to retain.
+
 ## What to optimize next
 
 The float64 binary and reduction paths still walk general stride/index logic

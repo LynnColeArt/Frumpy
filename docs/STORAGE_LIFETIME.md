@@ -3,8 +3,9 @@
 The five registered descriptor types (`ndarray_bool`, `ndarray_i32`,
 `ndarray_i64`, `ndarray_r32`, and `ndarray_r64`) now use the same managed lifetime
 contract. This remains a bounded contract: intrinsic Fortran container copying
-is not supported. The implementation is checked with GNU Fortran 13.3.0,
-Fortran 2018 runtime checks, and AddressSanitizer with leak detection.
+is not supported. The implementation is checked with GNU Fortran 13.3.0 and 14.2.0 and LLVM
+Flang 19.1.1. GNU builds also use runtime checks and AddressSanitizer with leak
+detection; see the [compiler matrix](COMPILER_PORTABILITY.md).
 
 ## Managed arrays
 
@@ -15,7 +16,8 @@ therefore remains valid after its original descriptor is released, reassigned,
 or finalized on leaving a procedure.
 
 `copy_r64` remains the way to request independent float64 values; this lifetime
-work does not add general value-copy or arithmetic kernels for other dtypes. The public `data`
+contract does not imply general value-copy or arithmetic support. The separate
+float32 binary slice is documented in [dtype support](DTYPE_SUPPORT.md). The public `data`
 pointer remains available for value access; do not deallocate or retarget it on
 a managed descriptor. The backing block is private and determines reclamation.
 `owns_data` continues to distinguish original allocated results from views; it
@@ -136,8 +138,8 @@ payloads beyond float64's integer precision. Empty borrowed self-assignment is
 covered for all five types.
 
 `python/fortran/differential_driver.f90` now reads inputs into managed storage
-and runs each case in procedure scope. All its inputs, intermediates, float64
-outputs, and integer index outputs finalize before process exit.
+and runs each case in procedure scope. All its inputs, intermediates, float32
+and float64 outputs, and integer index outputs finalize before process exit.
 
 Run the standard gate with `make validate`. On the tested Linux/GFortran host,
 run the dedicated memory gate with:
@@ -147,7 +149,8 @@ make memory-test
 ```
 
 It builds separate AddressSanitizer executables in `build/memory`, enables leak
-detection, runs both lifetime test programs and allocation-failure sweeps, and
+detection, runs both lifetime test programs, float32 arithmetic invariants,
+and allocation-failure sweeps, and
 runs all compiled Frumpy/NumPy
 differential cases through the instrumented driver. The gate uses `-no-pie` on
 the tested host; it is optional and not a compiler/platform portability claim.
@@ -161,9 +164,9 @@ uses `-fstack-arrays` to move compiler finalizer scratch off the injected heap.
 The lifetime programs and differential driver use the ordinary compiler flags
 plus sanitizer instrumentation. This gate needs a C compiler and GNU linker.
 
-Observed on 2026-09-07: `make validate` passed 22 standalone Fortran programs,
-the example, and 157 Python tests. `make memory-test` passed both lifetime
-programs, the allocation-failure sweeps, and all 129 compiled differential cases with no reported leaks or
+Observed on 2026-09-07: `make validate` passed 23 standalone Fortran programs,
+the example, and 205 Python tests. `make memory-test` passed both lifetime
+programs, float32 arithmetic invariants, the allocation-failure sweeps, and all 177 compiled differential cases with no reported leaks or
 memory errors. Two expected NumPy warnings remained in the standard gate's
 existing empty-mean reference test. These checks cover the exercised paths;
 they do not establish safety for the unsupported intrinsic copying forms above.

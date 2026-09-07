@@ -1,11 +1,13 @@
 !> Test-only process bridge: read descriptors, execute Frumpy, emit actual storage.
 program differential_driver
-  use iso_fortran_env, only: int8, int32, int64, real64
+  use iso_fortran_env, only: int8, int32, int64, real32, real64
   use frumpy, only: ndarray_r64, ndarray_i64, ndarray_bool, frumpy_status, &
     owned_descriptor_r64, owned_descriptor_bool, view_descriptor_r64, &
     view_descriptor_bool, where_r64, take_r64, &
     concatenate_r64, stack_r64, nonzero_bool, sort_r64, argsort_r64, &
     searchsorted_r64, zeros_r64, full_r64, add_r64, reshape_r64, sum_r64
+  use frumpy, only: ndarray_r32, owned_descriptor_r32, view_descriptor_r32, &
+    add_r32, subtract_r32, multiply_r32, divide_r32
   implicit none
 
   call run_case()
@@ -15,6 +17,7 @@ contains
   ! Procedure scope makes all test-owned descriptors finalize before process exit.
   subroutine run_case()
     type(ndarray_r64) :: lhs, rhs, output, intermediate, reshaped
+    type(ndarray_r32) :: lhs32, rhs32, output32
     type(ndarray_i64) :: indices_output
     type(ndarray_bool) :: condition
     type(frumpy_status) :: status
@@ -26,6 +29,19 @@ contains
     read (*, *) operation, axis0, side
     integer_output = .false.
     select case (trim(operation))
+    case ('add_r32', 'subtract_r32', 'multiply_r32', 'divide_r32')
+      call read_r32(lhs32)
+      call read_r32(rhs32)
+      select case (trim(operation))
+      case ('add_r32')
+        output32 = add_r32(lhs32, rhs32, status)
+      case ('subtract_r32')
+        output32 = subtract_r32(lhs32, rhs32, status)
+      case ('multiply_r32')
+        output32 = multiply_r32(lhs32, rhs32, status)
+      case ('divide_r32')
+        output32 = divide_r32(lhs32, rhs32, status)
+      end select
     case ('vertical_slice')
       lhs = zeros_r64([2_int64, 3_int64], status=status)
       call require_ok(status)
@@ -83,6 +99,12 @@ contains
     write (*, '(i0)') status%code
     if (status%is_failure()) then
       write (*, '(a)') trim(status%message)
+    else if (index(operation, '_r32') > 0) then
+      if (associated(output32%data, lhs32%data)) error stop 'result aliases lhs'
+      if (associated(output32%data, rhs32%data)) error stop 'result aliases rhs'
+      call emit_metadata(output32%shape, output32%strides, output32%offset, &
+        output32%is_c_contiguous, output32%is_f_contiguous, output32%owns_data)
+      write (*, '(*(es18.9e3,1x))') output32%data
     else if (integer_output) then
       call emit_metadata(indices_output%shape, indices_output%strides, indices_output%offset, &
         indices_output%is_c_contiguous, indices_output%is_f_contiguous, indices_output%owns_data)
@@ -124,6 +146,21 @@ contains
     array = view_descriptor_r64(backing, shape, strides, offset, read_status)
     call require_ok(read_status)
   end subroutine read_r64
+
+  subroutine read_r32(array)
+    type(ndarray_r32), intent(out) :: array
+    type(ndarray_r32) :: backing
+    integer(int64), allocatable :: shape(:), strides(:)
+    integer(int64) :: offset, storage_count
+    type(frumpy_status) :: read_status
+
+    call read_metadata(shape, strides, offset, storage_count)
+    backing = owned_descriptor_r32([storage_count], status=read_status)
+    call require_ok(read_status)
+    read (*, *) backing%data
+    array = view_descriptor_r32(backing, shape, strides, offset, read_status)
+    call require_ok(read_status)
+  end subroutine read_r32
 
   subroutine read_bool(array)
     type(ndarray_bool), intent(out) :: array

@@ -113,7 +113,8 @@ The short version:
 Frumpy has a working float64 array core: descriptors, constructors, broadcasting,
 elementwise arithmetic, reductions, views, and slicing. Boolean, int32, int64,
 and float32 descriptors plus dtype promotion and scalar casting policies are
-also implemented; general kernels for those dtypes remain future work.
+also implemented. Float32 now supports add, subtract, multiply, and divide with
+broadcasting; broader non-float64 kernels remain future work.
 
 The selection subset adds `where`, `take`, `concatenate`, `stack`, stable sorting,
 `argsort`, `searchsorted`, and flat nonzero indices. See
@@ -122,7 +123,8 @@ and [dtype support](docs/DTYPE_SUPPORT.md) for the type coverage matrix.
 
 Run `make validate` to compile/run Fortran tests and the example, execute Python
 reference fixtures and direct Frumpy-versus-NumPy comparisons, and check patch
-whitespace. See [building](docs/BUILDING.md).
+whitespace. See [building](docs/BUILDING.md), [compiler portability](docs/COMPILER_PORTABILITY.md),
+and [performance measurements](docs/PERFORMANCE.md).
 
 Linear algebra, random generation, a C ABI, Python bindings, and measured
 performance work remain unfinished. Managed storage for all five registered

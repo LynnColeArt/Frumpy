@@ -12,6 +12,7 @@ boundary, not as a roadmap wish list.
 | Level | Meaning |
 | --- | --- |
 | Full current array support | The dtype has concrete descriptors, storage, constructors or kernels, and regression tests for the listed behavior. |
+| Partial array support | A bounded set of concrete operations is supported; other dtype operations remain absent. |
 | Foundation support | The dtype has stable IDs, metadata, policy, or descriptors, but not full array operations. |
 | Unsupported | The dtype is intentionally absent from the registered core surface and callers must treat it as unsupported. |
 
@@ -22,13 +23,13 @@ boundary, not as a roadmap wish list.
 | `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; no general bool arithmetic/reduction kernels yet. |
 | `i32` | `FRUMPY_DTYPE_I32` | 4 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No i32 array kernels yet. |
 | `i64` | `FRUMPY_DTYPE_I64` | 8 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; no general i64 value kernels yet. |
-| `r32` | `FRUMPY_DTYPE_R32` | 4 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No r32 array kernels yet. |
+| `r32` | `FRUMPY_DTYPE_R32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Float32 add, subtract, multiply, and divide with broadcasting and signed strides. |
 | `r64` | `FRUMPY_DTYPE_R64` | 8 | Full current array support | Concrete descriptor/storage metadata, constructors, broadcasting, elementwise kernels, reductions, views, promotion policy, and casting policy. |
 
 The `frumpy_dtypes` support state remains conservative: only `r64` reports
 `FRUMPY_DTYPE_SUPPORT_SUPPORTED`. Non-`r64` dtypes are registered and useful for
-policy and descriptors, but still report planned support because Frumpy cannot
-yet run non-`r64` ndarray kernels.
+policy, descriptors, and the bounded operations listed above. They still report
+planned broad support; this legacy flag is not per-operation capability discovery.
 
 ## Implemented r64 Array Behavior
 
@@ -54,6 +55,32 @@ sharing retain that storage; release and finalization drop references. This does
 not add missing dtype kernels. See [storage lifetime](STORAGE_LIFETIME.md) for
 the required explicit-sharing APIs and restrictions on Fortran container copies.
 
+## Float32 Binary Arithmetic
+
+`add_r32`, `subtract_r32`, `multiply_r32`, and `divide_r32` accept two
+`ndarray_r32` operands and return an independent C-order float32 array. Create
+inputs with `owned_descriptor_r32` and access their float32 payload through
+`data`. `view_descriptor_r32` supplies explicit shape/stride views.
+
+The kernels use the same metadata broadcast planner as float64. They support
+rank-zero operands, trailing-dimension broadcasting, empty arrays, C/F-order
+inputs, transpose/reverse views, stepped slices, and zero strides. Both inputs
+remain float32; there is no implicit mixed-dtype conversion or new promotion
+policy. NaNs, infinities, signed zero, overflow and division by zero follow the
+host IEEE floating-point arithmetic. No NumPy-style warning channel is provided;
+explicitly enabling compiler floating-point traps can change that behavior.
+
+Inputs with missing storage return `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR`.
+Malformed metadata, inaccessible offsets/strides and incompatible shapes return
+`FRUMPY_STATUS_INVALID_SHAPE`. Explicit allocation errors have status paths,
+subject to the compiler temporary-allocation limits in the lifetime contract.
+
+There are no float32 unary kernels, reductions, selection routines, convenience
+constructors, or mixed-dtype execution yet. The 48 compiled NumPy cases in
+`test_frumpy_differential.py` check all four operations, including exact float32
+results and signed zeros. `test/test_elementwise_r32.f90` checks ownership,
+result lifetime, and malformed input status paths.
+
 ## Non-r64 Descriptor Foundation
 
 The current non-`r64` descriptor modules are:
@@ -76,9 +103,9 @@ Each descriptor preserves the same metadata invariants as `ndarray_r64`:
 - Fortran-contiguity.
 - Copy-vs-view storage sharing.
 
-The non-`r64` descriptor APIs are descriptor foundations only. They do not add
-NumPy constructors, general elementwise kernels, reductions, view helpers, or
-mixed-dtype array execution for those dtypes. The selection subset consumes
+These descriptor APIs do not themselves add NumPy convenience constructors,
+reductions, view helpers, or mixed-dtype execution. Float32 binary arithmetic is
+the separate bounded kernel surface described above. The selection subset consumes
 boolean conditions and produces int64 indices without adding general dtype
 execution.
 

@@ -30,6 +30,7 @@ Makefile creates and uses `.venv/`, which is ignored by git.
 | `make test` | Compile and run every standalone Fortran test program. |
 | `make examples` | Compile and run example programs, including the first vertical slice. |
 | `make python-test` | Create `.venv/` if needed, install `pytest` and `numpy`, and run `python/tests`. |
+| `make portability-test` | Validate debug and optimized builds with each compiler in `COMPILERS`; see the portability matrix. |
 | `make memory-test` | Run ownership programs, allocation-failure sweeps, and all compiled differential cases under AddressSanitizer with leak detection on GNU/Linux. |
 | `make fpm-test` | Run `fpm test` when `fpm` is installed; otherwise explain that fpm is optional. |
 | `make validate` | Run Fortran tests, examples, Python differential tests, and whitespace checks. |
@@ -93,6 +94,7 @@ until the fpm-specific issue is documented and fixed.
 - `test/test_storage_lifetime_dtypes.f90`
 - `test/test_constructors_r64.f90`
 - `test/test_broadcast.f90`
+- `test/test_elementwise_r32.f90`
 - `test/test_elementwise_r64.f90`
 - `test/test_reductions_r64.f90`
 - `test/test_views_r64.f90`
@@ -121,3 +123,6 @@ Make serializes builds because compiler module files are shared within a build d
 
 The numeric-descriptor lifetime and `make memory-test` gate are documented in
 [STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).
+
+See [COMPILER_PORTABILITY.md](COMPILER_PORTABILITY.md) for the tested compiler
+matrix and [PERFORMANCE.md](PERFORMANCE.md) for reproducible timed comparisons.

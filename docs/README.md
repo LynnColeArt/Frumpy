@@ -1,6 +1,8 @@
 # Frumpy Documentation
 
 - [Building and validation](BUILDING.md)
+- [Compiler portability](COMPILER_PORTABILITY.md)
+- [Performance comparisons](PERFORMANCE.md)
 - [Storage lifetime for registered numeric dtypes](STORAGE_LIFETIME.md)
 - [Selection, sorting, and searching support](SELECTION_SUPPORT.md)
 - [Dtype support](DTYPE_SUPPORT.md)

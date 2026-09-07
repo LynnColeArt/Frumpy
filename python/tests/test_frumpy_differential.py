@@ -38,9 +38,12 @@ def execute(driver, operation, *arrays, axis=-1, side=0, indices=None):
     assert len(shape) == rank == len(strides)
     assert owns == "T", f"{operation} must own its result"
     dtype = np.int64 if operation in ("argsort", "searchsorted", "nonzero") else np.float64
+    if operation.endswith("_r32"):
+        dtype = np.float32
+    itemsize = np.dtype(dtype).itemsize
     storage = np.fromstring(lines[5] if len(lines) > 5 else "", sep=" ", dtype=dtype)
-    result = np.ndarray(shape, dtype=dtype, buffer=storage, offset=(int(offset) - 1) * 8,
-                        strides=tuple(s * 8 for s in strides))
+    result = np.ndarray(shape, dtype=dtype, buffer=storage, offset=(int(offset) - 1) * itemsize,
+                        strides=tuple(s * itemsize for s in strides))
     assert result.flags.c_contiguous == (c_flag == "T")
     assert result.flags.f_contiguous == (f_flag == "T")
     return status, result
@@ -192,3 +195,45 @@ def test_seeded_strided_operations(frumpy_driver, seed):
         check(frumpy_driver, "concatenate", np.concatenate([a, b], axis=axis), a, b, axis=axis)
     sorted_source = np.sort(base.ravel())
     check(frumpy_driver, "searchsorted", np.searchsorted(sorted_source, a), sorted_source, a)
+
+
+def float32_pairs():
+    base = np.arange(1, 13, dtype=np.float32).reshape(3, 4)
+    return [
+        (base, base + np.float32(0.5)),
+        (np.asfortranarray(base), np.asfortranarray(base + 1)),
+        (base.T, np.array(3, dtype=np.float32)),
+        (base[:, ::-1], np.arange(1, 5, dtype=np.float32)),
+        (base[::-1, ::2], np.ones((3, 1), dtype=np.float32)),
+        (np.broadcast_to(base[:1], (3, 4)), base[:, ::-1]),
+        (np.array(2, dtype=np.float32), np.array(3, dtype=np.float32)),
+        (np.empty((0, 4), dtype=np.float32), np.ones((1, 4), dtype=np.float32)),
+        (np.empty((3, 0), dtype=np.float32), np.ones((3, 1), dtype=np.float32)),
+        (np.array([16777216, 16777218, 1e-30], dtype=np.float32),
+         np.array([1, 3, 1e-10], dtype=np.float32)),
+        (np.array([np.nan, np.inf, -np.inf, 0., -0., 1., -1., 3e38], dtype=np.float32),
+         np.array([1., np.inf, -np.inf, -0., 0., 0., 0., 3e38], dtype=np.float32)),
+    ]
+
+
+@pytest.mark.parametrize('operation', ['add', 'subtract', 'multiply', 'divide'])
+@pytest.mark.parametrize('lhs,rhs', float32_pairs())
+def test_float32_binary(frumpy_driver, operation, lhs, rhs):
+    with np.errstate(all='ignore'):
+        expected = getattr(np, operation)(lhs, rhs)
+    status, actual = execute(frumpy_driver, operation + '_r32', lhs, rhs)
+    assert status == 0
+    assert actual.dtype == expected.dtype == np.dtype('float32')
+    assert actual.shape == expected.shape
+    np.testing.assert_array_equal(actual, expected)
+    zeros = expected == 0
+    np.testing.assert_array_equal(np.signbit(actual[zeros]), np.signbit(expected[zeros]))
+
+
+@pytest.mark.parametrize('operation', ['add', 'subtract', 'multiply', 'divide'])
+def test_float32_incompatible_shapes(frumpy_driver, operation):
+    lhs = np.ones((2, 3), dtype=np.float32)
+    rhs = np.ones((4,), dtype=np.float32)
+    with pytest.raises(ValueError):
+        getattr(np, operation)(lhs, rhs)
+    assert execute(frumpy_driver, operation + '_r32', lhs, rhs)[0] == 1

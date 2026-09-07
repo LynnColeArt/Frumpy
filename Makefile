@@ -3,6 +3,7 @@ FC := gfortran
 endif
 PYTHON ?= python3
 FPM ?= fpm
+COMPILERS ?= gfortran-13 gfortran-14 flang-new-19
 
 BUILD_DIR ?= build
 BIN_DIR := $(BUILD_DIR)/bin
@@ -31,6 +32,7 @@ SOURCES := \
 	src/frumpy_constructors_r64.f90 \
 	src/frumpy_casting.f90 \
 	src/frumpy_broadcast.f90 \
+	src/frumpy_elementwise_r32.f90 \
 	src/frumpy_elementwise_r64.f90 \
 	src/frumpy_promotion.f90 \
 	src/frumpy_reductions_r64.f90 \
@@ -57,6 +59,7 @@ FORTRAN_TESTS := \
 	test/test_storage_lifetime_dtypes.f90 \
 	test/test_constructors_r64.f90 \
 	test/test_broadcast.f90 \
+	test/test_elementwise_r32.f90 \
 	test/test_elementwise_r64.f90 \
 	test/test_reductions_r64.f90 \
 	test/test_selection_r64.f90 \
@@ -71,7 +74,7 @@ EXAMPLES := \
 TEST_BINS := $(patsubst test/%.f90,$(BIN_DIR)/%,$(FORTRAN_TESTS))
 EXAMPLE_BINS := $(patsubst examples/%.f90,$(BIN_DIR)/example_%,$(EXAMPLES))
 
-.PHONY: all build test examples python-test memory-test fpm-test validate diff-check clean
+.PHONY: all build test examples python-test memory-test portability-test fpm-test validate diff-check clean
 
 all: build
 
@@ -107,14 +110,19 @@ memory-test: $(PY_DEPS_STAMP)
 		FFLAGS="$(FFLAGS) -g -fsanitize=address -fno-omit-frame-pointer -no-pie" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes" \
+		"$(BUILD_DIR)/memory/bin/test_elementwise_r32" \
 		"$(BUILD_DIR)/memory/bin/allocation_failure_driver" \
 		"$(BUILD_DIR)/memory/bin/differential_driver"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_elementwise_r32"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/allocation_failure_driver"
 	ASAN_OPTIONS=detect_leaks=1 \
 		FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/memory/bin/differential_driver)" \
 		$(VENV_PY) -m pytest -q python/tests/test_frumpy_differential.py
+
+portability-test:
+	bash scripts/validate_compilers.sh "$(BUILD_DIR)/portability" $(COMPILERS)
 
 fpm-test:
 	@if command -v $(FPM) >/dev/null 2>&1; then \
@@ -139,6 +147,9 @@ $(BIN_DIR)/example_%: examples/%.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
 	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
 
 $(BIN_DIR)/differential_driver: python/fortran/differential_driver.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
+
+$(BIN_DIR)/benchmark_driver: benchmarks/benchmark_driver.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
 	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
 
 $(OBJ_DIR)/allocation_failure.o: python/fortran/allocation_failure.c | $(OBJ_DIR)

@@ -53,6 +53,7 @@ FORTRAN_TESTS := \
 	test/test_ndarray_i64.f90 \
 	test/test_ndarray_r32.f90 \
 	test/test_ndarray_r64.f90 \
+	test/test_storage_lifetime_r64.f90 \
 	test/test_constructors_r64.f90 \
 	test/test_broadcast.f90 \
 	test/test_elementwise_r64.f90 \

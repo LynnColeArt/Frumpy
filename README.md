@@ -125,5 +125,8 @@ reference fixtures and direct Frumpy-versus-NumPy comparisons, and check patch
 whitespace. See [building](docs/BUILDING.md).
 
 Linear algebra, random generation, a C ABI, Python bindings, and measured
-performance work remain unfinished. Storage lifetime still requires explicit
-caller management; this is not yet a drop-in NumPy replacement.
+performance work remain unfinished. Managed float64 storage now retains
+aliases and views, with explicit limits on Fortran container copying. Other
+dtypes and borrowed buffers still require caller lifetime management. See
+[storage lifetime](docs/STORAGE_LIFETIME.md). This is not yet a drop-in NumPy
+replacement.

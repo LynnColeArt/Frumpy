@@ -24,7 +24,7 @@ module frumpy
     owned_descriptor_i64, view_descriptor_i64
   use frumpy_ndarray_r32, only: metadata_descriptor_r32, ndarray_r32, &
     owned_descriptor_r32, view_descriptor_r32
-  use frumpy_ndarray_r64, only: metadata_descriptor_r64, ndarray_r64, &
+  use frumpy_ndarray_r64, only: share_descriptors_r64, metadata_descriptor_r64, ndarray_r64, &
     owned_descriptor_r64, view_descriptor_r64
   use frumpy_promotion, only: is_supported_promotion, promote_dtypes, &
     promote_scalar_dtype
@@ -45,6 +45,8 @@ module frumpy
   implicit none
 
   private
+
+  public :: share_descriptors_r64
 
   public :: FRUMPY_ORDER_A
   public :: FRUMPY_ORDER_C

@@ -87,6 +87,7 @@ until the fpm-specific issue is documented and fixed.
 - `test/test_ndarray_i64.f90`
 - `test/test_ndarray_r32.f90`
 - `test/test_ndarray_r64.f90`
+- `test/test_storage_lifetime_r64.f90`
 - `test/test_constructors_r64.f90`
 - `test/test_broadcast.f90`
 - `test/test_elementwise_r64.f90`
@@ -114,3 +115,6 @@ make validate BUILD_DIR=build/review
 
 Make serializes builds because compiler module files are shared within a build directory. Use separate
 `BUILD_DIR` values for concurrent make processes.
+
+The focused float64 lifetime/sanitizer check is documented in
+[STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).

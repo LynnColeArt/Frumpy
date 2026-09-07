@@ -264,7 +264,9 @@ An ndarray descriptor must make these fields explicit:
 - `strides`: signed strides measured in elements.
 - `offset`: 1-based offset into the Fortran storage buffer.
 - `data`: linear storage buffer or owned backing store.
-- `owns_data`: whether finalization may release the buffer.
+- `owns_data`: whether the descriptor was created as an owned result rather
+  than a view. Managed float64 storage uses private reference bookkeeping for
+  reclamation; a view can keep that allocation alive.
 - `is_c_contiguous`: true when layout is NumPy C-contiguous.
 - `is_f_contiguous`: true when layout is Fortran-contiguous.
 

@@ -21,8 +21,8 @@ boundary, not as a roadmap wish list.
 | Dtype | ID | Bytes | Level | Current behavior |
 | --- | --- | ---: | --- | --- |
 | `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; no general bool arithmetic/reduction kernels yet. |
-| `i32` | `FRUMPY_DTYPE_I32` | 4 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No i32 array kernels yet. |
-| `i64` | `FRUMPY_DTYPE_I64` | 8 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; no general i64 value kernels yet. |
+| `i32` | `FRUMPY_DTYPE_I32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Int32 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
+| `i64` | `FRUMPY_DTYPE_I64` | 8 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; int64 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
 | `r32` | `FRUMPY_DTYPE_R32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Float32 add, subtract, multiply, and divide with broadcasting and signed strides; negation, absolute value, square root, exp, log, sine and cosine; sum, product, mean, minimum and maximum reductions. |
 | `r64` | `FRUMPY_DTYPE_R64` | 8 | Full current array support | Concrete descriptor/storage metadata, constructors, broadcasting, elementwise kernels, reductions, views, promotion policy, and casting policy. |
 
@@ -54,6 +54,16 @@ All five registered descriptors use managed backing storage. Views and explicit
 sharing retain that storage; release and finalization drop references. This does
 not add missing dtype kernels. See [storage lifetime](STORAGE_LIFETIME.md) for
 the required explicit-sharing APIs and restrictions on Fortran container copies.
+
+## Integer Binary Arithmetic
+
+`add_i32`, `subtract_i32`, `multiply_i32` and the corresponding `_i64` functions
+return independent integer arrays with NumPy-style modular payload overflow.
+`divide_i32` and `divide_i64` return float64 arrays, following NumPy true division.
+All support broadcasting, scalar/empty inputs and signed/zero-stride views.
+See [INTEGER_ARITHMETIC.md](INTEGER_ARITHMETIC.md) for numerical semantics,
+status paths, compiler assumptions and the 128 compiled NumPy cases. Integer
+reductions, unary functions and mixed-dtype execution remain unimplemented.
 
 ## Float32 Binary Arithmetic
 
@@ -152,8 +162,9 @@ Each descriptor preserves the same metadata invariants as `ndarray_r64`:
 - Copy-vs-view storage sharing.
 
 These descriptor APIs do not themselves add NumPy convenience constructors,
-view helpers or mixed-dtype execution. Float32 binary/unary arithmetic and
-reductions are the separate bounded kernel surfaces described above. The selection subset consumes
+view helpers or mixed-dtype execution. Integer binary arithmetic, float32
+binary/unary arithmetic and float32 reductions are the separate bounded kernel
+surfaces described above. The selection subset consumes
 boolean conditions and produces int64 indices without adding general dtype
 execution.
 

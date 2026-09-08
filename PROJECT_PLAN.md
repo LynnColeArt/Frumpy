@@ -574,8 +574,9 @@ At every phase boundary, ask:
 ## Immediate Next Steps
 
 1. Preserve the compiler validation matrix and bounded storage-copy contract.
-2. Expand into integer arithmetic and mixed-dtype execution without duplicating
-   promotion policy. Float32 binary, unary and reduction kernels are implemented.
+2. Add mixed-dtype execution using the existing promotion policy and explicit
+   operation-specific result rules. Integer binary arithmetic and float32 binary,
+   unary and reduction kernels are implemented.
 3. Add the first BLAS/LAPACK-backed linear algebra slice.
 4. Design the C ABI and Python package around explicit ownership.
 5. Extend direct NumPy differential coverage alongside each supported operation,

@@ -10,6 +10,11 @@ program differential_driver
     add_r32, subtract_r32, multiply_r32, divide_r32, &
     negate_r32, abs_r32, sqrt_r32, exp_r32, log_r32, sin_r32, cos_r32, &
     sum_r32, prod_r32, mean_r32, min_r32, max_r32
+  use frumpy, only: ndarray_i32
+  use frumpy, only: owned_descriptor_i32, view_descriptor_i32, &
+    add_i32, subtract_i32, multiply_i32, divide_i32
+  use frumpy, only: owned_descriptor_i64, view_descriptor_i64, &
+    add_i64, subtract_i64, multiply_i64, divide_i64
   implicit none
 
   call run_case()
@@ -20,7 +25,8 @@ contains
   subroutine run_case()
     type(ndarray_r64) :: lhs, rhs, output, intermediate, reshaped
     type(ndarray_r32) :: lhs32, rhs32, output32
-    type(ndarray_i64) :: indices_output
+    type(ndarray_i64) :: indices_output, lhs_i64, rhs_i64
+    type(ndarray_i32) :: lhs_i32, rhs_i32, output_i32
     type(ndarray_bool) :: condition
     type(frumpy_status) :: status
     integer(int64), allocatable :: indices(:)
@@ -31,6 +37,33 @@ contains
     read (*, *) operation, axis0, side
     integer_output = .false.
     select case (trim(operation))
+    case ('add_i32', 'subtract_i32', 'multiply_i32', 'divide_i32')
+      call read_i32(lhs_i32)
+      call read_i32(rhs_i32)
+      select case (operation)
+      case ('add_i32')
+        output_i32 = add_i32(lhs_i32, rhs_i32, status)
+      case ('subtract_i32')
+        output_i32 = subtract_i32(lhs_i32, rhs_i32, status)
+      case ('multiply_i32')
+        output_i32 = multiply_i32(lhs_i32, rhs_i32, status)
+      case ('divide_i32')
+        output = divide_i32(lhs_i32, rhs_i32, status)
+      end select
+    case ('add_i64', 'subtract_i64', 'multiply_i64', 'divide_i64')
+      call read_i64(lhs_i64)
+      call read_i64(rhs_i64)
+      select case (operation)
+      case ('add_i64')
+        indices_output = add_i64(lhs_i64, rhs_i64, status)
+      case ('subtract_i64')
+        indices_output = subtract_i64(lhs_i64, rhs_i64, status)
+      case ('multiply_i64')
+        indices_output = multiply_i64(lhs_i64, rhs_i64, status)
+      case ('divide_i64')
+        output = divide_i64(lhs_i64, rhs_i64, status)
+      end select
+      integer_output = operation /= 'divide_i64'
     case ('add_r32', 'subtract_r32', 'multiply_r32', 'divide_r32')
       call read_r32(lhs32)
       call read_r32(rhs32)
@@ -128,7 +161,15 @@ contains
       call emit_metadata(output32%shape, output32%strides, output32%offset, &
         output32%is_c_contiguous, output32%is_f_contiguous, output32%owns_data)
       write (*, '(*(es18.9e3,1x))') output32%data
+    else if (index(operation, '_i32') > 0 .and. operation /= 'divide_i32') then
+      if (associated(output_i32%data, lhs_i32%data)) error stop 'result aliases lhs'
+      if (associated(output_i32%data, rhs_i32%data)) error stop 'result aliases rhs'
+      call emit_metadata(output_i32%shape, output_i32%strides, output_i32%offset, &
+        output_i32%is_c_contiguous, output_i32%is_f_contiguous, output_i32%owns_data)
+      write (*, '(*(i0,1x))') output_i32%data
     else if (integer_output) then
+      if (associated(indices_output%data, lhs_i64%data)) error stop 'result aliases lhs'
+      if (associated(indices_output%data, rhs_i64%data)) error stop 'result aliases rhs'
       call emit_metadata(indices_output%shape, indices_output%strides, indices_output%offset, &
         indices_output%is_c_contiguous, indices_output%is_f_contiguous, indices_output%owns_data)
       write (*, '(*(i0,1x))') indices_output%data
@@ -213,6 +254,37 @@ contains
     array = view_descriptor_r32(backing, shape, strides, offset, read_status)
     call require_ok(read_status)
   end subroutine read_r32
+
+  subroutine read_i32(array)
+    type(ndarray_i32), intent(out) :: array
+    type(ndarray_i32) :: backing
+    integer(int64), allocatable :: shape(:), strides(:)
+    integer(int64) :: offset, storage_count
+    type(frumpy_status) :: read_status
+
+    call read_metadata(shape, strides, offset, storage_count)
+    backing = owned_descriptor_i32([storage_count], status=read_status)
+    call require_ok(read_status)
+    read (*, *) backing%data
+    array = view_descriptor_i32(backing, shape, strides, offset, read_status)
+    call require_ok(read_status)
+  end subroutine read_i32
+
+  subroutine read_i64(array)
+    type(ndarray_i64), intent(out) :: array
+    type(ndarray_i64) :: backing
+    integer(int64), allocatable :: shape(:), strides(:)
+    integer(int64) :: offset, storage_count
+    type(frumpy_status) :: read_status
+
+    call read_metadata(shape, strides, offset, storage_count)
+    backing = owned_descriptor_i64([storage_count], status=read_status)
+    call require_ok(read_status)
+    read (*, *) backing%data
+    array = view_descriptor_i64(backing, shape, strides, offset, read_status)
+    call require_ok(read_status)
+  end subroutine read_i64
+
 
   subroutine read_bool(array)
     type(ndarray_bool), intent(out) :: array

@@ -118,7 +118,9 @@ absolute value, square root, exp, log, sine and cosine; and sum, product, mean,
 minimum and maximum reductions. See the
 [float32 unary contract](docs/DTYPE_SUPPORT.md#float32-unary-arithmetic) and the
 [float32 reduction contract](docs/FLOAT32_REDUCTIONS.md) for axes and numerical
-limits; broader non-float64 kernels remain future work.
+limits. Int32 and int64 support add, subtract, multiply, and float64 true
+division with broadcasting; see [integer arithmetic](docs/INTEGER_ARITHMETIC.md).
+Broader dtype kernels and mixed-dtype execution remain future work.
 
 The selection subset adds `where`, `take`, `concatenate`, `stack`, stable sorting,
 `argsort`, `searchsorted`, and flat nonzero indices. See

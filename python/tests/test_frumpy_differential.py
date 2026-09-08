@@ -14,7 +14,7 @@ def encode_array(array):
     storage = np.zeros(high - low + 1, dtype=array.dtype)
     for index in np.ndindex(array.shape):
         storage[-low + sum(i * s for i, s in zip(index, strides))] = array[index]
-    values = (str(int(x)) if array.dtype.kind == "b" else str(float(x)) for x in storage)
+    values = (str(int(x)) if array.dtype.kind in "biu" else str(float(x)) for x in storage)
     return "\n".join([
         f"{array.ndim} {1 - low} {storage.size}",
         " ".join(map(str, array.shape)), " ".join(map(str, strides)), " ".join(values),
@@ -40,6 +40,11 @@ def execute(driver, operation, *arrays, axis=-1, side=0, indices=None):
     dtype = np.int64 if operation in ("argsort", "searchsorted", "nonzero") else np.float64
     if operation.endswith("_r32"):
         dtype = np.float32
+    if not operation.startswith("divide_"):
+        if operation.endswith("_i32"):
+            dtype = np.int32
+        elif operation.endswith("_i64"):
+            dtype = np.int64
     itemsize = np.dtype(dtype).itemsize
     storage = np.fromstring(lines[5] if len(lines) > 5 else "", sep=" ", dtype=dtype)
     result = np.ndarray(shape, dtype=dtype, buffer=storage, offset=(int(offset) - 1) * itemsize,
@@ -353,3 +358,57 @@ def test_numpy_unary_r32(frumpy_driver, source, operation):
         # The compiler's real32 intrinsics and NumPy's vector math need not round identically.
         finite = np.isfinite(expected)
         np.testing.assert_array_max_ulp(actual[finite], expected[finite], maxulp=4)
+
+
+def integer_binary_cases(dtype):
+    limits = np.iinfo(dtype)
+    base = np.arange(-12, 12, dtype=dtype).reshape(4, 6)
+    edge = np.array([limits.min, limits.min + 1, -65536, -2, -1, 0, 1, 2,
+                     65535, limits.max - 1, limits.max], dtype=dtype)
+    rng = np.random.default_rng(20260908)
+    random_lhs = rng.integers(limits.min, limits.max, 4096, dtype=dtype, endpoint=True)
+    random_rhs = rng.integers(limits.min, limits.max, 4096, dtype=dtype, endpoint=True)
+    return [
+        (base, np.array(3, dtype=dtype)),
+        (np.array(-7, dtype=dtype), base),
+        (base, np.arange(6, dtype=dtype)),
+        (np.asfortranarray(base), base[::-1]),
+        (base.T, np.array([[2], [-1], [0], [3], [-5], [7]], dtype=dtype)),
+        (base[::-1, ::-1], base), (base[::2, 1::2], base[1::2, ::2]),
+        (np.broadcast_to(base[:1, :1], (4, 6)), base),
+        (np.empty((0, 3), dtype=dtype), np.ones((1, 3), dtype=dtype)),
+        (np.empty((2, 0), dtype=dtype), np.array(0, dtype=dtype)),
+        (np.array(limits.min, dtype=dtype), np.array(-1, dtype=dtype)),
+        (np.array(0, dtype=dtype), np.array(0, dtype=dtype)),
+        (edge[:, None], edge[None, :]), (random_lhs, random_rhs),
+    ]
+
+
+@pytest.mark.parametrize("dtype", [np.int32, np.int64])
+@pytest.mark.parametrize("operation", ["add", "subtract", "multiply", "divide"])
+@pytest.mark.parametrize("case", range(14))
+def test_numpy_integer_binary(frumpy_driver, dtype, operation, case):
+    lhs, rhs = integer_binary_cases(dtype)[case]
+    with np.errstate(all="ignore"):
+        expected = getattr(np, operation)(lhs, rhs)
+    suffix = "_i32" if dtype == np.int32 else "_i64"
+    status, actual = execute(frumpy_driver, operation + suffix, lhs, rhs)
+    assert status == 0
+    assert actual.dtype == expected.dtype
+    assert actual.shape == expected.shape
+    assert actual.flags.c_contiguous
+    np.testing.assert_array_equal(actual, expected)
+    if operation == "divide":
+        non_nan = ~np.isnan(expected)
+        np.testing.assert_array_equal(np.signbit(actual[non_nan]), np.signbit(expected[non_nan]))
+
+
+@pytest.mark.parametrize("dtype", [np.int32, np.int64])
+@pytest.mark.parametrize("operation", ["add", "subtract", "multiply", "divide"])
+@pytest.mark.parametrize("shapes", [((2, 3), (2,)), ((0, 3), (2, 3))])
+def test_numpy_integer_incompatible_shapes(frumpy_driver, dtype, operation, shapes):
+    lhs, rhs = (np.ones(shape, dtype=dtype) for shape in shapes)
+    with pytest.raises(ValueError):
+        getattr(np, operation)(lhs, rhs)
+    suffix = "_i32" if dtype == np.int32 else "_i64"
+    assert execute(frumpy_driver, operation + suffix, lhs, rhs)[0] == 1

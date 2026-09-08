@@ -13,6 +13,8 @@ module frumpy
     ones_r64, zeros_r64
   use frumpy_dtypes, only: FRUMPY_DTYPE_BOOL, FRUMPY_DTYPE_I32, &
     FRUMPY_DTYPE_I64, FRUMPY_DTYPE_R32, FRUMPY_DTYPE_R64
+  use frumpy_elementwise_i32, only: add_i32, subtract_i32, multiply_i32, divide_i32
+  use frumpy_elementwise_i64, only: add_i64, subtract_i64, multiply_i64, divide_i64
   use frumpy_elementwise_r32, only: add_r32, subtract_r32, multiply_r32, divide_r32, &
     negate_r32, abs_r32, sqrt_r32, exp_r32, log_r32, sin_r32, cos_r32
   use frumpy_elementwise_r64, only: abs_r64, add_r64, cos_r64, divide_r64, &
@@ -84,6 +86,8 @@ module frumpy
   public :: arange_r64
   public :: asarray_r64
   public :: ascontiguousarray_r64
+  public :: add_i32, subtract_i32, multiply_i32, divide_i32
+  public :: add_i64, subtract_i64, multiply_i64, divide_i64
   public :: add_r32, subtract_r32, multiply_r32, divide_r32
   public :: negate_r32, abs_r32, sqrt_r32, exp_r32, log_r32, sin_r32, cos_r32
   public :: add_r64

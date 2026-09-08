@@ -46,10 +46,14 @@ matching NumPy's dtype-pair result.
 
 ## Operational Boundary
 
-Promotion support is not the same as cast support or array operation support. As
-of this mission, only `r64` has concrete Frumpy array descriptors and kernels.
-The other dtype IDs are visible so casting, promotion, and future descriptors can
-share stable metadata without inventing separate maps.
+Promotion support is not the same as cast support or array operation support.
+All five registered dtypes now have managed descriptors; bounded integer and
+float32 kernels supplement the float64 core. See [dtype support](DTYPE_SUPPORT.md)
+for the current operation matrix. Mixed-dtype execution remains unimplemented.
+
+The table describes common dtype promotion. Operation-specific result rules are
+separate: integer true division returns float64 even though the common dtype of
+two int32 inputs is int32. See [integer arithmetic](INTEGER_ARITHMETIC.md).
 
 ## Unsupported Pairs
 

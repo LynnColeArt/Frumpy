@@ -1,6 +1,7 @@
 !> Integer arithmetic with explicit modular overflow and NumPy broadcasting.
 module frumpy_elementwise_i32
   use iso_fortran_env, only: int32, int64, real64
+  use frumpy_integer_scalars, only: wrap_i32
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_from_metadata
   use frumpy_ndarray_i32, only: ndarray_i32, owned_descriptor_i32
   use frumpy_ndarray_r64, only: ndarray_r64, owned_descriptor_r64
@@ -157,13 +158,4 @@ contains
     call set_status(status, FRUMPY_STATUS_OK)
   end subroutine validate_source
 
-  ! Widening makes every int32 add/subtract/product representable. Rebuild the
-  ! signed low word without an out-of-range integer conversion.
-  pure function wrap_i32(value) result(wrapped)
-    integer(int64), intent(in) :: value
-    integer(int32) :: wrapped
-
-    wrapped = int(ibits(value, 0, 31), int32)
-    if (btest(value, 31)) wrapped = wrapped - huge(0_int32) - 1_int32
-  end function wrap_i32
 end module frumpy_elementwise_i32

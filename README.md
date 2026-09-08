@@ -120,7 +120,9 @@ minimum and maximum reductions. See the
 [float32 reduction contract](docs/FLOAT32_REDUCTIONS.md) for axes and numerical
 limits. Int32 and int64 support add, subtract, multiply, and float64 true
 division with broadcasting; see [integer arithmetic](docs/INTEGER_ARITHMETIC.md).
-Broader dtype kernels and mixed-dtype execution remain future work.
+Mixed-dtype `add`, `subtract`, `multiply`, and `divide` now connect all five
+registered descriptors; see [mixed arithmetic](docs/MIXED_ARITHMETIC.md) for
+result-type selection and the boolean subtraction exception.
 
 The selection subset adds `where`, `take`, `concatenate`, `stack`, stable sorting,
 `argsort`, `searchsorted`, and flat nonzero indices. See

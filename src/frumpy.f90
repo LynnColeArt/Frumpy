@@ -1,5 +1,6 @@
 !> Public umbrella module for the current Frumpy core surface.
 module frumpy
+  use frumpy_arithmetic, only: add, subtract, multiply, divide
   use frumpy_constants, only: FRUMPY_ORDER_A, FRUMPY_ORDER_C, FRUMPY_ORDER_F, &
     FRUMPY_ORDER_K
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_r64
@@ -34,7 +35,7 @@ module frumpy
     owned_descriptor_r32, view_descriptor_r32
   use frumpy_ndarray_r64, only: share_descriptors_r64, metadata_descriptor_r64, ndarray_r64, &
     owned_descriptor_r64, view_descriptor_r64
-  use frumpy_promotion, only: is_supported_promotion, promote_dtypes, &
+  use frumpy_promotion, only: binary_result_dtype, is_supported_promotion, promote_dtypes, &
     promote_scalar_dtype
   use frumpy_selection_r64, only: concatenate_r64, nonzero_bool, stack_r64, &
     take_r64, where_r64
@@ -55,6 +56,7 @@ module frumpy
 
   private
 
+  public :: add, subtract, multiply, divide, binary_result_dtype
   public :: share_descriptors_bool
   public :: share_descriptors_i32
   public :: share_descriptors_i64

@@ -64,8 +64,8 @@ are outside this tested numerical contract.
 
 The dtype-pair promotion table describes common dtypes, not every operation's
 output dtype: integer true division produces float64 even though
-`promote_dtypes(i32, i32)` returns i32. Mixed-dtype execution remains a separate
-next step. This slice also does not add integer unary functions, reductions,
+`promote_dtypes(i32, i32)` returns i32. Mixed-dtype execution is available through the separate
+[mixed arithmetic](MIXED_ARITHMETIC.md) subroutine API. This slice also does not add integer unary functions, reductions,
 convenience constructors, or high-level view helpers.
 
 ## Failures
@@ -92,7 +92,7 @@ checks for division; NaN payload bits are not specified.
 `test/test_elementwise_integer.f90` checks payload widths, owned C-order output,
 input preservation, result lifetime, optional status, missing storage, and invalid
 metadata. It is included in the normal and GNU memory gates. The GNU-only
-`make integer-overflow-test` gate runs the integer invariant program and all 128
-comparisons with `-ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined`.
+`make integer-overflow-test` gate runs integer and mixed invariant programs and
+all 1,328 integer/mixed comparisons with `-ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined`.
 Select a compiler with `FC=gfortran-13` or `FC=gfortran-14`; the gate isolates its
 build products under `build/integer-overflow`.

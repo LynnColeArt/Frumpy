@@ -31,6 +31,11 @@ def execute(driver, operation, *arrays, axis=-1, side=0, indices=None):
     status = int(lines[0])
     if status:
         return status, None
+    emitted_dtype = None
+    if operation.startswith("mixed_"):
+        emitted_dtype = {1: np.bool_, 2: np.int32, 3: np.int64,
+                         4: np.float32, 5: np.float64}[int(lines[1])]
+        lines.pop(1)
     rank = int(lines[1])
     shape = tuple(map(int, lines[2].split()))
     strides = tuple(map(int, lines[3].split()))
@@ -45,8 +50,13 @@ def execute(driver, operation, *arrays, axis=-1, side=0, indices=None):
             dtype = np.int32
         elif operation.endswith("_i64"):
             dtype = np.int64
+    if emitted_dtype is not None:
+        dtype = emitted_dtype
     itemsize = np.dtype(dtype).itemsize
-    storage = np.fromstring(lines[5] if len(lines) > 5 else "", sep=" ", dtype=dtype)
+    text_dtype = np.int8 if dtype == np.bool_ else dtype
+    storage = np.fromstring(lines[5] if len(lines) > 5 else "", sep=" ", dtype=text_dtype)
+    if dtype == np.bool_:
+        storage = storage.astype(np.bool_)
     result = np.ndarray(shape, dtype=dtype, buffer=storage, offset=(int(offset) - 1) * itemsize,
                         strides=tuple(s * itemsize for s in strides))
     assert result.flags.c_contiguous == (c_flag == "T")
@@ -412,3 +422,85 @@ def test_numpy_integer_incompatible_shapes(frumpy_driver, dtype, operation, shap
         getattr(np, operation)(lhs, rhs)
     suffix = "_i32" if dtype == np.int32 else "_i64"
     assert execute(frumpy_driver, operation + suffix, lhs, rhs)[0] == 1
+
+
+MIXED_DTYPES = [np.bool_, np.int32, np.int64, np.float32, np.float64]
+
+
+def mixed_values(dtype):
+    if dtype == np.bool_:
+        return np.array([False, True, True, False, True, False], dtype=dtype)
+    if np.dtype(dtype).kind == "i":
+        limits = np.iinfo(dtype)
+        return np.array([limits.min, limits.max, 0, -1, 2, limits.max - 1], dtype=dtype)
+    return np.array([-0., 0., -1.5, np.nan, -np.inf, np.inf], dtype=dtype)
+
+
+def mixed_random(dtype, seed):
+    rng = np.random.default_rng(seed)
+    if dtype == np.bool_:
+        return rng.integers(0, 2, 512).astype(np.bool_)
+    return np.frombuffer(rng.bytes(512 * np.dtype(dtype).itemsize), dtype=dtype)
+
+
+def mixed_operands(lhs_dtype, rhs_dtype, case):
+    left = mixed_values(lhs_dtype)
+    right = mixed_values(rhs_dtype)
+    a = np.arange(24).astype(lhs_dtype).reshape(4, 6)
+    b = np.arange(1, 25).astype(rhs_dtype).reshape(4, 6)
+    return [
+        (mixed_random(lhs_dtype, 41), mixed_random(rhs_dtype, 42)),
+        (left[:, None], right[None, :]),
+        (a, b), (np.asfortranarray(a), b), (a.T, b.T),
+        (a[::-1, ::-1], b), (a[::2, 1::2], b[1::2, ::2]),
+        (np.broadcast_to(left[:1], (4, 6)), b),
+        (np.array(0, dtype=lhs_dtype), np.array(-1, dtype=rhs_dtype)),
+        (np.empty((0, 3), dtype=lhs_dtype), np.ones((1, 3), dtype=rhs_dtype)),
+        (np.empty((2, 0), dtype=lhs_dtype), np.array(1, dtype=rhs_dtype)),
+    ][case]
+
+
+@pytest.mark.parametrize("lhs_dtype", MIXED_DTYPES)
+@pytest.mark.parametrize("rhs_dtype", MIXED_DTYPES)
+@pytest.mark.parametrize("operation", ["add", "subtract", "multiply", "divide"])
+@pytest.mark.parametrize("case", range(11))
+def test_numpy_mixed_binary(frumpy_driver, lhs_dtype, rhs_dtype, operation, case):
+    lhs, rhs = mixed_operands(lhs_dtype, rhs_dtype, case)
+    dtype_ids = {np.bool_: 1, np.int32: 2, np.int64: 3, np.float32: 4, np.float64: 5}
+    with np.errstate(all="ignore"):
+        try:
+            expected = getattr(np, operation)(lhs, rhs)
+        except TypeError:
+            expected = None
+    status, actual = execute(frumpy_driver, "mixed_" + operation, lhs, rhs,
+                             axis=dtype_ids[lhs_dtype], side=dtype_ids[rhs_dtype])
+    if expected is None:
+        assert status == 6
+        return
+    assert status == 0
+    assert actual.dtype == expected.dtype
+    assert actual.shape == expected.shape
+    assert actual.flags.c_contiguous
+    np.testing.assert_array_equal(actual, expected)
+    if actual.dtype.kind == "f":
+        non_nan = ~np.isnan(expected)
+        np.testing.assert_array_equal(np.signbit(actual[non_nan]), np.signbit(expected[non_nan]))
+
+
+@pytest.mark.parametrize("lhs_dtype", MIXED_DTYPES)
+@pytest.mark.parametrize("rhs_dtype", MIXED_DTYPES)
+@pytest.mark.parametrize("operation", ["add", "subtract", "multiply", "divide"])
+def test_numpy_mixed_incompatible_shapes(frumpy_driver, lhs_dtype, rhs_dtype, operation):
+    lhs = np.ones((2, 3), dtype=lhs_dtype)
+    rhs = np.ones((2,), dtype=rhs_dtype)
+    try:
+        getattr(np, operation)(lhs, rhs)
+    except TypeError:
+        expected_status = 6
+    except ValueError:
+        expected_status = 1
+    else:
+        pytest.fail("Expected NumPy to reject incompatible shapes")
+    assert execute(frumpy_driver, "mixed_" + operation, lhs, rhs,
+                   axis=MIXED_DTYPES.index(lhs_dtype) + 1,
+                   side=MIXED_DTYPES.index(rhs_dtype) + 1)[0] == expected_status

@@ -6,6 +6,7 @@
 - [Storage lifetime for registered numeric dtypes](STORAGE_LIFETIME.md)
 - [Selection, sorting, and searching support](SELECTION_SUPPORT.md)
 - [Dtype support](DTYPE_SUPPORT.md)
+- [Mixed arithmetic](MIXED_ARITHMETIC.md)
 - [Integer arithmetic](INTEGER_ARITHMETIC.md)
 - [Float32 reductions](FLOAT32_REDUCTIONS.md)
 - [Dtype metadata](DTYPE_METADATA.md)

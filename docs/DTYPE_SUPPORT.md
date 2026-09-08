@@ -20,7 +20,7 @@ boundary, not as a roadmap wish list.
 
 | Dtype | ID | Bytes | Level | Current behavior |
 | --- | --- | ---: | --- | --- |
-| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; no general bool arithmetic/reduction kernels yet. |
+| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; boolean addition/multiplication, true division and mixed arithmetic; no boolean reductions yet. |
 | `i32` | `FRUMPY_DTYPE_I32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Int32 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
 | `i64` | `FRUMPY_DTYPE_I64` | 8 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; int64 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
 | `r32` | `FRUMPY_DTYPE_R32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Float32 add, subtract, multiply, and divide with broadcasting and signed strides; negation, absolute value, square root, exp, log, sine and cosine; sum, product, mean, minimum and maximum reductions. |
@@ -55,6 +55,15 @@ sharing retain that storage; release and finalization drop references. This does
 not add missing dtype kernels. See [storage lifetime](STORAGE_LIFETIME.md) for
 the required explicit-sharing APIs and restrictions on Fortran container copies.
 
+## Arithmetic Across Dtypes
+
+`call add(lhs, rhs, result, status)` and the matching `subtract`, `multiply`, and
+`divide` subroutines accept any pair of registered descriptors. The result must
+have the dtype selected by `binary_result_dtype`. They support broadcasting and
+strided inputs, and preserve the previous result on reported failure. Boolean
+subtraction is unsupported. See [MIXED_ARITHMETIC.md](MIXED_ARITHMETIC.md) for the
+full contract, operation-specific promotion rules and 1,200 NumPy comparisons.
+
 ## Integer Binary Arithmetic
 
 `add_i32`, `subtract_i32`, `multiply_i32` and the corresponding `_i64` functions
@@ -63,7 +72,8 @@ return independent integer arrays with NumPy-style modular payload overflow.
 All support broadcasting, scalar/empty inputs and signed/zero-stride views.
 See [INTEGER_ARITHMETIC.md](INTEGER_ARITHMETIC.md) for numerical semantics,
 status paths, compiler assumptions and the 128 compiled NumPy cases. Integer
-reductions, unary functions and mixed-dtype execution remain unimplemented.
+reductions and unary functions remain unimplemented. Mixed arithmetic uses the
+separate subroutine API above.
 
 ## Float32 Binary Arithmetic
 
@@ -85,8 +95,8 @@ Malformed metadata, inaccessible offsets/strides and incompatible shapes return
 `FRUMPY_STATUS_INVALID_SHAPE`. Explicit allocation errors have status paths,
 subject to the compiler temporary-allocation limits in the lifetime contract.
 
-There are no float32 selection routines, convenience constructors, or mixed-dtype
-execution yet. The 48 compiled NumPy cases in
+There are no float32 selection routines or convenience constructors yet.
+Mixed arithmetic uses the separate subroutine API above. The 48 compiled NumPy cases in
 `test_frumpy_differential.py` check all four operations, including exact float32
 results and signed zeros. `test/test_elementwise_r32.f90` checks ownership,
 result lifetime, and malformed input status paths.
@@ -161,8 +171,8 @@ Each descriptor preserves the same metadata invariants as `ndarray_r64`:
 - Fortran-contiguity.
 - Copy-vs-view storage sharing.
 
-These descriptor APIs do not themselves add NumPy convenience constructors,
-view helpers or mixed-dtype execution. Integer binary arithmetic, float32
+These descriptor APIs do not themselves add NumPy convenience constructors or
+view helpers. Mixed arithmetic is the separate execution surface above. Integer binary arithmetic, float32
 binary/unary arithmetic and float32 reductions are the separate bounded kernel
 surfaces described above. The selection subset consumes
 boolean conditions and produces int64 indices without adding general dtype

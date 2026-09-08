@@ -15,6 +15,7 @@ program differential_driver
     add_i32, subtract_i32, multiply_i32, divide_i32
   use frumpy, only: owned_descriptor_i64, view_descriptor_i64, &
     add_i64, subtract_i64, multiply_i64, divide_i64
+  use frumpy, only: add, subtract, multiply, divide, binary_result_dtype
   implicit none
 
   call run_case()
@@ -37,6 +38,9 @@ contains
     read (*, *) operation, axis0, side
     integer_output = .false.
     select case (trim(operation))
+    case ('mixed_add', 'mixed_subtract', 'mixed_multiply', 'mixed_divide')
+      call run_mixed(operation(7:), axis0, side)
+      return
     case ('add_i32', 'subtract_i32', 'multiply_i32', 'divide_i32')
       call read_i32(lhs_i32)
       call read_i32(rhs_i32)
@@ -184,6 +188,105 @@ contains
       write (*, '(*(es26.17e3,1x))') output%data
     end if
   end subroutine run_case
+
+  subroutine run_mixed(operation, lhs_dtype, rhs_dtype)
+    character(len=*), intent(in) :: operation
+    integer(int32), intent(in) :: lhs_dtype, rhs_dtype
+    class(*), allocatable :: left, right, output
+    type(frumpy_status) :: status
+    integer(int32) :: output_dtype
+
+    call allocate_mixed(left, lhs_dtype)
+    call allocate_mixed(right, rhs_dtype)
+    call read_mixed(left)
+    call read_mixed(right)
+    output_dtype = binary_result_dtype(lhs_dtype, rhs_dtype, operation, status)
+    if (status%is_failure()) then
+      write (*, '(i0)') status%code
+      write (*, '(a)') trim(status%message)
+      return
+    end if
+    call allocate_mixed(output, output_dtype)
+    select case (operation)
+    case ('add')
+      call add(left, right, output, status)
+    case ('subtract')
+      call subtract(left, right, output, status)
+    case ('multiply')
+      call multiply(left, right, output, status)
+    case ('divide')
+      call divide(left, right, output, status)
+    end select
+    write (*, '(i0)') status%code
+    if (status%is_failure()) then
+      write (*, '(a)') trim(status%message)
+      return
+    end if
+    select type (output)
+    type is (ndarray_bool)
+      write (*, '(i0)') 1
+      call emit_metadata(output%shape, output%strides, output%offset, &
+        output%is_c_contiguous, output%is_f_contiguous, output%owns_data)
+      write (*, '(*(i0,1x))') output%data
+    type is (ndarray_i32)
+      write (*, '(i0)') 2
+      call emit_metadata(output%shape, output%strides, output%offset, &
+        output%is_c_contiguous, output%is_f_contiguous, output%owns_data)
+      write (*, '(*(i0,1x))') output%data
+    type is (ndarray_i64)
+      write (*, '(i0)') 3
+      call emit_metadata(output%shape, output%strides, output%offset, &
+        output%is_c_contiguous, output%is_f_contiguous, output%owns_data)
+      write (*, '(*(i0,1x))') output%data
+    type is (ndarray_r32)
+      write (*, '(i0)') 4
+      call emit_metadata(output%shape, output%strides, output%offset, &
+        output%is_c_contiguous, output%is_f_contiguous, output%owns_data)
+      write (*, '(*(es18.9e3,1x))') output%data
+    type is (ndarray_r64)
+      write (*, '(i0)') 5
+      call emit_metadata(output%shape, output%strides, output%offset, &
+        output%is_c_contiguous, output%is_f_contiguous, output%owns_data)
+      write (*, '(*(es26.17e3,1x))') output%data
+    end select
+  end subroutine run_mixed
+
+  subroutine allocate_mixed(array, dtype_id)
+    class(*), allocatable, intent(out) :: array
+    integer(int32), intent(in) :: dtype_id
+
+    select case (dtype_id)
+    case (1)
+      allocate(ndarray_bool :: array)
+    case (2)
+      allocate(ndarray_i32 :: array)
+    case (3)
+      allocate(ndarray_i64 :: array)
+    case (4)
+      allocate(ndarray_r32 :: array)
+    case (5)
+      allocate(ndarray_r64 :: array)
+    case default
+      error stop 'unknown test dtype'
+    end select
+  end subroutine allocate_mixed
+
+  subroutine read_mixed(array)
+    class(*), intent(inout) :: array
+
+    select type (array)
+    type is (ndarray_bool)
+      call read_bool(array)
+    type is (ndarray_i32)
+      call read_i32(array)
+    type is (ndarray_i64)
+      call read_i64(array)
+    type is (ndarray_r32)
+      call read_r32(array)
+    type is (ndarray_r64)
+      call read_r64(array)
+    end select
+  end subroutine read_mixed
 
   subroutine reduce_float32(operation, source, output, axis0, flags, status)
     character(len=*), intent(in) :: operation

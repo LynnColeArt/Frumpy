@@ -141,6 +141,12 @@ covered for all five types.
 and runs each case in procedure scope. All its inputs, intermediates, float32
 and float64 outputs, and integer index outputs finalize before process exit.
 
+`test/test_arithmetic.f90` also exercises call-scoped metadata/data borrows,
+transactional mixed-result replacement, preserved old aliases, and failure paths.
+The mixed bridge allocates polymorphic descriptors by concrete type, reads into
+them with defined assignment, and finalizes them at procedure exit. It never uses
+`allocate(source=descriptor)` or intrinsic enclosing-object copies.
+
 Run the standard gate with `make validate`. On the tested Linux/GFortran host,
 run the dedicated memory gate with:
 
@@ -149,7 +155,7 @@ make memory-test
 ```
 
 It builds separate AddressSanitizer executables in `build/memory`, enables leak
-detection, and runs both lifetime test programs, integer and float32 kernel
+detection, and runs both lifetime test programs, integer, float32 and mixed kernel
 invariants (including unary result lifetime), allocation-failure sweeps, and all
 compiled Frumpy/NumPy differential cases through the instrumented driver. The gate uses `-no-pie` on
 the tested host; it is optional and not a compiler/platform portability claim.
@@ -163,10 +169,10 @@ uses `-fstack-arrays` to move compiler finalizer scratch off the injected heap.
 The lifetime programs and differential driver use the ordinary compiler flags
 plus sanitizer instrumentation. This gate needs a C compiler and GNU linker.
 
-Observed on 2026-09-07: `make validate` passed 25 standalone Fortran programs,
-the example, and 640 Python tests. `make memory-test` passed both lifetime
-programs, integer and float32 kernel invariants, allocation-failure sweeps, and all
-612 compiled differential cases with no reported leaks or memory errors.
+Observed on 2026-09-07: `make validate` passed 26 standalone Fortran programs,
+the example, and 1,840 Python tests. `make memory-test` passed both lifetime
+programs, integer, float32 and mixed kernel invariants, allocation-failure sweeps, and all
+1,812 compiled differential cases with no reported leaks or memory errors.
 Two expected NumPy warnings remained in the standard gate's
 existing empty-mean reference test. These checks cover the exercised paths;
 they do not establish safety for the unsupported intrinsic copying forms above.

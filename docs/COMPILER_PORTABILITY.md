@@ -39,12 +39,12 @@ make integer-overflow-test FC=gfortran-13 BUILD_DIR=build/gcc13
 make integer-overflow-test FC=gfortran-14 BUILD_DIR=build/gcc14
 ```
 
-The memory gate instruments lifetime tests, integer and float32 kernel invariants,
+The memory gate instruments lifetime tests, integer, float32 and mixed kernel invariants,
 and the compiled differential driver with AddressSanitizer/leak detection. It
 also injects selected allocation failures. Compiler-temporary limitations are
 described in [STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).
-The separate integer overflow gate checks the integer invariant program and 128
-integer NumPy comparisons with `-ftrapv`, `-fsanitize=undefined`, and
+The separate integer overflow gate checks integer/mixed invariant programs and
+1,328 integer/mixed NumPy comparisons with `-ftrapv`, `-fsanitize=undefined`, and
 `-fno-sanitize-recover=undefined`; it does not enable floating-point traps.
 
 ## Observed results on 2026-09-07
@@ -61,8 +61,8 @@ existing empty-mean NumPy reference fixture.
 
 ## Scope of the evidence
 
-The matrix covers 25 Fortran test programs, one example, and 640 Python tests
-(612 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
+The matrix covers 26 Fortran test programs, one example, and 1,840 Python tests
+(1,812 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
 float32 cases include exact results, signed zeros, NaNs/infinities, scalar and
 empty broadcasting, signed/zero strides, reduction axes, keepdims, empty-axis
 identities, pairwise summation, and seven unary functions. Unary comparisons
@@ -73,7 +73,11 @@ records intentional rounding-order differences. Lifetime tests cover all five
 registered dtypes and the explicit descriptor-vector sharing API. The integer
 cases cover both widths, four operations, exact full-range modular results,
 float64 true division, broadcasting, and signed/zero strides; see
-[integer arithmetic](INTEGER_ARITHMETIC.md).
+[integer arithmetic](INTEGER_ARITHMETIC.md). Mixed arithmetic adds 1,200 cases
+covering every ordered registered dtype pair, output types, random values,
+strides, boolean semantics and invalid shapes. Typed-result replacement and
+failure preservation are checked in Fortran; see
+[mixed arithmetic](MIXED_ARITHMETIC.md).
 
 These are executable compatibility checks, not a general certification of
 Fortran portability. Intrinsic copying of descriptor containers remains

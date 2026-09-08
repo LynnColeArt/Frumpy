@@ -12,6 +12,7 @@ and scalar casting live in `frumpy_casting` and are documented in
 
 | Routine | Purpose |
 | --- | --- |
+| `binary_result_dtype(lhs_dtype_id, rhs_dtype_id, operation, status)` | Resolve add/subtract/multiply/divide output types, including operation-specific rules. |
 | `promote_dtypes(lhs_dtype_id, rhs_dtype_id, status)` | Return the promoted result dtype ID for a pair of registered dtype IDs. |
 | `promote_scalar_dtype(array_dtype_id, scalar_dtype_id, status)` | Use the same dtype-pair policy for scalar-like inputs. |
 | `is_supported_promotion(lhs_dtype_id, rhs_dtype_id)` | Return whether a pair is present in the promotion table. |
@@ -49,11 +50,16 @@ matching NumPy's dtype-pair result.
 Promotion support is not the same as cast support or array operation support.
 All five registered dtypes now have managed descriptors; bounded integer and
 float32 kernels supplement the float64 core. See [dtype support](DTYPE_SUPPORT.md)
-for the current operation matrix. Mixed-dtype execution remains unimplemented.
+for the current operation matrix. The four [mixed arithmetic](MIXED_ARITHMETIC.md)
+subroutines use `binary_result_dtype` to execute registered dtype pairs.
 
 The table describes common dtype promotion. Operation-specific result rules are
 separate: integer true division returns float64 even though the common dtype of
-two int32 inputs is int32. See [integer arithmetic](INTEGER_ARITHMETIC.md).
+two int32 inputs is int32. Boolean subtraction is unsupported. Unknown operation
+names and boolean subtraction return `FRUMPY_DTYPE_UNSUPPORTED` with
+`FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR`; unknown dtype IDs return that dtype sentinel
+with `FRUMPY_STATUS_UNSUPPORTED_DTYPE`. Operation names are lowercase `add`,
+`subtract`, `multiply`, and `divide`. See [mixed arithmetic](MIXED_ARITHMETIC.md).
 
 ## Unsupported Pairs
 

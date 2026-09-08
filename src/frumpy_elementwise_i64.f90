@@ -1,6 +1,8 @@
 !> Integer arithmetic with explicit modular overflow and NumPy broadcasting.
 module frumpy_elementwise_i64
   use iso_fortran_env, only: int32, int64, real64
+  use frumpy_integer_scalars, only: wrapped_add => wrapped_add_i64, &
+    wrapped_subtract => wrapped_subtract_i64, wrapped_multiply => wrapped_multiply_i64
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_from_metadata
   use frumpy_ndarray_i64, only: ndarray_i64, owned_descriptor_i64
   use frumpy_ndarray_r64, only: ndarray_r64, owned_descriptor_r64
@@ -154,40 +156,4 @@ contains
     call set_status(status, FRUMPY_STATUS_OK)
   end subroutine validate_source
 
-  ! Each half-word sum fits int64; shifts assemble the modular two's-complement result.
-  pure function wrapped_add(lhs, rhs) result(value)
-    integer(int64), intent(in) :: lhs, rhs
-    integer(int64) :: value, low, high
-    integer(int64), parameter :: MASK32 = int(z'FFFFFFFF', int64)
-
-    low = iand(lhs, MASK32) + iand(rhs, MASK32)
-    high = shiftr(lhs, 32) + shiftr(rhs, 32) + shiftr(low, 32)
-    value = ior(iand(low, MASK32), shiftl(iand(high, MASK32), 32))
-  end function wrapped_add
-
-  pure function wrapped_subtract(lhs, rhs) result(value)
-    integer(int64), intent(in) :: lhs, rhs
-    integer(int64) :: value
-
-    value = wrapped_add(wrapped_add(lhs, not(rhs)), 1_int64)
-  end function wrapped_subtract
-
-  ! Base-2**16 digits keep even the largest partial-product sum below 2**35.
-  ! Only the low four digits belong to the modular 64-bit result.
-  pure function wrapped_multiply(lhs, rhs) result(value)
-    integer(int64), intent(in) :: lhs, rhs
-    integer(int64) :: value, carry
-    integer(int32) :: digit, part
-    integer(int64), parameter :: MASK16 = int(z'FFFF', int64)
-
-    value = 0_int64
-    carry = 0_int64
-    do digit = 0_int32, 3_int32
-      do part = 0_int32, digit
-        carry = carry + ibits(lhs, 16 * part, 16) * ibits(rhs, 16 * (digit - part), 16)
-      end do
-      value = ior(value, shiftl(iand(carry, MASK16), 16 * digit))
-      carry = shiftr(carry, 16)
-    end do
-  end function wrapped_multiply
 end module frumpy_elementwise_i64

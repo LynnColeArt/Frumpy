@@ -55,11 +55,14 @@ existing empty-mean NumPy reference fixture.
 
 ## Scope of the evidence
 
-The matrix covers 24 Fortran test programs, one example, and 407 Python tests
-(379 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
+The matrix covers 24 Fortran test programs, one example, and 512 Python tests
+(484 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
 float32 cases include exact results, signed zeros, NaNs/infinities, scalar and
 empty broadcasting, signed/zero strides, reduction axes, keepdims, empty-axis
-identities, and pairwise summation. The [reduction numerical contract](FLOAT32_REDUCTIONS.md)
+identities, pairwise summation, and seven unary functions. Unary comparisons
+include seeded float32 bit patterns, domain/range events, and a four-ULP finite
+result threshold, described in [dtype support](DTYPE_SUPPORT.md#float32-unary-arithmetic).
+The [reduction numerical contract](FLOAT32_REDUCTIONS.md)
 records intentional rounding-order differences. Lifetime tests cover all five
 registered dtypes and the explicit descriptor-vector sharing API.
 

@@ -311,3 +311,45 @@ def test_float32_reduction_cancellation(frumpy_driver, operation):
     expected_frumpy = np.float32(2 if operation == 'sum' else 2 / 16)
     np.testing.assert_array_equal(actual, expected_frumpy)
     assert getattr(np, operation)(source) == np.float32(0)
+
+
+def unary_r32_layouts():
+    base = np.linspace(-3, 3, 24, dtype=np.float32).reshape(4, 6)
+    limits = np.finfo(np.float32)
+    random_bits = np.random.default_rng(20260907).integers(0, 2**32, 2048, dtype=np.uint32)
+    return [
+        random_bits.view(np.float32),
+        base, np.asfortranarray(base), base.T, base[::-1, ::-1], base[::2, 1::2],
+        np.broadcast_to(base[:1, :1], (3, 4)),
+        np.empty((0, 3), dtype=np.float32), np.empty((2, 0), dtype=np.float32),
+        np.array(2, dtype=np.float32), np.array(-0., dtype=np.float32),
+        np.array([np.nan, -np.inf, np.inf, -0., 0., -1., 1.], dtype=np.float32),
+        np.array([limits.smallest_subnormal, -limits.smallest_subnormal,
+                  limits.tiny, -limits.tiny, limits.max, -limits.max], dtype=np.float32),
+        np.array([-104., -103., -90., 88., 89., 1e10, -1e20], dtype=np.float32),
+        np.array([np.nextafter(np.float32(1), np.float32(0)), 1.,
+                  np.nextafter(np.float32(1), np.float32(2))], dtype=np.float32),
+    ]
+
+
+@pytest.mark.parametrize("source", unary_r32_layouts())
+@pytest.mark.parametrize("operation", ["negate", "abs", "sqrt", "exp", "log", "sin", "cos"])
+def test_numpy_unary_r32(frumpy_driver, source, operation):
+    oracle = np.negative if operation == "negate" else getattr(np, operation)
+    with np.errstate(all="ignore"):
+        expected = oracle(source)
+    status, actual = execute(frumpy_driver, operation + "_r32", source)
+    assert status == 0
+    assert actual.dtype == np.float32
+    assert actual.shape == source.shape
+    assert actual.flags.c_contiguous
+    np.testing.assert_array_equal(np.isnan(actual), np.isnan(expected))
+    np.testing.assert_array_equal(np.isinf(actual), np.isinf(expected))
+    non_nan = ~np.isnan(expected)
+    np.testing.assert_array_equal(np.signbit(actual[non_nan]), np.signbit(expected[non_nan]))
+    if operation in ("negate", "abs"):
+        np.testing.assert_array_equal(actual, expected)
+    else:
+        # The compiler's real32 intrinsics and NumPy's vector math need not round identically.
+        finite = np.isfinite(expected)
+        np.testing.assert_array_max_ulp(actual[finite], expected[finite], maxulp=4)

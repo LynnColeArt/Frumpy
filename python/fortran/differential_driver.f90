@@ -8,6 +8,7 @@ program differential_driver
     searchsorted_r64, zeros_r64, full_r64, add_r64, reshape_r64, sum_r64
   use frumpy, only: ndarray_r32, owned_descriptor_r32, view_descriptor_r32, &
     add_r32, subtract_r32, multiply_r32, divide_r32, &
+    negate_r32, abs_r32, sqrt_r32, exp_r32, log_r32, sin_r32, cos_r32, &
     sum_r32, prod_r32, mean_r32, min_r32, max_r32
   implicit none
 
@@ -42,6 +43,24 @@ contains
         output32 = multiply_r32(lhs32, rhs32, status)
       case ('divide_r32')
         output32 = divide_r32(lhs32, rhs32, status)
+      end select
+    case ('negate_r32', 'abs_r32', 'sqrt_r32', 'exp_r32', 'log_r32', 'sin_r32', 'cos_r32')
+      call read_r32(lhs32)
+      select case (operation)
+      case ('negate_r32')
+        output32 = negate_r32(lhs32, status)
+      case ('abs_r32')
+        output32 = abs_r32(lhs32, status)
+      case ('sqrt_r32')
+        output32 = sqrt_r32(lhs32, status)
+      case ('exp_r32')
+        output32 = exp_r32(lhs32, status)
+      case ('log_r32')
+        output32 = log_r32(lhs32, status)
+      case ('sin_r32')
+        output32 = sin_r32(lhs32, status)
+      case ('cos_r32')
+        output32 = cos_r32(lhs32, status)
       end select
     case ('sum_r32', 'prod_r32', 'mean_r32', 'min_r32', 'max_r32')
       call read_r32(lhs32)

@@ -17,7 +17,7 @@ or finalized on leaving a procedure.
 
 `copy_r64` remains the way to request independent float64 values; this lifetime
 contract does not imply general value-copy or arithmetic support. The separate
-float32 binary slice is documented in [dtype support](DTYPE_SUPPORT.md). The public `data`
+float32 elementwise surface is documented in [dtype support](DTYPE_SUPPORT.md). The public `data`
 pointer remains available for value access; do not deallocate or retarget it on
 a managed descriptor. The backing block is private and determines reclamation.
 `owns_data` continues to distinguish original allocated results from views; it
@@ -150,7 +150,7 @@ make memory-test
 
 It builds separate AddressSanitizer executables in `build/memory`, enables leak
 detection, runs both lifetime test programs, float32 arithmetic/reduction
-invariants, allocation-failure sweeps, and all compiled Frumpy/NumPy differential
+invariants (including unary result lifetime), allocation-failure sweeps, and all compiled Frumpy/NumPy differential
 cases through the instrumented driver. The gate uses `-no-pie` on
 the tested host; it is optional and not a compiler/platform portability claim.
 
@@ -164,9 +164,9 @@ The lifetime programs and differential driver use the ordinary compiler flags
 plus sanitizer instrumentation. This gate needs a C compiler and GNU linker.
 
 Observed on 2026-09-07: `make validate` passed 24 standalone Fortran programs,
-the example, and 407 Python tests. `make memory-test` passed both lifetime
+the example, and 512 Python tests. `make memory-test` passed both lifetime
 programs, float32 arithmetic/reduction invariants, the allocation-failure sweeps,
-and all 379 compiled differential cases with no reported leaks or memory errors.
+and all 484 compiled differential cases with no reported leaks or memory errors.
 Two expected NumPy warnings remained in the standard gate's
 existing empty-mean reference test. These checks cover the exercised paths;
 they do not establish safety for the unsupported intrinsic copying forms above.

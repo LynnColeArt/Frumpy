@@ -113,8 +113,10 @@ The short version:
 Frumpy has a working float64 array core: descriptors, constructors, broadcasting,
 elementwise arithmetic, reductions, views, and slicing. Boolean, int32, int64,
 and float32 descriptors plus dtype promotion and scalar casting policies are
-also implemented. Float32 supports binary arithmetic with broadcasting and
-sum, product, mean, minimum and maximum reductions. See the
+also implemented. Float32 supports binary arithmetic with broadcasting; negation,
+absolute value, square root, exp, log, sine and cosine; and sum, product, mean,
+minimum and maximum reductions. See the
+[float32 unary contract](docs/DTYPE_SUPPORT.md#float32-unary-arithmetic) and the
 [float32 reduction contract](docs/FLOAT32_REDUCTIONS.md) for axes and numerical
 limits; broader non-float64 kernels remain future work.
 

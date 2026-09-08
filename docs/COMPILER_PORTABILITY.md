@@ -37,9 +37,8 @@ make memory-test FC=gfortran-13 BUILD_DIR=build/gcc13
 make memory-test FC=gfortran-14 BUILD_DIR=build/gcc14
 ```
 
-This instruments the lifetime tests, float32 arithmetic invariants and compiled
-differential driver with
-AddressSanitizer/leak detection, and injects selected allocation failures. Its
+This instruments the lifetime tests, float32 arithmetic/reduction invariants
+and compiled differential driver with AddressSanitizer/leak detection, and injects selected allocation failures. Its
 compiler-temporary limitations are described in [STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).
 
 ## Observed results on 2026-09-07
@@ -56,10 +55,12 @@ existing empty-mean NumPy reference fixture.
 
 ## Scope of the evidence
 
-The matrix covers 23 Fortran test programs, one example, and 205 Python tests
-(177 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
+The matrix covers 24 Fortran test programs, one example, and 407 Python tests
+(379 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
 float32 cases include exact results, signed zeros, NaNs/infinities, scalar and
-empty broadcasting, and signed/zero strides. Lifetime tests cover all five
+empty broadcasting, signed/zero strides, reduction axes, keepdims, empty-axis
+identities, and pairwise summation. The [reduction numerical contract](FLOAT32_REDUCTIONS.md)
+records intentional rounding-order differences. Lifetime tests cover all five
 registered dtypes and the explicit descriptor-vector sharing API.
 
 These are executable compatibility checks, not a general certification of

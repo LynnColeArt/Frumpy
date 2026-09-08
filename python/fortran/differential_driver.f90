@@ -7,7 +7,8 @@ program differential_driver
     concatenate_r64, stack_r64, nonzero_bool, sort_r64, argsort_r64, &
     searchsorted_r64, zeros_r64, full_r64, add_r64, reshape_r64, sum_r64
   use frumpy, only: ndarray_r32, owned_descriptor_r32, view_descriptor_r32, &
-    add_r32, subtract_r32, multiply_r32, divide_r32
+    add_r32, subtract_r32, multiply_r32, divide_r32, &
+    sum_r32, prod_r32, mean_r32, min_r32, max_r32
   implicit none
 
   call run_case()
@@ -42,6 +43,9 @@ contains
       case ('divide_r32')
         output32 = divide_r32(lhs32, rhs32, status)
       end select
+    case ('sum_r32', 'prod_r32', 'mean_r32', 'min_r32', 'max_r32')
+      call read_r32(lhs32)
+      call reduce_float32(operation, lhs32, output32, axis0, side, status)
     case ('vertical_slice')
       lhs = zeros_r64([2_int64, 3_int64], status=status)
       call require_ok(status)
@@ -120,6 +124,35 @@ contains
       write (*, '(*(es26.17e3,1x))') output%data
     end if
   end subroutine run_case
+
+  subroutine reduce_float32(operation, source, output, axis0, flags, status)
+    character(len=*), intent(in) :: operation
+    type(ndarray_r32), intent(in) :: source
+    type(ndarray_r32), intent(out) :: output
+    integer(int32), intent(in) :: axis0, flags
+    type(frumpy_status), intent(out) :: status
+    integer(int32), allocatable :: selected_axis
+    logical :: keepdims
+
+    ! An unallocated allocatable actual denotes an absent optional argument.
+    if (.not. btest(flags, 1)) then
+      allocate(selected_axis)
+      selected_axis = axis0
+    end if
+    keepdims = btest(flags, 0)
+    select case (operation)
+    case ('sum_r32')
+      output = sum_r32(source, axis0=selected_axis, keepdims=keepdims, status=status)
+    case ('prod_r32')
+      output = prod_r32(source, axis0=selected_axis, keepdims=keepdims, status=status)
+    case ('mean_r32')
+      output = mean_r32(source, axis0=selected_axis, keepdims=keepdims, status=status)
+    case ('min_r32')
+      output = min_r32(source, axis0=selected_axis, keepdims=keepdims, status=status)
+    case ('max_r32')
+      output = max_r32(source, axis0=selected_axis, keepdims=keepdims, status=status)
+    end select
+  end subroutine reduce_float32
 
   subroutine read_metadata(shape, strides, offset, storage_count)
     integer(int64), allocatable, intent(out) :: shape(:), strides(:)

@@ -149,10 +149,9 @@ make memory-test
 ```
 
 It builds separate AddressSanitizer executables in `build/memory`, enables leak
-detection, runs both lifetime test programs, float32 arithmetic invariants,
-and allocation-failure sweeps, and
-runs all compiled Frumpy/NumPy
-differential cases through the instrumented driver. The gate uses `-no-pie` on
+detection, runs both lifetime test programs, float32 arithmetic/reduction
+invariants, allocation-failure sweeps, and all compiled Frumpy/NumPy differential
+cases through the instrumented driver. The gate uses `-no-pie` on
 the tested host; it is optional and not a compiler/platform portability claim.
 
 The test-only C shim uses GNU linker wrappers to fail selected allocations in
@@ -164,9 +163,10 @@ uses `-fstack-arrays` to move compiler finalizer scratch off the injected heap.
 The lifetime programs and differential driver use the ordinary compiler flags
 plus sanitizer instrumentation. This gate needs a C compiler and GNU linker.
 
-Observed on 2026-09-07: `make validate` passed 23 standalone Fortran programs,
-the example, and 205 Python tests. `make memory-test` passed both lifetime
-programs, float32 arithmetic invariants, the allocation-failure sweeps, and all 177 compiled differential cases with no reported leaks or
-memory errors. Two expected NumPy warnings remained in the standard gate's
+Observed on 2026-09-07: `make validate` passed 24 standalone Fortran programs,
+the example, and 407 Python tests. `make memory-test` passed both lifetime
+programs, float32 arithmetic/reduction invariants, the allocation-failure sweeps,
+and all 379 compiled differential cases with no reported leaks or memory errors.
+Two expected NumPy warnings remained in the standard gate's
 existing empty-mean reference test. These checks cover the exercised paths;
 they do not establish safety for the unsupported intrinsic copying forms above.

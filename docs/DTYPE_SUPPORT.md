@@ -23,7 +23,7 @@ boundary, not as a roadmap wish list.
 | `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; no general bool arithmetic/reduction kernels yet. |
 | `i32` | `FRUMPY_DTYPE_I32` | 4 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No i32 array kernels yet. |
 | `i64` | `FRUMPY_DTYPE_I64` | 8 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; no general i64 value kernels yet. |
-| `r32` | `FRUMPY_DTYPE_R32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Float32 add, subtract, multiply, and divide with broadcasting and signed strides. |
+| `r32` | `FRUMPY_DTYPE_R32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Float32 add, subtract, multiply, and divide with broadcasting and signed strides; sum, product, mean, minimum and maximum reductions. |
 | `r64` | `FRUMPY_DTYPE_R64` | 8 | Full current array support | Concrete descriptor/storage metadata, constructors, broadcasting, elementwise kernels, reductions, views, promotion policy, and casting policy. |
 
 The `frumpy_dtypes` support state remains conservative: only `r64` reports
@@ -75,11 +75,20 @@ Malformed metadata, inaccessible offsets/strides and incompatible shapes return
 `FRUMPY_STATUS_INVALID_SHAPE`. Explicit allocation errors have status paths,
 subject to the compiler temporary-allocation limits in the lifetime contract.
 
-There are no float32 unary kernels, reductions, selection routines, convenience
-constructors, or mixed-dtype execution yet. The 48 compiled NumPy cases in
+There are no float32 unary kernels, selection routines, convenience constructors,
+or mixed-dtype execution yet. The 48 compiled NumPy cases in
 `test_frumpy_differential.py` check all four operations, including exact float32
 results and signed zeros. `test/test_elementwise_r32.f90` checks ownership,
 result lifetime, and malformed input status paths.
+
+## Float32 Reductions
+
+`sum_r32`, `prod_r32`, `mean_r32`, `min_r32`, and `max_r32` return independent
+float32 descriptors. They support all-axis or one-axis reduction, negative axes,
+keepdims, empty/scalar inputs and signed/zero-stride views. Sum and mean use
+pairwise float32 accumulation. See [FLOAT32_REDUCTIONS.md](FLOAT32_REDUCTIONS.md)
+for exact empty-axis behavior, status paths, supported scope, and reduction-order
+rounding differences from NumPy.
 
 ## Non-r64 Descriptor Foundation
 
@@ -104,8 +113,8 @@ Each descriptor preserves the same metadata invariants as `ndarray_r64`:
 - Copy-vs-view storage sharing.
 
 These descriptor APIs do not themselves add NumPy convenience constructors,
-reductions, view helpers, or mixed-dtype execution. Float32 binary arithmetic is
-the separate bounded kernel surface described above. The selection subset consumes
+view helpers or mixed-dtype execution. Float32 binary arithmetic and reductions
+are the separate bounded kernel surfaces described above. The selection subset consumes
 boolean conditions and produces int64 indices without adding general dtype
 execution.
 

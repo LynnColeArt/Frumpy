@@ -34,7 +34,7 @@ oracle references, but are not themselves differential execution tests.
 Phases 1–8 have implementation coverage of varying depth; none of that implies
 full NumPy compatibility. All five registered dtypes now have managed storage,
 with explicit restrictions on intrinsic Fortran container copying. Float32 binary
-arithmetic now has direct NumPy coverage, alongside initial compiler and timing
+arithmetic and reductions now have direct NumPy coverage, alongside initial compiler and timing
 comparisons. Broader dtype execution, advanced indexing, linear algebra/random,
 C/Python interop, and wider platform/performance coverage remain open. The next work should preserve the validated subset while closing those
 explicit gaps.
@@ -574,7 +574,7 @@ At every phase boundary, ask:
 ## Immediate Next Steps
 
 1. Preserve the compiler validation matrix and bounded storage-copy contract.
-2. Expand beyond float32 binary arithmetic into reductions and mixed-dtype execution
+2. Expand into float32 unary kernels, integer arithmetic and mixed-dtype execution
    without duplicating promotion policy.
 3. Add the first BLAS/LAPACK-backed linear algebra slice.
 4. Design the C ABI and Python package around explicit ownership.

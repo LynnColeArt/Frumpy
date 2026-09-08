@@ -237,3 +237,77 @@ def test_float32_incompatible_shapes(frumpy_driver, operation):
     with pytest.raises(ValueError):
         getattr(np, operation)(lhs, rhs)
     assert execute(frumpy_driver, operation + '_r32', lhs, rhs)[0] == 1
+
+
+def reduction_float32_layouts():
+    base = np.arange(1, 25, dtype=np.float32).reshape(2, 3, 4) / np.float32(16)
+    return [base, np.asfortranarray(base), base.transpose(2, 0, 1),
+            base[::-1, :, ::-1], base[:, ::2, 1::2],
+            np.broadcast_to(base[:1, :1], (3, 2, 4)),
+            np.empty((0,), dtype=np.float32), np.empty((0, 0), dtype=np.float32),
+            np.empty((0, 3), dtype=np.float32), np.empty((3, 0), dtype=np.float32),
+            np.empty((2, 0, 3), dtype=np.float32), np.array(-0., dtype=np.float32),
+            np.array([np.inf, -np.inf, 1.], dtype=np.float32),
+            np.array([[3., np.nan, 2.], [np.nan, 4., 1.]], dtype=np.float32),
+            np.array([0., -0.], dtype=np.float32), np.array([-0., 0.], dtype=np.float32),
+            np.array([1e20, 1e20, 1e20], dtype=np.float32),
+            np.random.default_rng(42).uniform(0.9, 1.1, (3, 5, 7)).astype(np.float32)]
+
+
+@pytest.mark.parametrize('operation', ['sum', 'prod', 'mean', 'min', 'max'])
+@pytest.mark.parametrize('source', reduction_float32_layouts())
+@pytest.mark.parametrize('keepdims', [False, True])
+def test_float32_reductions(frumpy_driver, operation, source, keepdims):
+    import warnings
+
+    axes = [None] + list(range(-max(1, source.ndim), max(1, source.ndim)))
+    for axis in axes:
+        # The bridge uses a separate all-axes flag, leaving every integer axis testable.
+        side = int(keepdims) + (2 if axis is None else 0)
+        with warnings.catch_warnings(), np.errstate(all='ignore'):
+            warnings.simplefilter('ignore', RuntimeWarning)
+            try:
+                expected = getattr(np, operation)(source, axis=axis, keepdims=keepdims)
+            except (ValueError, IndexError) as error:
+                status, _ = execute(frumpy_driver, operation + '_r32', source,
+                                    axis=0 if axis is None else axis, side=side)
+                expected_status = 2 if isinstance(error, np.exceptions.AxisError) else 6
+                assert status == expected_status
+                continue
+        status, actual = execute(frumpy_driver, operation + '_r32', source,
+                                 axis=0 if axis is None else axis, side=side)
+        assert status == 0
+        assert actual.shape == np.shape(expected)
+        assert actual.dtype == np.asarray(expected).dtype == np.dtype('float32')
+        if operation in ('min', 'max'):
+            np.testing.assert_array_equal(actual, expected)
+        else:
+            np.testing.assert_allclose(actual, expected, rtol=3e-6, atol=1e-7, equal_nan=True)
+        zeros = np.asarray(expected) == 0
+        np.testing.assert_array_equal(np.signbit(actual[zeros]), np.signbit(np.asarray(expected)[zeros]))
+
+
+@pytest.mark.parametrize('operation', ['sum', 'prod', 'mean', 'min', 'max'])
+@pytest.mark.parametrize('axis', [-2147483648, -4, 3, 2147483647])
+def test_float32_reduction_invalid_axes(frumpy_driver, operation, axis):
+    source = np.ones((2, 3, 4), dtype=np.float32)
+    with pytest.raises(np.exceptions.AxisError):
+        getattr(np, operation)(source, axis=axis)
+    assert execute(frumpy_driver, operation + '_r32', source, axis=axis)[0] == 2
+
+
+@pytest.mark.parametrize('operation', ['sum', 'mean'])
+def test_float32_reduction_cancellation(frumpy_driver, operation):
+    source = np.r_[np.float32(1e8), np.ones(256, dtype=np.float32), np.float32(-1e8)]
+    expected = getattr(np, operation)(source)
+    status, actual = execute(frumpy_driver, operation + '_r32', source, side=2)
+    assert status == 0
+    np.testing.assert_array_equal(actual, expected)
+
+    # Reduction trees are an explicit numerical boundary, not bitwise NumPy parity.
+    source = np.tile(np.array([1e8, 1., -1e8, 1.], dtype=np.float32), 4)
+    status, actual = execute(frumpy_driver, operation + '_r32', source, side=2)
+    assert status == 0
+    expected_frumpy = np.float32(2 if operation == 'sum' else 2 / 16)
+    np.testing.assert_array_equal(actual, expected_frumpy)
+    assert getattr(np, operation)(source) == np.float32(0)

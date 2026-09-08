@@ -35,6 +35,7 @@ SOURCES := \
 	src/frumpy_elementwise_r32.f90 \
 	src/frumpy_elementwise_r64.f90 \
 	src/frumpy_promotion.f90 \
+	src/frumpy_reductions_r32.f90 \
 	src/frumpy_reductions_r64.f90 \
 	src/frumpy_slices.f90 \
 	src/frumpy_selection_r64.f90 \
@@ -61,6 +62,7 @@ FORTRAN_TESTS := \
 	test/test_broadcast.f90 \
 	test/test_elementwise_r32.f90 \
 	test/test_elementwise_r64.f90 \
+	test/test_reductions_r32.f90 \
 	test/test_reductions_r64.f90 \
 	test/test_selection_r64.f90 \
 	test/test_selection_validation.f90 \
@@ -111,11 +113,13 @@ memory-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_elementwise_r32" \
+		"$(BUILD_DIR)/memory/bin/test_reductions_r32" \
 		"$(BUILD_DIR)/memory/bin/allocation_failure_driver" \
 		"$(BUILD_DIR)/memory/bin/differential_driver"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_elementwise_r32"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_reductions_r32"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/allocation_failure_driver"
 	ASAN_OPTIONS=detect_leaks=1 \
 		FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/memory/bin/differential_driver)" \

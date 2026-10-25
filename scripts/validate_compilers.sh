@@ -29,7 +29,8 @@ for compiler in "$@"; do
     directory=$(mktemp -d "$build_root/$name/$mode.XXXXXX")
     flags=$debug
     if [[ $mode == release ]]; then flags=$release; fi
-    printf '%s\nFlags: %s\n' "$version" "$flags" > "$directory/validation.log"
+    printf '%s\nFlags: %s\nLinear algebra libraries: %s\n' \
+      "$version" "$flags" "${LINALG_LIBS:--llapack -lblas}" > "$directory/validation.log"
     echo "VALIDATE $name $mode"
     if ! make validate FC="$compiler" FFLAGS="$flags" BUILD_DIR="$directory" \
         >> "$directory/validation.log" 2>&1; then

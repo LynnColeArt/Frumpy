@@ -134,8 +134,11 @@ reference fixtures and direct Frumpy-versus-NumPy comparisons, and check patch
 whitespace. See [building](docs/BUILDING.md), [compiler portability](docs/COMPILER_PORTABILITY.md),
 and [performance measurements](docs/PERFORMANCE.md).
 
-Linear algebra, random generation, a C ABI, Python bindings, and measured
-performance work remain unfinished. Managed storage for all five registered
+Float64 `matmul_r64` supports vectors, matrices and broadcast batches;
+`solve_r64` solves square systems with vector or matrix right-hand sides. See
+[linear algebra](docs/LINEAR_ALGEBRA.md) for the finite-input contract, LP64
+BLAS/LAPACK dependency and supported limits. Broader linear algebra, random
+generation, a C ABI, Python bindings, and measured performance work remain unfinished. Managed storage for all five registered
 dtypes now retains aliases and views, with explicit limits on Fortran container
 copying. Borrowed external buffers still require caller lifetime management. See
 [storage lifetime](docs/STORAGE_LIFETIME.md). This is not yet a drop-in NumPy

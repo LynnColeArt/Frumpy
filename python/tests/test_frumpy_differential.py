@@ -504,3 +504,151 @@ def test_numpy_mixed_incompatible_shapes(frumpy_driver, lhs_dtype, rhs_dtype, op
     assert execute(frumpy_driver, "mixed_" + operation, lhs, rhs,
                    axis=MIXED_DTYPES.index(lhs_dtype) + 1,
                    side=MIXED_DTYPES.index(rhs_dtype) + 1)[0] == expected_status
+
+
+def matmul_cases():
+    rng = np.random.default_rng(20261025)
+    left = rng.normal(size=(4, 6))
+    right = rng.normal(size=(6, 3))
+    return [
+        (left, right), (np.asfortranarray(left), np.asfortranarray(right)),
+        (left.T, rng.normal(size=(4, 3))), (left[:, ::-1], right[::-1]),
+        (left[::2, ::2], right[::2, ::2]),
+        (left[0], right), (left, right[:, 0]), (left[0], right[:, 0]),
+        (np.array([3.]), np.array([-2.])), (np.empty(0), np.empty(0)),
+        (np.empty((2, 0)), np.empty((0, 3))),
+        (np.empty((0, 4)), np.ones((4, 3))),
+        (np.ones((2, 4)), np.empty((4, 0))),
+        (np.broadcast_to(left[:1], (5, 6)), right),
+        (rng.normal(size=(2, 4, 6)), right),
+        (left, rng.normal(size=(2, 6, 3))),
+        (rng.normal(size=(2, 1, 4, 6)), rng.normal(size=(1, 3, 6, 2))),
+        (rng.normal(size=(2, 3, 4, 6))[:, ::-1, :, ::-1],
+         rng.normal(size=(3, 6, 2))[::-1, ::-1]),
+        (left[0], rng.normal(size=(2, 6, 3))),
+        (rng.normal(size=(2, 4, 6)), right[:, 0]),
+        (np.empty((0, 2, 4)), np.ones((1, 4, 3))),
+        (np.empty((3, 2, 0)), np.empty((1, 0, 4))),
+        (rng.normal(size=(17, 31)), rng.normal(size=(31, 13))),
+    ]
+
+
+@pytest.mark.parametrize("lhs,rhs", matmul_cases())
+def test_numpy_matmul_r64(frumpy_driver, lhs, rhs):
+    expected = np.matmul(lhs, rhs)
+    status, actual = execute(frumpy_driver, "matmul_r64", lhs, rhs)
+    assert status == 0
+    assert actual.shape == expected.shape
+    assert actual.flags.c_contiguous
+    np.testing.assert_allclose(actual, expected, rtol=2e-13, atol=2e-13)
+
+
+@pytest.mark.parametrize("lhs,rhs", [
+    (np.array(1.), np.ones((2, 2))), (np.ones((2, 2)), np.array(1.)),
+    (np.ones((2, 3)), np.ones((2, 4))), (np.ones(3), np.ones(2)),
+    (np.ones((2, 2, 3)), np.ones((3, 3, 4))),
+])
+def test_numpy_matmul_invalid(frumpy_driver, lhs, rhs):
+    with pytest.raises(ValueError):
+        np.matmul(lhs, rhs)
+    assert execute(frumpy_driver, "matmul_r64", lhs, rhs)[0] == 1
+
+
+def solve_cases():
+    rng = np.random.default_rng(20261026)
+    cases = []
+    for n in (1, 2, 5, 17):
+        a = rng.normal(size=(n, n)) + n * np.eye(n)
+        for b in (rng.normal(size=n), rng.normal(size=(n, 3)), np.empty((n, 0))):
+            cases.extend([(a, b), (np.asfortranarray(a), np.asfortranarray(b)),
+                          (a.T, b), (a[::-1, ::-1], b[::-1])])
+    cases.extend([
+        (np.empty((0, 0)), np.empty(0)), (np.empty((0, 0)), np.empty((0, 3))),
+        (np.array([[0., 1.], [2., 3.]]), np.array([1., 4.])),
+        (np.array([[0., 1.], [2., 3.]]), np.eye(2)[:, ::-1]),
+        (np.diag([1e-100, 1e100]), np.array([1e-100, 1e100])),
+    ])
+    return cases
+
+
+@pytest.mark.parametrize("lhs,rhs", solve_cases())
+def test_numpy_solve_r64(frumpy_driver, lhs, rhs):
+    expected = np.linalg.solve(lhs, rhs)
+    status, actual = execute(frumpy_driver, "solve_r64", lhs, rhs)
+    assert status == 0
+    assert actual.shape == expected.shape
+    assert actual.flags.c_contiguous
+    np.testing.assert_allclose(actual, expected, rtol=2e-13, atol=2e-13)
+    np.testing.assert_allclose(lhs @ actual, rhs, rtol=2e-13, atol=2e-13)
+
+
+@pytest.mark.parametrize("lhs,rhs", [
+    (np.zeros((2, 2)), np.ones(2)),
+    (np.zeros((2, 2)), np.empty((2, 0))),
+    (np.array([[1., 2.], [2., 4.]]), np.eye(2)),
+])
+def test_numpy_solve_singular(frumpy_driver, lhs, rhs):
+    with pytest.raises(np.linalg.LinAlgError):
+        np.linalg.solve(lhs, rhs)
+    assert execute(frumpy_driver, "solve_r64", lhs, rhs)[0] == 7
+
+
+@pytest.mark.parametrize("lhs,rhs", [
+    (np.ones(2), np.ones(2)), (np.ones((2, 3)), np.ones(2)),
+    (np.eye(2), np.ones(3)), (np.eye(2), np.ones((3, 2))),
+    (np.eye(2), np.array(1.)),
+])
+def test_numpy_solve_invalid(frumpy_driver, lhs, rhs):
+    with pytest.raises((ValueError, np.linalg.LinAlgError)):
+        np.linalg.solve(lhs, rhs)
+    assert execute(frumpy_driver, "solve_r64", lhs, rhs)[0] == 1
+
+
+@pytest.mark.parametrize("lhs,rhs", [
+    (np.broadcast_to(np.eye(2), (3, 2, 2)), np.ones(2)),
+    (np.eye(2), np.ones((3, 2, 1))),
+])
+def test_solve_batches_explicitly_unsupported(frumpy_driver, lhs, rhs):
+    assert np.linalg.solve(lhs, rhs).size > 0
+    assert execute(frumpy_driver, "solve_r64", lhs, rhs)[0] == 6
+
+
+@pytest.mark.parametrize("operation", ["matmul_r64", "solve_r64"])
+@pytest.mark.parametrize("value", [np.nan, np.inf, -np.inf])
+def test_linalg_nonfinite_explicitly_unsupported(frumpy_driver, operation, value):
+    lhs = np.eye(2)
+    rhs = np.array([value, 1.])
+    with np.errstate(all="ignore"):
+        oracle = np.matmul(lhs, rhs) if operation == "matmul_r64" else np.linalg.solve(lhs, rhs)
+    assert not np.all(np.isfinite(oracle))
+    assert execute(frumpy_driver, operation, lhs, rhs)[0] == 6
+
+
+@pytest.mark.parametrize("left_kind", ["vector", "matrix", "batch"])
+@pytest.mark.parametrize("right_kind", ["vector", "matrix", "batch"])
+@pytest.mark.parametrize("k", [0, 1, 5])
+def test_numpy_matmul_rank_grid(frumpy_driver, left_kind, right_kind, k):
+    rng = np.random.default_rng(20261027)
+    left_shapes = {"vector": (k,), "matrix": (2, k), "batch": (2, 1, 2, k)}
+    right_shapes = {"vector": (k,), "matrix": (k, 3), "batch": (1, 3, k, 3)}
+    lhs = rng.normal(size=left_shapes[left_kind])
+    rhs = rng.normal(size=right_shapes[right_kind])
+    expected = np.matmul(lhs, rhs)
+    status, actual = execute(frumpy_driver, "matmul_r64", lhs, rhs)
+    assert status == 0
+    assert actual.shape == expected.shape
+    np.testing.assert_allclose(actual, expected, rtol=2e-13, atol=2e-13)
+
+
+@pytest.mark.parametrize("zero_stride", [False, True])
+def test_numpy_solve_stepped(frumpy_driver, zero_stride):
+    rng = np.random.default_rng(20261028)
+    backing = rng.normal(size=(10, 10))
+    lhs = backing[::2, ::2]
+    lhs += 5 * np.eye(5)
+    rhs = rng.normal(size=(10, 6))[::2, ::2]
+    if zero_stride:
+        rhs = np.broadcast_to(rhs[:, :1], (5, 3))
+    status, actual = execute(frumpy_driver, "solve_r64", lhs, rhs)
+    assert status == 0
+    np.testing.assert_allclose(actual, np.linalg.solve(lhs, rhs), rtol=2e-13, atol=2e-13)

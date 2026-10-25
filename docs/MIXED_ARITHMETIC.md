@@ -115,6 +115,6 @@ flags, platforms or floating-point environments.
 `test/test_arithmetic.f90` covers typed output rejection, malformed operands,
 result replacement and preservation, lifetime, boolean normalization, optional
 status, and dtype queries. The normal compiler matrix and GNU memory gates
-include it. `make integer-overflow-test` now runs both integer/mixed invariant
-programs and all 1,328 integer/mixed comparisons under signed-overflow traps and
-undefined-behavior sanitization.
+include it. `make integer-overflow-test` now runs integer/mixed and linear algebra
+invariant programs and 1,454 comparisons under signed-overflow traps and
+undefined-behavior sanitization (1,328 integer/mixed plus 126 linear algebra).

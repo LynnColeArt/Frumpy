@@ -574,8 +574,9 @@ At every phase boundary, ask:
 ## Immediate Next Steps
 
 1. Preserve the compiler validation matrix and bounded storage-copy contract.
-2. Add the first BLAS/LAPACK-backed linear algebra slice. Integer binary, float32
-   binary/unary/reduction, and registered mixed-dtype arithmetic are implemented.
+2. Expand linear algebra beyond finite float64 matmul and unbatched solve:
+   additional dtypes, batched solves, dot/outer, norms, and factorizations. Integer
+   binary, float32 binary/unary/reduction, and mixed arithmetic are implemented.
 3. Expand remaining dtype constructors, view helpers, and reductions.
 4. Design the C ABI and Python package around explicit ownership.
 5. Extend direct NumPy differential coverage alongside each supported operation,

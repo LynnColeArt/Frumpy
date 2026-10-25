@@ -13,6 +13,8 @@ VENV ?= .venv
 VENV_PY := $(VENV)/bin/python
 PY_DEPS_STAMP := $(VENV)/.frumpy-python-deps
 
+LINALG_LIBS ?= -llapack -lblas
+
 FFLAGS ?= -std=f2018 -Wall -Wextra -Werror -fimplicit-none -fcheck=all -fbacktrace
 
 # Each executable build writes the same Fortran module files.
@@ -39,6 +41,8 @@ SOURCES := \
 	src/frumpy_elementwise_r64.f90 \
 	src/frumpy_promotion.f90 \
 	src/frumpy_arithmetic.f90 \
+	src/frumpy_linalg_backend.f90 \
+	src/frumpy_linalg_r64.f90 \
 	src/frumpy_reductions_r32.f90 \
 	src/frumpy_reductions_r64.f90 \
 	src/frumpy_slices.f90 \
@@ -64,6 +68,7 @@ FORTRAN_TESTS := \
 	test/test_storage_lifetime_dtypes.f90 \
 	test/test_constructors_r64.f90 \
 	test/test_broadcast.f90 \
+	test/test_linalg_r64.f90 \
 	test/test_arithmetic.f90 \
 	test/test_elementwise_integer.f90 \
 	test/test_elementwise_r32.f90 \
@@ -118,6 +123,7 @@ memory-test: $(PY_DEPS_STAMP)
 		FFLAGS="$(FFLAGS) -g -fsanitize=address -fno-omit-frame-pointer -no-pie" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes" \
+		"$(BUILD_DIR)/memory/bin/test_linalg_r64" \
 		"$(BUILD_DIR)/memory/bin/test_arithmetic" \
 		"$(BUILD_DIR)/memory/bin/test_elementwise_integer" \
 		"$(BUILD_DIR)/memory/bin/test_elementwise_r32" \
@@ -126,6 +132,7 @@ memory-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/memory/bin/differential_driver"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_linalg_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_arithmetic"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_elementwise_integer"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_elementwise_r32"
@@ -139,13 +146,15 @@ memory-test: $(PY_DEPS_STAMP)
 integer-overflow-test: $(PY_DEPS_STAMP)
 	$(MAKE) BUILD_DIR="$(BUILD_DIR)/integer-overflow" \
 		FFLAGS="$(FFLAGS) -ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_arithmetic" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_elementwise_integer" \
 		"$(BUILD_DIR)/integer-overflow/bin/differential_driver"
+	"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64"
 	"$(BUILD_DIR)/integer-overflow/bin/test_arithmetic"
 	"$(BUILD_DIR)/integer-overflow/bin/test_elementwise_integer"
 	FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/integer-overflow/bin/differential_driver)" \
-		$(VENV_PY) -m pytest -q python/tests/test_frumpy_differential.py -k "numpy_integer or numpy_mixed"
+		$(VENV_PY) -m pytest -q python/tests/test_frumpy_differential.py -k "numpy_integer or numpy_mixed or matmul or solve or linalg_nonfinite"
 
 portability-test:
 	bash scripts/validate_compilers.sh "$(BUILD_DIR)/portability" $(COMPILERS)
@@ -167,16 +176,16 @@ clean:
 	rm -f *.o *.mod *.smod
 
 $(BIN_DIR)/%: test/%.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
-	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@ $(LINALG_LIBS)
 
 $(BIN_DIR)/example_%: examples/%.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
-	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@ $(LINALG_LIBS)
 
 $(BIN_DIR)/differential_driver: python/fortran/differential_driver.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
-	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@ $(LINALG_LIBS)
 
 $(BIN_DIR)/benchmark_driver: benchmarks/benchmark_driver.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
-	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@ $(LINALG_LIBS)
 
 $(OBJ_DIR)/allocation_failure.o: python/fortran/allocation_failure.c | $(OBJ_DIR)
 	$(CC) -g -Wall -Wextra -Werror -fsanitize=address -c $< -o $@
@@ -185,7 +194,7 @@ $(OBJ_DIR)/allocation_failure.o: python/fortran/allocation_failure.c | $(OBJ_DIR
 # stack in the fault driver so injection exercises Frumpy allocation/status paths.
 $(BIN_DIR)/allocation_failure_driver: python/fortran/allocation_failure_driver.f90 $(SOURCES) $(OBJ_DIR)/allocation_failure.o | $(BIN_DIR) $(MOD_DIR)
 	$(FC) $(FFLAGS) -fstack-arrays -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< \
-		$(OBJ_DIR)/allocation_failure.o -Wl,--wrap=malloc,--wrap=calloc,--wrap=realloc -o $@
+		$(OBJ_DIR)/allocation_failure.o -Wl,--wrap=malloc,--wrap=calloc,--wrap=realloc -o $@ $(LINALG_LIBS)
 
 $(PY_DEPS_STAMP): python/requirements-test.txt
 	@test -x "$(VENV_PY)" || "$(PYTHON)" -m venv "$(VENV)"

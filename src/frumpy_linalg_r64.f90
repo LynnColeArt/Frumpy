@@ -1,0 +1,296 @@
+!> Float64 matmul and unbatched solve, with explicit column-major backend work arrays.
+module frumpy_linalg_r64
+  use iso_fortran_env, only: int32, int64, real64
+  use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+  use frumpy_linalg_backend, only: dgemm, dgesv
+  use frumpy_broadcast, only: broadcast_plan, broadcast_plan_from_metadata
+  use frumpy_dtypes, only: FRUMPY_DTYPE_R64
+  use frumpy_ndarray_r64, only: ndarray_r64, owned_descriptor_r64
+  use frumpy_shape, only: element_count
+  use frumpy_strides, only: storage_bounds_are_valid
+  use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_OK, &
+    FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+    FRUMPY_STATUS_UNSUPPORTED_DTYPE, FRUMPY_STATUS_ALLOCATION_FAILED, &
+    FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_SINGULAR_MATRIX
+  implicit none
+  private
+  public :: matmul_r64, solve_r64
+
+contains
+
+  !> NumPy vector promotion and broadcasting of leading matrix-stack dimensions.
+  function matmul_r64(lhs, rhs, status) result(array)
+    type(ndarray_r64), intent(in) :: lhs, rhs
+    type(frumpy_status), intent(out), optional :: status
+    type(ndarray_r64) :: array
+    type(frumpy_status) :: local_status
+    type(broadcast_plan) :: plan
+    integer(int64), allocatable :: shape(:), index0(:)
+    real(real64), allocatable :: a(:, :), b(:, :), c(:, :)
+    integer(int64) :: m, n, k, rhs_k, row_stride, column_stride, left_k_stride, right_k_stride
+    integer(int64) :: row0, column0, inner0, batch1, left_base, right_base, output_base, count
+    integer(int32) :: left_batch_rank, right_batch_rank, output_rank, dim1, alloc_stat
+
+    call validate_source(lhs, local_status)
+    if (local_status%is_ok()) call validate_source(rhs, local_status)
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    call set_status(local_status, FRUMPY_STATUS_INVALID_SHAPE, "matmul requires rank >= 1")
+    if (lhs%rank < 1 .or. rhs%rank < 1) then
+      if (present(status)) status = local_status
+      return
+    end if
+    m = 1_int64
+    row_stride = 0_int64
+    k = lhs%shape(lhs%rank)
+    left_k_stride = lhs%strides(lhs%rank)
+    if (lhs%rank > 1) then
+      m = lhs%shape(lhs%rank - 1)
+      row_stride = lhs%strides(lhs%rank - 1)
+    end if
+    n = 1_int64
+    column_stride = 0_int64
+    rhs_k = rhs%shape(1)
+    right_k_stride = rhs%strides(1)
+    if (rhs%rank > 1) then
+      n = rhs%shape(rhs%rank)
+      column_stride = rhs%strides(rhs%rank)
+      rhs_k = rhs%shape(rhs%rank - 1)
+      right_k_stride = rhs%strides(rhs%rank - 1)
+    end if
+    if (k /= rhs_k) then
+      call set_status(local_status, FRUMPY_STATUS_INVALID_SHAPE, "matmul core dimensions differ")
+      if (present(status)) status = local_status
+      return
+    end if
+    if (.not. backend_shape_fits(m, n, k)) then
+      call set_status(local_status, FRUMPY_STATUS_OVERFLOW, "matmul backend dimensions overflow")
+      if (present(status)) status = local_status
+      return
+    end if
+    left_batch_rank = max(0_int32, lhs%rank - 2_int32)
+    right_batch_rank = max(0_int32, rhs%rank - 2_int32)
+    plan = broadcast_plan_from_metadata(lhs%shape(:left_batch_rank), &
+      lhs%strides(:left_batch_rank), rhs%shape(:right_batch_rank), &
+      rhs%strides(:right_batch_rank), local_status)
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    output_rank = plan%rank
+    if (lhs%rank > 1) output_rank = output_rank + 1_int32
+    if (rhs%rank > 1) output_rank = output_rank + 1_int32
+    allocate(shape(output_rank), index0(plan%rank), stat=alloc_stat)
+    if (alloc_stat /= 0) then
+      call set_status(local_status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+        "matmul metadata allocation failed")
+      if (present(status)) status = local_status
+      return
+    end if
+    shape(:plan%rank) = plan%shape
+    dim1 = plan%rank
+    if (lhs%rank > 1) then
+      dim1 = dim1 + 1_int32
+      shape(dim1) = m
+    end if
+    if (rhs%rank > 1) shape(output_rank) = n
+    count = element_count(shape, local_status)
+    if (local_status%is_ok()) then
+      if (count > shiftr(huge(1_int64), 3)) &
+        call set_status(local_status, FRUMPY_STATUS_OVERFLOW, "matmul output byte count overflows")
+    end if
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    array = owned_descriptor_r64(shape, status=local_status)
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    if (count == 0_int64 .or. k == 0_int64) then
+      array%data = 0.0_real64
+      if (present(status)) call set_status(status, FRUMPY_STATUS_OK)
+      return
+    end if
+    allocate(a(m, k), b(k, n), c(m, n), stat=alloc_stat)
+    if (alloc_stat /= 0) then
+      call array%release()
+      call set_status(local_status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+        "matmul workspace allocation failed")
+      if (present(status)) status = local_status
+      return
+    end if
+    index0 = 0_int64
+    do batch1 = 1_int64, plan%size()
+      left_base = lhs%offset + sum(index0 * plan%lhs_strides)
+      right_base = rhs%offset + sum(index0 * plan%rhs_strides)
+      do inner0 = 0_int64, k - 1_int64
+        do row0 = 0_int64, m - 1_int64
+          a(row0 + 1, inner0 + 1) = &
+            lhs%data(left_base + row0 * row_stride + inner0 * left_k_stride)
+        end do
+        do column0 = 0_int64, n - 1_int64
+          b(inner0 + 1, column0 + 1) = &
+            rhs%data(right_base + inner0 * right_k_stride + column0 * column_stride)
+        end do
+      end do
+      if (.not. all(ieee_is_finite(a)) .or. .not. all(ieee_is_finite(b))) then
+        call array%release()
+        call set_status(local_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+          "matmul currently requires finite input values")
+        if (present(status)) status = local_status
+        return
+      end if
+      call dgemm('N', 'N', int(m, int32), int(n, int32), int(k, int32), &
+        1.0_real64, a, int(m, int32), b, int(k, int32), 0.0_real64, c, int(m, int32))
+      output_base = (batch1 - 1_int64) * m * n
+      do row0 = 0_int64, m - 1_int64
+        do column0 = 0_int64, n - 1_int64
+          array%data(output_base + row0 * n + column0 + 1_int64) = c(row0 + 1, column0 + 1)
+        end do
+      end do
+      do dim1 = plan%rank, 1_int32, -1_int32
+        index0(dim1) = index0(dim1) + 1_int64
+        if (index0(dim1) < plan%shape(dim1)) exit
+        index0(dim1) = 0_int64
+      end do
+    end do
+    if (present(status)) call set_status(status, FRUMPY_STATUS_OK)
+  end function matmul_r64
+
+  !> Solve A X = B without modifying A or B; a vector B returns a vector X.
+  function solve_r64(lhs, rhs, status) result(array)
+    type(ndarray_r64), intent(in) :: lhs, rhs
+    type(frumpy_status), intent(out), optional :: status
+    type(ndarray_r64) :: array
+    type(frumpy_status) :: local_status
+    real(real64), allocatable :: a(:, :), b(:, :)
+    integer(int32), allocatable :: pivots(:)
+    integer(int64) :: n, nrhs, row0, column0, rhs_column_stride
+    integer(int32) :: alloc_stat, info
+
+    call validate_source(lhs, local_status)
+    if (local_status%is_ok()) call validate_source(rhs, local_status)
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    if (lhs%rank > 2 .or. rhs%rank > 2) then
+      call set_status(local_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+        "batched solves are not implemented")
+      if (present(status)) status = local_status
+      return
+    end if
+    call set_status(local_status, FRUMPY_STATUS_INVALID_SHAPE, &
+      "solve requires a square matrix A and vector or matrix B")
+    if (lhs%rank /= 2 .or. rhs%rank < 1) then
+      if (present(status)) status = local_status
+      return
+    end if
+    n = lhs%shape(1)
+    if (lhs%shape(2) /= n .or. rhs%shape(1) /= n) then
+      if (present(status)) status = local_status
+      return
+    end if
+    nrhs = 1_int64
+    rhs_column_stride = 0_int64
+    if (rhs%rank == 2) then
+      nrhs = rhs%shape(2)
+      rhs_column_stride = rhs%strides(2)
+    end if
+    if (.not. backend_shape_fits(n, max(1_int64, nrhs), n)) then
+      call set_status(local_status, FRUMPY_STATUS_OVERFLOW, "solve backend dimensions overflow")
+      if (present(status)) status = local_status
+      return
+    end if
+    if (n == 0_int64) then
+      array = owned_descriptor_r64(rhs%shape, status=local_status)
+      if (present(status)) status = local_status
+      return
+    end if
+    allocate(a(n, n), b(n, max(1_int64, nrhs)), pivots(n), stat=alloc_stat)
+    if (alloc_stat /= 0) then
+      call set_status(local_status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+        "solve workspace allocation failed")
+      if (present(status)) status = local_status
+      return
+    end if
+    b = 0.0_real64
+    do column0 = 0_int64, n - 1_int64
+      do row0 = 0_int64, n - 1_int64
+        a(row0 + 1, column0 + 1) = &
+          lhs%data(lhs%offset + row0 * lhs%strides(1) + column0 * lhs%strides(2))
+      end do
+    end do
+    do column0 = 0_int64, nrhs - 1_int64
+      do row0 = 0_int64, n - 1_int64
+        b(row0 + 1, column0 + 1) = &
+          rhs%data(rhs%offset + row0 * rhs%strides(1) + column0 * rhs_column_stride)
+      end do
+    end do
+    if (.not. all(ieee_is_finite(a)) .or. .not. all(ieee_is_finite(b))) then
+      call set_status(local_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+        "solve currently requires finite input values")
+      if (present(status)) status = local_status
+      return
+    end if
+    ! Factorization must still run when NRHS=0, so singular A is reported.
+    call dgesv(int(n, int32), int(nrhs, int32), a, int(n, int32), pivots, b, int(n, int32), info)
+    if (info /= 0_int32) then
+      if (info > 0_int32) then
+        call set_status(local_status, FRUMPY_STATUS_SINGULAR_MATRIX, "solve matrix is singular")
+      else
+        call set_status(local_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+          "LAPACK rejected solve arguments")
+      end if
+      if (present(status)) status = local_status
+      return
+    end if
+    array = owned_descriptor_r64(rhs%shape, status=local_status)
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    do row0 = 0_int64, n - 1_int64
+      do column0 = 0_int64, nrhs - 1_int64
+        array%data(row0 * nrhs + column0 + 1_int64) = b(row0 + 1, column0 + 1)
+      end do
+    end do
+    if (present(status)) call set_status(status, FRUMPY_STATUS_OK)
+  end function solve_r64
+
+  logical function backend_shape_fits(m, n, k)
+    integer(int64), intent(in) :: m, n, k
+    integer(int64), parameter :: MAX_ELEMENTS = shiftr(huge(1_int64), 3)
+
+    backend_shape_fits = .false.
+    if (max(m, n, k) > int(huge(1_int32), int64)) return
+    if (m > MAX_ELEMENTS / max(1_int64, k)) return
+    if (k > MAX_ELEMENTS / max(1_int64, n)) return
+    if (m > MAX_ELEMENTS / max(1_int64, n)) return
+    backend_shape_fits = .true.
+  end function backend_shape_fits
+
+  subroutine validate_source(source, status)
+    type(ndarray_r64), intent(in) :: source
+    type(frumpy_status), intent(out) :: status
+
+    if (source%dtype_id /= FRUMPY_DTYPE_R64) then
+      call set_status(status, FRUMPY_STATUS_UNSUPPORTED_DTYPE, "linear algebra requires float64")
+      return
+    end if
+    if (.not. source%has_storage()) then
+      call set_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, "linear algebra requires storage")
+      return
+    end if
+    call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, "invalid linear algebra input metadata")
+    if (.not. allocated(source%shape) .or. .not. allocated(source%strides)) return
+    if (source%rank /= size(source%shape)) return
+    if (.not. storage_bounds_are_valid(source%shape, source%strides, source%offset, &
+        source%storage_size())) return
+    call set_status(status, FRUMPY_STATUS_OK)
+  end subroutine validate_source
+end module frumpy_linalg_r64

@@ -39,15 +39,15 @@ make integer-overflow-test FC=gfortran-13 BUILD_DIR=build/gcc13
 make integer-overflow-test FC=gfortran-14 BUILD_DIR=build/gcc14
 ```
 
-The memory gate instruments lifetime tests, integer, float32 and mixed kernel invariants,
+The memory gate instruments lifetime tests, integer, float32, mixed and linear algebra invariants,
 and the compiled differential driver with AddressSanitizer/leak detection. It
 also injects selected allocation failures. Compiler-temporary limitations are
 described in [STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).
-The separate integer overflow gate checks integer/mixed invariant programs and
-1,328 integer/mixed NumPy comparisons with `-ftrapv`, `-fsanitize=undefined`, and
+The separate integer overflow gate checks integer/mixed and linear algebra
+invariant programs and 1,454 NumPy comparisons with `-ftrapv`, `-fsanitize=undefined`, and
 `-fno-sanitize-recover=undefined`; it does not enable floating-point traps.
 
-## Observed results on 2026-09-07
+## Observed results on 2026-10-25
 
 | Compiler | Debug suite | Optimized suite | GNU memory gate | Integer overflow gate |
 | --- | --- | --- | --- | --- |
@@ -55,14 +55,19 @@ The separate integer overflow gate checks integer/mixed invariant programs and
 | GNU Fortran 14.2.0 | Pass | Pass | Pass | Pass |
 | LLVM Flang 19.1.1 | Pass | Pass | Not run | Not run |
 
+All configurations linked the system reference BLAS/LAPACK 3.12.0 LP64 runtimes
+using `LINALG_LIBS='-l:liblapack.so.3 -l:libblas.so.3'`; these Linux-specific link
+flags are recorded in the matrix logs. See [linear algebra](LINEAR_ALGEBRA.md)
+for the conventional `-llapack -lblas` development-library default and ABI limits.
+
 Both GNU memory gates reported no leaks or memory errors on the exercised
 paths. The ordinary Python suite emitted two expected warnings from its
 existing empty-mean NumPy reference fixture.
 
 ## Scope of the evidence
 
-The matrix covers 26 Fortran test programs, one example, and 1,840 Python tests
-(1,812 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
+The matrix covers 27 Fortran test programs, one example, and 1,966 Python tests
+(1,938 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
 float32 cases include exact results, signed zeros, NaNs/infinities, scalar and
 empty broadcasting, signed/zero strides, reduction axes, keepdims, empty-axis
 identities, pairwise summation, and seven unary functions. Unary comparisons
@@ -77,7 +82,10 @@ float64 true division, broadcasting, and signed/zero strides; see
 covering every ordered registered dtype pair, output types, random values,
 strides, boolean semantics and invalid shapes. Typed-result replacement and
 failure preservation are checked in Fortran; see
-[mixed arithmetic](MIXED_ARITHMETIC.md).
+[mixed arithmetic](MIXED_ARITHMETIC.md). Linear algebra adds 126 comparisons
+covering finite float64 matmul ranks/batches and unbatched solves, residuals,
+empty and singular cases, and explicit unsupported behavior. Fortran invariants
+exercise input preservation and LP64/workspace/output overflow guards.
 
 These are executable compatibility checks, not a general certification of
 Fortran portability. Intrinsic copying of descriptor containers remains

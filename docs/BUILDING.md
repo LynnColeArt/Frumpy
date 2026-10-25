@@ -14,6 +14,7 @@ differential tests from a repo-local virtual environment, and `git diff --check`
 
 - `gfortran` with Fortran 2018 support. Current local validation uses GNU
   Fortran 13.x.
+- Compatible LP64 BLAS/LAPACK development libraries.
 - `make`.
 - `python3` with `venv` support for NumPy differential tests.
 - Optional memory gate: a C compiler, GNU linker, and AddressSanitizer on Linux.
@@ -21,6 +22,14 @@ differential tests from a repo-local virtual environment, and `git diff --check`
 
 Do not install Python packages into the host interpreter for this project. The
 Makefile creates and uses `.venv/`, which is ignored by git.
+
+## BLAS/LAPACK linking
+
+Make links with `LINALG_LIBS ?= -llapack -lblas`. Pass a different `LINALG_LIBS`
+value to select a compatible backend. With only versioned runtime libraries on
+Linux, the tested override is `LINALG_LIBS='-l:liblapack.so.3 -l:libblas.so.3'`.
+The fpm manifest declares `lapack` and `blas` as link dependencies. See
+[linear algebra](LINEAR_ALGEBRA.md) for ABI and numerical limits.
 
 ## Make Targets
 
@@ -30,9 +39,9 @@ Makefile creates and uses `.venv/`, which is ignored by git.
 | `make test` | Compile and run every standalone Fortran test program. |
 | `make examples` | Compile and run example programs, including the first vertical slice. |
 | `make python-test` | Create `.venv/` if needed, install `pytest` and `numpy`, and run `python/tests`. |
-| `make integer-overflow-test` | Run integer/mixed invariants and NumPy comparisons with GNU signed-overflow traps and undefined-behavior sanitization. |
+| `make integer-overflow-test` | Run integer/mixed and linear algebra invariants and NumPy comparisons with GNU signed-overflow traps and undefined-behavior sanitization. |
 | `make portability-test` | Validate debug and optimized builds with each compiler in `COMPILERS`; see the portability matrix. |
-| `make memory-test` | Run ownership, integer, float32 and mixed invariant programs, allocation-failure sweeps, and compiled differential cases under AddressSanitizer with leak detection on GNU/Linux. |
+| `make memory-test` | Run ownership and numeric invariant programs, allocation-failure sweeps, and compiled differential cases under AddressSanitizer with leak detection on GNU/Linux. |
 | `make fpm-test` | Run `fpm test` when `fpm` is installed; otherwise explain that fpm is optional. |
 | `make validate` | Run Fortran tests, examples, Python differential tests, and whitespace checks. |
 | `make clean` | Remove local build products and Python test caches. |
@@ -95,6 +104,7 @@ until the fpm-specific issue is documented and fixed.
 - `test/test_storage_lifetime_dtypes.f90`
 - `test/test_constructors_r64.f90`
 - `test/test_broadcast.f90`
+- `test/test_linalg_r64.f90`
 - `test/test_arithmetic.f90`
 - `test/test_elementwise_integer.f90`
 - `test/test_elementwise_r32.f90`

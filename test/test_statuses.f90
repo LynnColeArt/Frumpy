@@ -2,13 +2,15 @@ program test_statuses
   use iso_fortran_env, only: int32
   use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
     FRUMPY_STATUS_INVALID_AXIS, FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
-    FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+    FRUMPY_STATUS_SINGULAR_MATRIX, FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
     FRUMPY_STATUS_UNSUPPORTED_DTYPE, frumpy_error, frumpy_ok, frumpy_status, &
     set_status, status_code_name
 
   implicit none
 
   type(frumpy_status) :: status
+
+  call assert_failure(FRUMPY_STATUS_SINGULAR_MATRIX, "singular_matrix")
 
   status = frumpy_ok()
   call assert_true(status%is_ok(), "ok status reports is_ok")

@@ -16,6 +16,7 @@ program differential_driver
   use frumpy, only: owned_descriptor_i64, view_descriptor_i64, &
     add_i64, subtract_i64, multiply_i64, divide_i64
   use frumpy, only: add, subtract, multiply, divide, binary_result_dtype
+  use frumpy, only: matmul_r64, solve_r64
   implicit none
 
   call run_case()
@@ -41,6 +42,14 @@ contains
     case ('mixed_add', 'mixed_subtract', 'mixed_multiply', 'mixed_divide')
       call run_mixed(operation(7:), axis0, side)
       return
+    case ('matmul_r64', 'solve_r64')
+      call read_r64(lhs)
+      call read_r64(rhs)
+      if (operation == 'matmul_r64') then
+        output = matmul_r64(lhs, rhs, status)
+      else
+        output = solve_r64(lhs, rhs, status)
+      end if
     case ('add_i32', 'subtract_i32', 'multiply_i32', 'divide_i32')
       call read_i32(lhs_i32)
       call read_i32(rhs_i32)

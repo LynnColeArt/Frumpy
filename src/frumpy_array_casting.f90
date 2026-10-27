@@ -8,7 +8,7 @@ module frumpy_array_casting
   use frumpy_casting, only: require_cast_dtype, FRUMPY_CASTING_UNSAFE
   use frumpy_integer_scalars, only: wrap_i32
   use frumpy_shape, only: element_count
-  use frumpy_strides, only: flat_offset
+  use frumpy_strides, only: flat_offset, is_c_contiguous
   use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_OVERFLOW, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR
   use frumpy_ndarray_bool, only: ndarray_bool, owned_descriptor_bool
@@ -30,6 +30,7 @@ contains
     type(frumpy_status) :: local_status
     integer(int32) :: mode, target_dtype
     integer(int64) :: count, bytes, i0, position, integral
+    logical :: contiguous
 
     mode = FRUMPY_CASTING_UNSAFE
     if (present(casting)) mode = casting
@@ -50,6 +51,10 @@ contains
       if (present(status)) status = local_status
       return
     end if
+    ! Output is C order. Recompute from validated strides rather than trusting cached flags.
+    contiguous = .false.
+    if (target_dtype == 4_int32 .or. target_dtype == 5_int32) &
+      contiguous = is_c_contiguous(borrowed%shape, borrowed%strides)
     select type (result)
     type is (ndarray_bool)
       block
@@ -100,10 +105,14 @@ contains
 
         staged = owned_descriptor_r32(borrowed%shape, status=local_status)
         if (local_status%is_ok()) then
-          do i0 = 0_int64, count - 1_int64
-            position = flat_offset(borrowed%shape, borrowed%strides, borrowed%offset, i0)
-            staged%data(i0 + 1_int64) = real32_value(borrowed, position)
-          end do
+          if (contiguous) then
+            call contiguous_r32(borrowed, staged%data)
+          else
+            do i0 = 0_int64, count - 1_int64
+              position = flat_offset(borrowed%shape, borrowed%strides, borrowed%offset, i0)
+              staged%data(i0 + 1_int64) = real32_value(borrowed, position)
+            end do
+          end if
           if (local_status%is_ok()) call result%share_from(staged, local_status)
         end if
       end block
@@ -113,16 +122,82 @@ contains
 
         staged = owned_descriptor_r64(borrowed%shape, status=local_status)
         if (local_status%is_ok()) then
-          do i0 = 0_int64, count - 1_int64
-            position = flat_offset(borrowed%shape, borrowed%strides, borrowed%offset, i0)
-            staged%data(i0 + 1_int64) = real64_value(borrowed, position)
-          end do
+          if (contiguous) then
+            call contiguous_r64(borrowed, staged%data)
+          else
+            do i0 = 0_int64, count - 1_int64
+              position = flat_offset(borrowed%shape, borrowed%strides, borrowed%offset, i0)
+              staged%data(i0 + 1_int64) = real64_value(borrowed, position)
+            end do
+          end if
           if (local_status%is_ok()) call result%share_from(staged, local_status)
         end if
       end block
     end select
     if (present(status)) status = local_status
   end subroutine astype
+
+  ! Dtype dispatch stays outside the loop, allowing ordinary compiler vectorization.
+  subroutine contiguous_r32(source, output)
+    type(operand), intent(in) :: source
+    real(real32), intent(out) :: output(:)
+    integer(int64) :: i, first
+
+    first = source%offset
+    select case (source%dtype_id)
+    case (1)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = merge(1.0_real32, 0.0_real32, source%values_bool(first + i) /= 0_int8)
+      end do
+    case (2)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = real(source%values_i32(first + i), real32)
+      end do
+    case (3)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = real(source%values_i64(first + i), real32)
+      end do
+    case (4)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = source%values_r32(first + i)
+      end do
+    case (5)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = real(source%values_r64(first + i), real32)
+      end do
+    end select
+  end subroutine contiguous_r32
+
+  ! Dtype dispatch stays outside the loop, allowing ordinary compiler vectorization.
+  subroutine contiguous_r64(source, output)
+    type(operand), intent(in) :: source
+    real(real64), intent(out) :: output(:)
+    integer(int64) :: i, first
+
+    first = source%offset
+    select case (source%dtype_id)
+    case (1)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = merge(1.0_real64, 0.0_real64, source%values_bool(first + i) /= 0_int8)
+      end do
+    case (2)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = real(source%values_i32(first + i), real64)
+      end do
+    case (3)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = real(source%values_i64(first + i), real64)
+      end do
+    case (4)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = real(source%values_r32(first + i), real64)
+      end do
+    case (5)
+      do i = 0_int64, size(output, kind=int64) - 1_int64
+        output(i + 1_int64) = source%values_r64(first + i)
+      end do
+    end select
+  end subroutine contiguous_r64
 
   integer(int64) function cast_integer(source, position, bits, status) result(value)
     type(operand), intent(in) :: source

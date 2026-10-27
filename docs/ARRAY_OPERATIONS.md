@@ -26,6 +26,13 @@ and warning here. Frumpy refuses that dependence. Dtype-policy SAFE does not
 mean value-exact: int64-to-float64 may round, as in NumPy's dtype-level policy.
 The strict scalar cast APIs retain their prior contract.
 
+C-contiguous casts to float32/float64 dispatch the source dtype once and use a
+linear conversion loop. Contiguity is derived from validated shape/strides, not
+cached flags; nonzero offsets and arbitrary singleton strides are supported.
+F-order and irregular inputs retain logical C-order traversal. Boolean/integer
+destinations retain their checked conversion path. No new workspace, casting
+policy, accumulation rule or fast-math option is introduced.
+
 ## Comparisons and boolean operations
 
 `equal`, `not_equal`, `less`, `less_equal`, `greater`, `greater_equal` return

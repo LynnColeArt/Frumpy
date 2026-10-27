@@ -4,10 +4,12 @@ program test_array_casting
   use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan
   use frumpy, only: ndarray_r64, ndarray_i32, ndarray_i64, ndarray_bool, frumpy_status, &
     owned_descriptor_r64, owned_descriptor_i32, owned_descriptor_i64, owned_descriptor_bool, &
+    view_descriptor_i64, &
     astype, FRUMPY_CASTING_SAFE, FRUMPY_CASTING_UNSAFE, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, FRUMPY_STATUS_OVERFLOW
   implicit none
   call exercise()
+  call exercise_contiguous()
 contains
   subroutine exercise()
     type(ndarray_r64) :: source, real_result
@@ -47,6 +49,34 @@ contains
     call source%release()
     call require(truth%data(2) == 1_int8, 'cast survives source')
   end subroutine exercise
+
+  subroutine exercise_contiguous()
+    type(ndarray_i64) :: owner, source
+    type(ndarray_r64) :: result
+    type(frumpy_status) :: status
+
+    owner = owned_descriptor_i64([6_int64])
+    owner%data = [1_int64,2_int64,3_int64,4_int64,5_int64,6_int64]
+    source = view_descriptor_i64(owner, [1_int64,3_int64], [-99_int64,1_int64], 2_int64)
+    source%is_c_contiguous = .false.
+    call astype(source, result, status=status)
+    call require(status%is_ok(), 'offset singleton contiguous cast')
+    call require(all(abs(result%data-[2.0_real64,3.0_real64,4.0_real64])<1e-9_real64), &
+      'contiguous offset values')
+    source = view_descriptor_i64(owner, [3_int64], [2_int64], 1_int64)
+    source%is_c_contiguous = .true.
+    call astype(source, result, status=status)
+    call require(status%is_ok(), 'forged contiguous flag ignored')
+    call require(all(abs(result%data-[1.0_real64,3.0_real64,5.0_real64])<1e-9_real64), &
+      'strided fallback values')
+    source%offset = 99_int64
+    call astype(source, result, status=status)
+    call require(status%is_failure(), 'bounds checked before fast path')
+    call require(abs(result%data(1)-1.0_real64)<1e-9_real64, 'failure preserves result')
+    call owner%release()
+    call source%release()
+    call require(abs(result%data(3)-5.0_real64)<1e-9_real64, 'cast owns independent storage')
+  end subroutine exercise_contiguous
 
   subroutine require(condition, message)
     logical, intent(in) :: condition

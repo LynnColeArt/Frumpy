@@ -16,10 +16,11 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--reverse',action='store_true')
+    parser.add_argument('--source-commit',help='Commit that produced the supplied library')
     args=parser.parse_args()
     os.sched_setaffinity(0,{min(os.sched_getaffinity(0))})
     library=Path(os.environ['FRUMPY_LIBRARY'])
-    report=dict(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+    report=dict(source_commit=args.source_commit or subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
                 library_sha256=hashlib.sha256(library.read_bytes()).hexdigest(),
                 linkage=subprocess.check_output(['ldd',str(library)],text=True),
                 numpy=np.__version__,numpy_build=np.show_config(mode='dicts'),

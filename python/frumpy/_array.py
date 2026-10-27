@@ -55,17 +55,17 @@ class ndarray(_ffi.OwnedHandle):
     def __init__(self, handle):
         super().__init__(handle)
         dtype, rank, flags, offset = _ffi.I(), _ffi.I(), _ffi.I(), _ffi.H()
-        shape = np.empty(32, dtype=np.int64)
-        strides = np.empty(32, dtype=np.int64)
+        shape, strides = (_ffi.H * 32)(), (_ffi.H * 32)()
         try:
-            _ffi.call("info", handle, C.byref(dtype), C.byref(rank), shape.ctypes.data,
-                      strides.ctypes.data, 32, C.byref(offset), C.byref(flags))
+            _ffi.call("info", handle, C.byref(dtype), C.byref(rank), shape,
+                      strides, 32, C.byref(offset), C.byref(flags))
         except BaseException:
             self.close()
             raise
         self._dtype = DTYPES[dtype.value - 1]
-        self._shape = tuple(int(n) for n in shape[:rank.value])
-        self._strides = tuple(int(n) * self.dtype.itemsize for n in strides[:rank.value])
+        self._shape = tuple(shape[:rank.value])
+        itemsize = self._dtype.itemsize
+        self._strides = tuple(n * itemsize for n in strides[:rank.value])
         self._ndim = rank.value
         self._size = math.prod(self.shape)
         self._flags = _ArrayFlags(c_contiguous=bool(flags.value & 1),

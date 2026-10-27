@@ -141,6 +141,7 @@ contains
     type(ndarray_r64) :: array
     type(broadcast_plan) :: plan
     type(frumpy_status) :: local_status
+    logical :: left_linear, right_linear
     integer(int64) :: left_step, right_step
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1
@@ -171,9 +172,9 @@ contains
       return
     end if
 
-    left_step = linear_step(plan%shape, plan%lhs_strides)
-    right_step = linear_step(plan%shape, plan%rhs_strides)
-    if (left_step >= 0_int64 .and. right_step >= 0_int64) then
+    left_step = linear_step(plan%shape, plan%lhs_strides, left_linear)
+    right_step = linear_step(plan%shape, plan%rhs_strides, right_linear)
+    if (left_linear .and. right_linear) then
       if (.not. storage_bounds_are_valid(lhs%shape, lhs%strides, lhs%offset, &
           lhs%storage_size()) .or. &
           .not. storage_bounds_are_valid(rhs%shape, rhs%strides, rhs%offset, &

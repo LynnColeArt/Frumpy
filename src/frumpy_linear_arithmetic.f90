@@ -1,7 +1,6 @@
 !> Allocation-free linear floating-point kernels; callers validate storage bounds first.
 module frumpy_linear_arithmetic
   use iso_fortran_env, only: int32, int64, real32, real64
-  use frumpy_strides, only: is_c_contiguous
   implicit none
   private
   public :: linear_step, linear_binary_r32, linear_binary_r64
@@ -9,15 +8,33 @@ module frumpy_linear_arithmetic
 contains
 
   ! Derive traversal from actual broadcast strides, never cached descriptor flags.
-  integer(int64) function linear_step(shape, strides) result(step)
+  integer(int64) function linear_step(shape, strides, linear) result(step)
     integer(int64), intent(in) :: shape(:), strides(:)
+    logical, intent(out) :: linear
+    integer(int64) :: expected
+    integer :: dim1
+    logical :: found
 
-    step = -1_int64
-    if (all(shape <= 1_int64 .or. strides == 0_int64)) then
-      step = 0_int64
-    else if (is_c_contiguous(shape, strides)) then
-      step = 1_int64
-    end if
+    step = 0_int64
+    expected = 0_int64
+    found = .false.
+    linear = .false.
+    do dim1 = size(shape), 1, -1
+      if (shape(dim1) <= 1_int64) cycle
+      if (.not. found) then
+        step = strides(dim1)
+        expected = step
+        found = .true.
+      end if
+      if (strides(dim1) /= expected) return
+      if (dim1 > 1) then
+        ! Avoid ABS(min-int) and signed multiplication overflow on malformed metadata.
+        if (expected > huge(expected) / shape(dim1) .or. &
+            expected < -huge(expected) / shape(dim1)) return
+        expected = expected * shape(dim1)
+      end if
+    end do
+    linear = .true.
   end function linear_step
 
   subroutine linear_binary_r32(left, right, output, left_offset, right_offset, &

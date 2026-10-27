@@ -237,3 +237,44 @@ def test_contiguous_reduction_order(dtype, operation, axis, special):
             getattr(strided, operation)(axis=axis) as fallback:
         bits = np.uint32 if dtype == np.float32 else np.uint64
         np.testing.assert_array_equal(fast.numpy().view(bits), fallback.numpy().view(bits))
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.float64])
+@pytest.mark.parametrize("operation", ["add", "subtract", "multiply", "divide"])
+@pytest.mark.parametrize("layout", ["step", "reverse", "reverse_step", "transpose", "row"])
+def test_uniform_strided_arithmetic(dtype, operation, layout):
+    data = (np.arange(48, dtype=dtype) + 1).reshape(4, 12)
+    owner = fp.asarray(data)
+    a, fa = data[:, ::2], owner[:, ::2]
+    if layout == "reverse":
+        a, fa = data[::-1, ::-1], owner[::-1, ::-1]
+    elif layout == "reverse_step":
+        a, fa = data[::-1, ::-2], owner[::-1, ::-2]
+    elif layout == "transpose":
+        a, fa = a.T, fa.T
+    b = np.full(a.shape, 2, dtype=dtype)
+    if layout == "row":
+        b = b[0]
+    with fp.asarray(b) as fb, getattr(fp, operation)(fa, fb) as actual:
+        np.testing.assert_array_equal(actual.numpy(), getattr(np, operation)(a, b))
+    with fp.asarray(np.array(2, dtype=dtype)) as scalar, \
+            getattr(fp, operation)(scalar, fa) as actual:
+        np.testing.assert_array_equal(actual.numpy(), getattr(np, operation)(2, a))
+    np.testing.assert_array_equal(owner.numpy(), data)
+
+
+@pytest.mark.parametrize("dtype", DTYPES)
+@pytest.mark.parametrize("rank", [0, 1, 8, 32])
+def test_result_metadata_buffers(dtype, rank):
+    shape = (1,) * rank
+    a = fp.ones(shape, dtype=dtype)
+    result = a + a
+    a.close()
+    assert result.shape == shape
+    assert result.ndim == rank
+    assert result.size == 1
+    assert result.dtype == np.dtype(dtype)
+    assert result.strides == (result.dtype.itemsize,) * rank
+    assert result.flags.c_contiguous and result.flags.f_contiguous and result.flags.owndata
+    np.testing.assert_array_equal(result.numpy(), np.ones(shape, dtype=dtype) + np.ones(shape, dtype=dtype))
+    result.close()

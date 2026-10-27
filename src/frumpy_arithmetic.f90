@@ -67,6 +67,7 @@ contains
     type(frumpy_status) :: local_status
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1, left_position, right_position, left_integer, right_integer
+    logical :: left_linear, right_linear
     integer(int64) :: left_step, right_step
     integer(int32) :: dtype_id, alloc_stat, linear_operation
 
@@ -93,16 +94,20 @@ contains
       if (present(status)) status = local_status
       return
     end if
-    allocate(index0(plan%rank), stat=alloc_stat)
-    if (alloc_stat /= 0) then
-      call set_status(local_status, FRUMPY_STATUS_ALLOCATION_FAILED, &
-        "mixed arithmetic index allocation failed")
-      if (present(status)) status = local_status
-      return
+    left_step = linear_step(plan%shape, plan%lhs_strides, left_linear)
+    right_step = linear_step(plan%shape, plan%rhs_strides, right_linear)
+    if (.not. (left_linear .and. right_linear .and. left%dtype_id == dtype_id &
+        .and. right%dtype_id == dtype_id &
+        .and. (dtype_id == FRUMPY_DTYPE_R32 .or. dtype_id == FRUMPY_DTYPE_R64))) then
+      allocate(index0(plan%rank), stat=alloc_stat)
+      if (alloc_stat /= 0) then
+        call set_status(local_status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+          "mixed arithmetic index allocation failed")
+        if (present(status)) status = local_status
+        return
+      end if
+      index0 = 0_int64
     end if
-    index0 = 0_int64
-    left_step = linear_step(plan%shape, plan%lhs_strides)
-    right_step = linear_step(plan%shape, plan%rhs_strides)
     select case (operation)
     case ('add')
       linear_operation = 1_int32
@@ -193,7 +198,7 @@ contains
         computed = owned_descriptor_r32(plan%shape, status=local_status)
         if (local_status%is_ok()) then
           if (left%dtype_id == FRUMPY_DTYPE_R32 .and. right%dtype_id == FRUMPY_DTYPE_R32 &
-              .and. left_step >= 0_int64 .and. right_step >= 0_int64) then
+              .and. left_linear .and. right_linear) then
             call linear_binary_r32(left%values_r32, right%values_r32, computed%data, &
               left%offset, right%offset, left_step, right_step, linear_operation)
           else
@@ -227,7 +232,7 @@ contains
         computed = owned_descriptor_r64(plan%shape, status=local_status)
         if (local_status%is_ok()) then
           if (left%dtype_id == FRUMPY_DTYPE_R64 .and. right%dtype_id == FRUMPY_DTYPE_R64 &
-              .and. left_step >= 0_int64 .and. right_step >= 0_int64) then
+              .and. left_linear .and. right_linear) then
             call linear_binary_r64(left%values_r64, right%values_r64, computed%data, &
               left%offset, right%offset, left_step, right_step, linear_operation)
           else

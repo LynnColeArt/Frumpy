@@ -9,6 +9,7 @@
 - [Selection, sorting, and searching support](SELECTION_SUPPORT.md)
 - [Dtype support](DTYPE_SUPPORT.md)
 - [Linear algebra](LINEAR_ALGEBRA.md)
+- [Random generation](RANDOM.md)
 - [Mixed arithmetic](MIXED_ARITHMETIC.md)
 - [Integer arithmetic](INTEGER_ARITHMETIC.md)
 - [Float32 reductions](FLOAT32_REDUCTIONS.md)

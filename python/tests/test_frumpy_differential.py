@@ -608,9 +608,8 @@ def test_numpy_solve_invalid(frumpy_driver, lhs, rhs):
     (np.broadcast_to(np.eye(2), (3, 2, 2)), np.ones(2)),
     (np.eye(2), np.ones((3, 2, 1))),
 ])
-def test_solve_batches_explicitly_unsupported(frumpy_driver, lhs, rhs):
-    assert np.linalg.solve(lhs, rhs).size > 0
-    assert execute(frumpy_driver, "solve_r64", lhs, rhs)[0] == 6
+def test_numpy_solve_broadcast_regression(frumpy_driver, lhs, rhs):
+    check(frumpy_driver, "solve_r64", np.linalg.solve(lhs, rhs), lhs, rhs)
 
 
 @pytest.mark.parametrize("operation", ["matmul_r64", "solve_r64"])
@@ -681,3 +680,186 @@ def test_numpy_outer_extremes(frumpy_driver, lhs, rhs):
     assert status == 0
     assert actual.shape == expected.shape
     np.testing.assert_array_equal(actual, expected)
+
+
+def dot_cases():
+    rng = np.random.default_rng(891)
+    for left_shape in [(), (0,), (3,), (2, 3), (2, 1, 3)]:
+        for right_shape in [(), (0,), (3,), (3, 2), (4, 3, 2), (1, 4, 3, 2)]:
+            yield rng.normal(size=left_shape), rng.normal(size=right_shape)
+    for lhs, rhs in matmul_cases():
+        yield lhs, rhs
+    for source in layouts():
+        yield source, np.array(-2.)
+        yield np.array(3.), source
+    yield np.empty((2, 0)), np.empty((4, 0, 3))
+    yield np.arange(12.).reshape(3, 4).T[::-1], np.arange(6.).reshape(3, 2)[::-1]
+    yield np.broadcast_to(np.array(2.), (2, 3)), np.broadcast_to(np.array(-1.), (4, 3, 2))
+
+
+@pytest.mark.parametrize("lhs,rhs", list(dot_cases()))
+def test_numpy_dot_r64(frumpy_driver, lhs, rhs):
+    with np.errstate(all="ignore"):
+        try:
+            expected = np.dot(lhs, rhs)
+        except ValueError:
+            assert execute(frumpy_driver, "dot_r64", lhs, rhs)[0] == 1
+            return
+    status, actual = execute(frumpy_driver, "dot_r64", lhs, rhs)
+    assert status == 0
+    assert actual.shape == np.shape(expected)
+    np.testing.assert_allclose(actual, expected, rtol=2e-13, atol=2e-13, equal_nan=True)
+
+
+@pytest.mark.parametrize("source", layouts() + [np.array(-3.), np.arange(24.).reshape(2, 3, 4)])
+@pytest.mark.parametrize("keepdims", [False, True])
+def test_numpy_vector_norm(frumpy_driver, source, keepdims):
+    for axis in [None] + list(range(-source.ndim, source.ndim)):
+        expected = np.linalg.vector_norm(source, axis=axis, keepdims=keepdims)
+        status, actual = execute(frumpy_driver, "vector_norm_r64", source,
+                                 axis=99 if axis is None else axis, side=int(keepdims))
+        assert status == 0
+        assert actual.shape == np.shape(expected)
+        np.testing.assert_allclose(actual, expected, rtol=2e-15, atol=1e-15, equal_nan=True)
+
+
+@pytest.mark.parametrize("source", [a for a in layouts() if a.ndim >= 2] +
+                         [np.arange(48.).reshape(2, 3, 8)[:, ::-1, ::2]])
+@pytest.mark.parametrize("keepdims", [False, True])
+def test_numpy_matrix_norm(frumpy_driver, source, keepdims):
+    status, actual = execute(frumpy_driver, "matrix_norm_r64", source, side=int(keepdims))
+    expected = np.linalg.matrix_norm(source, keepdims=keepdims)
+    assert status == 0
+    assert actual.shape == expected.shape
+    np.testing.assert_allclose(actual, expected, rtol=2e-15, atol=1e-15)
+
+
+@pytest.mark.parametrize("values", [[3e300, 4e300], [3e-300, 4e-300],
+                                  [np.inf, np.nan], [np.inf, 2.], [-0., 0.]])
+def test_norm_scaled_extremes(frumpy_driver, values):
+    source = np.array(values)
+    expected = np.sqrt(np.sum(source.astype(np.longdouble) ** 2)).astype(float)
+    status, actual = execute(frumpy_driver, "vector_norm_r64", source, axis=99)
+    assert status == 0
+    np.testing.assert_allclose(actual, expected, rtol=2e-15, atol=0, equal_nan=True)
+
+
+@pytest.mark.parametrize("operation,source,axis,code", [
+    ("vector_norm_r64", np.ones((2, 3)), 2, 2),
+    ("vector_norm_r64", np.array(1.), 0, 2),
+    ("matrix_norm_r64", np.ones(2), -1, 1),
+])
+def test_norm_invalid(frumpy_driver, operation, source, axis, code):
+    assert execute(frumpy_driver, operation, source, axis=axis)[0] == code
+
+
+def batched_solve_cases():
+    rng = np.random.default_rng(192)
+    for batch_shape in [(2,), (2, 1), (0,), (1, 3)]:
+        a = rng.normal(size=batch_shape + (3, 3)) + np.eye(3) * 5
+        for b in [rng.normal(size=(3,)), rng.normal(size=(3, 2)),
+                  rng.normal(size=(2, 1, 3, 2)), np.empty((3, 0))]:
+            yield a, b
+    a = np.broadcast_to(np.eye(3), (2, 3, 3))
+    yield a[:, ::-1, ::-1], np.arange(12.).reshape(2, 3, 2)[::-1, ::-1, ::-1]
+    yield np.eye(3), np.arange(12.).reshape(2, 3, 2)
+    yield np.empty((2, 0, 0)), np.empty((1, 0, 3))
+    yield np.empty((0, 3, 3)), np.empty((3, 0))
+
+
+@pytest.mark.parametrize("lhs,rhs", list(batched_solve_cases()))
+def test_numpy_solve_batches(frumpy_driver, lhs, rhs):
+    try:
+        expected = np.linalg.solve(lhs, rhs)
+    except ValueError:
+        assert execute(frumpy_driver, "solve_r64", lhs, rhs)[0] == 1
+        return
+    status, actual = execute(frumpy_driver, "solve_r64", lhs, rhs)
+    assert status == 0
+    assert actual.shape == expected.shape
+    np.testing.assert_allclose(actual, expected, rtol=2e-13, atol=2e-13)
+
+
+@pytest.mark.parametrize("nrhs", [0, 2])
+def test_numpy_solve_late_singular(frumpy_driver, nrhs):
+    lhs = np.array([np.eye(2), np.zeros((2, 2))])
+    rhs = np.ones((2, nrhs))
+    with pytest.raises(np.linalg.LinAlgError):
+        np.linalg.solve(lhs, rhs)
+    assert execute(frumpy_driver, "solve_r64", lhs, rhs)[0] == 7
+
+
+def reference_uniform(seed, count):
+    """Unsigned reference for published SplitMix64 seeding + xoshiro256** 1.0."""
+    mask = (1 << 64) - 1
+    state = []
+    seed &= mask
+    for _ in range(4):
+        seed = (seed + 0x9e3779b97f4a7c15) & mask
+        word = seed
+        word = ((word ^ (word >> 30)) * 0xbf58476d1ce4e5b9) & mask
+        word = ((word ^ (word >> 27)) * 0x94d049bb133111eb) & mask
+        state.append(word ^ (word >> 31))
+    values = []
+    for _ in range(count):
+        word = (state[1] * 5) & mask
+        word = ((word << 7) | (word >> 57)) & mask
+        values.append((((word * 9) & mask) >> 11) * 2.0**-53)
+        shift = (state[1] << 17) & mask
+        state[2] ^= state[0]
+        state[3] ^= state[1]
+        state[1] ^= state[2]
+        state[0] ^= state[3]
+        state[2] ^= shift
+        state[3] = ((state[3] << 45) | (state[3] >> 19)) & mask
+    return np.array(values)
+
+
+@pytest.mark.parametrize("seed", [0, 1, -1, 2**63 - 1, -2**63])
+@pytest.mark.parametrize("shape", [(), (0,), (2, 3), (1024,)])
+def test_random_uniform_stream(frumpy_driver, seed, shape):
+    count = int(np.prod(shape))
+    status, actual = execute(frumpy_driver, "uniform_r64", np.zeros(shape), indices=[seed])
+    assert status == 0
+    assert actual.shape == shape
+    np.testing.assert_array_equal(actual.ravel(), reference_uniform(seed, count))
+    assert np.all((actual >= 0) & (actual < 1))
+
+
+@pytest.mark.parametrize("seed", [0, 1, -1])
+def test_random_normal_stream(frumpy_driver, seed):
+    uniform = reference_uniform(seed, 1000).reshape(-1, 2)
+    radius = np.sqrt(-2 * np.log1p(-uniform[:, 0]))
+    angle = 2 * np.pi * uniform[:, 1]
+    expected = np.column_stack([radius * np.cos(angle), radius * np.sin(angle)]).ravel()
+    status, actual = execute(frumpy_driver, "normal_r64", np.zeros(999), indices=[seed])
+    assert status == 0
+    np.testing.assert_allclose(actual, expected[:999], rtol=2e-13, atol=2e-14)
+
+
+def test_random_distribution_sanity(frumpy_driver):
+    status, uniform = execute(frumpy_driver, "uniform_r64", np.zeros(20000), indices=[2026])
+    assert status == 0
+    assert abs(np.mean(uniform) - .5) < .01
+    assert abs(np.var(uniform) - 1 / 12) < .005
+    status, normal = execute(frumpy_driver, "normal_r64", np.zeros(20000), indices=[2026])
+    assert status == 0
+    assert abs(np.mean(normal)) < .04
+    assert abs(np.var(normal) - 1) < .04
+
+
+@pytest.mark.parametrize("axes", [(0, 2), (2, 0), (-3, -2), (1, 1), (0, 3)])
+@pytest.mark.parametrize("keepdims", [False, True])
+def test_numpy_matrix_norm_axes(frumpy_driver, axes, keepdims):
+    source = np.arange(24.).reshape(2, 3, 4)[:, ::-1]
+    try:
+        expected = np.linalg.norm(source, ord="fro", axis=axes, keepdims=keepdims)
+    except (ValueError, IndexError):
+        assert execute(frumpy_driver, "matrix_norm_axes", source, side=int(keepdims),
+                       indices=axes)[0] == 2
+        return
+    status, actual = execute(frumpy_driver, "matrix_norm_axes", source, side=int(keepdims),
+                             indices=axes)
+    assert status == 0
+    assert actual.shape == expected.shape
+    np.testing.assert_allclose(actual, expected, rtol=2e-15, atol=1e-15)

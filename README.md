@@ -139,10 +139,12 @@ and [performance measurements](docs/PERFORMANCE.md).
 
 Float64 `outer_r64` multiplies operands flattened in C logical order.
 `matmul_r64` supports vectors, matrices and broadcast batches;
-`solve_r64` solves square systems with vector or matrix right-hand sides. See
+`solve_r64` solves broadcast batches of square systems with vector or matrix
+right-hand sides. Native `dot_r64`, scaled vector/Frobenius norms, and explicit
+seeded [uniform/normal generators](docs/RANDOM.md) are also implemented. See
 [linear algebra](docs/LINEAR_ALGEBRA.md) for the finite-input contract, LP64
-BLAS/LAPACK dependency and supported limits. Broader linear algebra, random
-generation, a C ABI, Python bindings, and measured performance work remain unfinished. Managed storage for all five registered
+BLAS/LAPACK dependency and supported limits. Broader linear algebra, a C ABI,
+Python bindings, and measured performance work remain unfinished. Managed storage for all five registered
 dtypes now retains aliases and views, with explicit limits on Fortran container
 copying. Borrowed external buffers still require caller lifetime management. See
 [storage lifetime](docs/STORAGE_LIFETIME.md). This is not yet a drop-in NumPy

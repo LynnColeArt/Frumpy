@@ -42,13 +42,13 @@ Implement in this order, keeping each change independently tested:
 - [x] B1: `outer_r64`, flattening both inputs in C logical order, scalar/empty
   inputs, arbitrary supported strides and IEEE values, owned rank-two output.
   Evidence: [LINEAR_ALGEBRA.md](LINEAR_ALGEBRA.md), 51 NumPy comparisons and Fortran invariants.
-- [ ] B2: `dot_r64`, including scalar multiplication and NumPy higher-rank
+- [x] B2: `dot_r64`, including scalar multiplication and NumPy higher-rank
   contraction rules; do not substitute matmul's batch broadcasting rules.
-- [ ] B3: float64 vector Euclidean norm and matrix Frobenius norm, documented
+- [x] B3: float64 vector Euclidean norm and matrix Frobenius norm, documented
   axis/keepdims subset, scaled accumulation and extreme-value tests.
-- [ ] B4: broadcast batched float64 solve, using NumPy 2.x RHS rank semantics;
+- [x] B4: broadcast batched float64 solve, using NumPy 2.x RHS rank semantics;
   retain finite-input, singularity and LP64 limits.
-- [ ] B5: explicit seeded generator state with float64 uniform [0,1) and standard
+- [x] B5: explicit seeded generator state with float64 uniform [0,1) and standard
   normal output. Freeze algorithm/state format, reproducibility scope and seed
   mapping; add golden streams, range checks and distribution sanity checks.
 
@@ -135,3 +135,9 @@ correctness finding and record the reason here. Preserve existing tests througho
   pass on GNU 13 and 14.
 
 See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
+
+- 2026-10-26: completed B2–B5: native dot, scaled vector/Frobenius norms,
+  broadcast batched solve, and explicit xoshiro256** uniform/normal generation.
+  GNU 14 ordinary validation: 28 Fortran programs and 2,195 Python tests.
+  GNU 14 memory gate: 2,167 compiled comparisons; overflow gate: 1,683 cases.
+  Full release compiler/platform acceptance remains open under E2. Next: C1.

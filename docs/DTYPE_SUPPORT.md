@@ -41,13 +41,13 @@ The current `r64` path includes:
 | Constructors and copies | `empty_r64`, `zeros_r64`, `ones_r64`, `full_r64`, `arange_r64`, `linspace_r64`, `asarray_r64`, `copy_r64`, `ascontiguousarray_r64` |
 | Broadcasting | `broadcast_plan_r64`, `broadcast_plan` |
 | Elementwise kernels | `add_r64`, `subtract_r64`, `multiply_r64`, `divide_r64`, `negate_r64`, `abs_r64`, `sqrt_r64`, `sin_r64`, `cos_r64`, `exp_r64`, `log_r64` |
-| Linear algebra | `outer_r64` (IEEE float64), `matmul_r64`, `solve_r64` (finite float64; see the linear algebra contract) |
+| Linear algebra | `outer_r64`, `dot_r64`, vector/Frobenius norms (IEEE float64), `matmul_r64`, `solve_r64` (finite float64; see the linear algebra contract) |
 | Reductions | `sum_r64`, `prod_r64`, `mean_r64`, `min_r64`, `max_r64` |
 | Selection and ordering | `where_r64`, `take_r64`, `concatenate_r64`, `stack_r64`, `sort_r64`, `argsort_r64`, `searchsorted_r64`, `nonzero_bool` (flat indices) |
 | Views and slicing | `reshape_r64`, `ravel_r64`, `flatten_r64`, `transpose_r64`, `swapaxes_r64`, `squeeze_r64`, `expand_dims_r64`, `slice_r64` |
 
 This is not full NumPy. See [selection support](SELECTION_SUPPORT.md) for the
-bounded indexing/ordering contract. Advanced indexing, random generation, FFTs, Python bindings, and C ABI work
+bounded indexing/ordering contract. Advanced indexing, FFTs, Python bindings, and C ABI work
 remain outside the current implementation. Float64 linear algebra has a bounded
 [matmul/solve surface](LINEAR_ALGEBRA.md), with finite-input and LP64 requirements.
 
@@ -235,3 +235,6 @@ should not terminate the process or silently fall back to another dtype.
 This dtype support surface does not add Torch compatibility, autograd, Diffusers
 support, GPU runtime design, model loading, tokenizers, SciPy replacement work,
 or Python packaging. Frumpy remains scoped to NumPy-compatible ndarray behavior.
+
+Float64 [uniform and standard normal generation](RANDOM.md) uses explicit seeded
+state and owned C-order results; it does not match NumPy random streams.

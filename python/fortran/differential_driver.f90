@@ -16,7 +16,9 @@ program differential_driver
   use frumpy, only: owned_descriptor_i64, view_descriptor_i64, &
     add_i64, subtract_i64, multiply_i64, divide_i64
   use frumpy, only: add, subtract, multiply, divide, binary_result_dtype
-  use frumpy, only: matmul_r64, solve_r64, outer_r64
+  use frumpy, only: random_generator, uniform_r64, normal_r64
+  use frumpy, only: vector_norm_r64, matrix_norm_r64
+  use frumpy, only: matmul_r64, solve_r64, outer_r64, dot_r64
   implicit none
 
   call run_case()
@@ -34,6 +36,8 @@ contains
     integer(int64), allocatable :: indices(:)
     integer(int32) :: axis0, count, side
     character(len=32) :: operation
+    type(random_generator) :: generator
+    integer(int64) :: seed
     logical :: integer_output
 
     read (*, *) operation, axis0, side
@@ -42,11 +46,37 @@ contains
     case ('mixed_add', 'mixed_subtract', 'mixed_multiply', 'mixed_divide')
       call run_mixed(operation(7:), axis0, side)
       return
-    case ('matmul_r64', 'solve_r64', 'outer_r64')
+    case ('uniform_r64', 'normal_r64')
+      call read_r64(lhs)
+      read (*, *) count
+      read (*, *) seed
+      call generator%seed(seed)
+      if (operation == 'uniform_r64') then
+        output = uniform_r64(generator, lhs%shape, status)
+      else
+        output = normal_r64(generator, lhs%shape, status)
+      end if
+    case ('vector_norm_r64', 'matrix_norm_r64', 'matrix_norm_axes')
+      call read_r64(lhs)
+      if (operation == 'matrix_norm_axes') then
+        read (*, *) count
+        allocate(indices(count))
+        read (*, *) indices
+        output = matrix_norm_r64(lhs, int(indices, int32), side == 1, status)
+      else if (operation == 'matrix_norm_r64') then
+        output = matrix_norm_r64(lhs, keepdims=side == 1, status=status)
+      else if (axis0 == 99) then
+        output = vector_norm_r64(lhs, keepdims=side == 1, status=status)
+      else
+        output = vector_norm_r64(lhs, axis0, side == 1, status)
+      end if
+    case ('matmul_r64', 'solve_r64', 'outer_r64', 'dot_r64')
       call read_r64(lhs)
       call read_r64(rhs)
       if (operation == 'matmul_r64') then
         output = matmul_r64(lhs, rhs, status)
+      else if (operation == 'dot_r64') then
+        output = dot_r64(lhs, rhs, status)
       else if (operation == 'outer_r64') then
         output = outer_r64(lhs, rhs, status)
       else

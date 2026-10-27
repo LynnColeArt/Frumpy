@@ -3,13 +3,15 @@ program test_linalg_r64
   use iso_fortran_env, only: int32, int64, real64
   use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan
   use frumpy, only: ndarray_r64, owned_descriptor_r64, view_descriptor_r64, &
-    matmul_r64, solve_r64, outer_r64, frumpy_status, FRUMPY_STATUS_INVALID_SHAPE, &
+    matmul_r64, solve_r64, outer_r64, dot_r64, frumpy_status, FRUMPY_STATUS_INVALID_SHAPE, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, FRUMPY_STATUS_UNSUPPORTED_DTYPE, &
     FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_SINGULAR_MATRIX, FRUMPY_DTYPE_I32
+  use frumpy, only: vector_norm_r64, matrix_norm_r64, FRUMPY_STATUS_INVALID_AXIS
   implicit none
 
   call exercise()
   call exercise_outer()
+  call exercise_numerical()
 
 contains
 
@@ -151,6 +153,67 @@ contains
     call require(status%is_ok(), 'outer huge empty avoids iteration')
     call require(all(source%shape == [huge(1_int64), 0_int64]), 'outer huge empty shape')
   end subroutine exercise_outer
+
+  subroutine exercise_numerical()
+    type(ndarray_r64) :: a, b, result, invalid, vector, matrix
+    type(frumpy_status) :: status
+    integer(int64) :: big
+
+    a = owned_descriptor_r64([2_int64, 2_int64])
+    a%data = [1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64]
+    b = view_descriptor_r64(a, [2_int64], [-1_int64], 2_int64)
+    result = dot_r64(a, b, status)
+    call require(status%is_ok(), 'dot status')
+    call require(all(abs(result%data - [4.0_real64, 10.0_real64]) < 1e-14_real64), 'dot values')
+    call require(result%owns_data .and. result%is_c_contiguous, 'dot owns C result')
+    vector = vector_norm_r64(a, axis0=0_int32, status=status)
+    call require(status%is_ok(), 'vector norm status')
+    call require(all(abs(vector%data - sqrt([10.0_real64, 20.0_real64])) < 1e-14_real64), &
+      'vector norm axis')
+    matrix = matrix_norm_r64(a, axes0=[1_int32, 0_int32], keepdims=.true., status=status)
+    call require(status%is_ok(), 'matrix norm axes status')
+    call require(all(matrix%shape == [1_int64, 1_int64]), 'matrix norm keepdims')
+    call require(abs(matrix%data(1) - sqrt(30.0_real64)) < 1e-14_real64, 'matrix norm value')
+    call a%release()
+    call b%release()
+    call require(abs(result%data(2) - 10.0_real64) < 1e-14_real64, 'dot lifetime')
+    call require(vector%has_storage() .and. matrix%has_storage(), 'norm lifetime')
+    result = matrix_norm_r64(matrix, axes0=[0_int32, 0_int32], status=status)
+    call require(status%code == FRUMPY_STATUS_INVALID_AXIS, 'norm duplicate axes')
+    call require(.not. result%has_storage(), 'norm error has no storage')
+    result = dot_r64(invalid, vector, status)
+    call require(status%code == FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, 'dot absent source')
+    result = vector_norm_r64(invalid, status=status)
+    call require(status%code == FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, 'norm absent source')
+    invalid = view_descriptor_r64(vector, [2_int64], [huge(1_int64)], 1_int64)
+    result = dot_r64(vector, invalid, status)
+    call require(status%code == FRUMPY_STATUS_INVALID_SHAPE, 'dot bounds')
+    result = vector_norm_r64(invalid, status=status)
+    call require(status%code == FRUMPY_STATUS_INVALID_SHAPE, 'norm bounds')
+    big = shiftr(huge(1_int64), 3) + 1_int64
+    a = view_descriptor_r64(vector, [big, 1_int64], [0_int64, 0_int64], 1_int64)
+    b = view_descriptor_r64(vector, [1_int64], [0_int64], 1_int64)
+    result = dot_r64(a, b, status)
+    call require(status%code == FRUMPY_STATUS_OVERFLOW, 'dot output bytes')
+    result = vector_norm_r64(a, axis0=1_int32, status=status)
+    call require(status%code == FRUMPY_STATUS_OVERFLOW, 'norm output bytes')
+    a = view_descriptor_r64(vector, [big, 1_int64, 1_int64], &
+      [0_int64, 0_int64, 0_int64], 1_int64)
+    result = solve_r64(a, b, status)
+    call require(status%code == FRUMPY_STATUS_OVERFLOW, 'batched solve output bytes')
+    a = owned_descriptor_r64([2_int64, 2_int64, 2_int64])
+    a%data = [1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64, &
+      0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64]
+    b = owned_descriptor_r64([2_int64])
+    b%data = 1.0_real64
+    result = solve_r64(a, b, status)
+    call require(status%code == FRUMPY_STATUS_SINGULAR_MATRIX, 'later batch singular')
+    call require(.not. result%has_storage(), 'partial solve result released')
+    a%data(5) = ieee_value(0.0_real64, ieee_quiet_nan)
+    result = solve_r64(a, b, status)
+    call require(status%code == FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, 'later batch nonfinite')
+    call require(.not. result%has_storage(), 'partial nonfinite result released')
+  end subroutine exercise_numerical
 
   subroutine require(condition, message)
     logical, intent(in) :: condition

@@ -28,6 +28,44 @@ shapes, layouts, nonfinite values, overflow/underflow and signed zeros against
 NumPy. Fortran invariants additionally check lifetime and malformed inputs,
 plus element/byte overflow and huge empty shapes without huge allocations.
 
+## Dot product
+
+`dot_r64(lhs, rhs, status)` accepts float64 descriptors and returns an independent
+C-order result. A scalar operand multiplies the other input elementwise. Otherwise
+it contracts the last left dimension against the only right dimension for a vector,
+or the second-last right dimension for a higher-rank array. The result shape is
+`lhs.shape[:-1] + rhs.shape[:-2] + rhs.shape[-1:]` for a matrix-or-higher RHS,
+and `lhs.shape[:-1]` for a vector RHS. Leading dimensions concatenate; they do
+not broadcast as in matmul. Empty contractions produce positive zeros.
+
+The native loop reads signed/zero strides without input copies, uses sequential
+float64 multiply/add accumulation, and accepts IEEE nonfinite values. It has no
+BLAS int32 core-dimension limit. Output rank is bounded by FRUMPY_MAX_RANK and
+result element/byte counts are checked before allocation. Numerical comparisons
+use rtol=atol=2e-13; accumulation order may differ from NumPy, and signed zeros in
+contracted results are not guaranteed bitwise identical. Scalar multiplication
+preserves the ordinary IEEE multiply result. Failures return no storage.
+
+## Euclidean and Frobenius norms
+
+`vector_norm_r64(source, axis0, keepdims, status)` reduces one axis, or flattens
+all axes when axis0 is absent. A scalar without axis0 returns its absolute value;
+a scalar with an explicit axis is invalid. `matrix_norm_r64(source, axes0,
+keepdims, status)` computes Frobenius norms over two distinct axes, defaulting
+to the final two dimensions. Rank must be at least two. Negative axes and
+keepdims are supported. Other norm orders are outside this release's contract.
+
+These native float64 kernels traverse metadata without input copies. Output is
+independent and C-order. Empty reductions are zero, NaN dominates infinity, and
+infinity dominates finite magnitudes. A scaled sum of squares avoids premature
+overflow/underflow. This deliberately improves on NumPy's direct squaring for
+extreme finite values: [3e300,4e300] gives 5e300, and [3e-300,4e-300] gives 5e-300.
+Tests compare ordinary cases to NumPy and extreme cases to widened NumPy
+arithmetic. The ordinary regression tolerance is rtol=2e-15, atol=1e-15 (zero
+absolute tolerance for extreme values), not a universal accuracy bound. Invalid
+or repeated axes return INVALID_AXIS; malformed source metadata is rejected
+before payload access. Failed calls return no storage.
+
 ## Matrix multiplication
 
 `matmul_r64` implements NumPy's vector and matrix shape rules:
@@ -49,9 +87,15 @@ adapter also packs contiguous inputs; no zero-copy backend fast path is claimed.
 
 ## Linear solve
 
-`solve_r64` solves `A X = B`, with a square rank-two A and either a rank-one or
-rank-two B. The first dimension of B must match A. X has the same shape as B.
-Batched solves are explicitly unsupported in this slice.
+`solve_r64` solves `A X = B`, with square final two dimensions of A. Only a
+rank-one B denotes a vector; every higher-rank B denotes matrices in its final
+two dimensions, matching NumPy 2.x. Leading A/B dimensions broadcast. Output
+has the broadcast batch shape followed by `[n]` for vector B or `[n,nrhs]` for
+matrix B. Incompatible core or batch dimensions return INVALID_SHAPE.
+Empty batches return without factorization. Signed/zero batch and core strides
+are supported, and one set of workspace buffers is reused across batches.
+If any batch is singular or nonfinite, the whole result is discarded and sources
+remain unchanged, even if earlier batches succeeded.
 
 LAPACK `DGESV` factors A with pivoting and overwrites its coefficient and RHS
 work arrays. Frumpy therefore packs both inputs into separate work arrays and
@@ -114,7 +158,7 @@ need their own ABI and numerical checks; no automatic backend selection is added
 The 126 compiled NumPy comparisons cover vector/matrix/batch promotion,
 broadcasting, layouts, empty dimensions, finite numerical results and residuals,
 pivoting, singular matrices, and shape errors. Tests also make the unsupported
-batched-solve/non-finite contracts explicit. `test/test_linalg_r64.f90` checks
+non-finite contracts explicit. `test/test_linalg_r64.f90` checks
 input preservation, independent owned results, lifetime, status omission,
 malformed metadata, and backend/workspace/output overflow guards without huge
 allocations. Both GNU memory and integer-overflow gates include these checks.
@@ -128,12 +172,12 @@ omitted. Explicit allocations have status paths, subject to the existing
 
 | Failure | Status |
 | --- | --- |
-| Missing source storage, non-finite matmul/solve values, or batched solve | `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR` |
+| Missing source storage or non-finite matmul/solve values | `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR` |
 | Invalid rank/shape/strides/offset, unreachable storage, or incompatible dimensions | `FRUMPY_STATUS_INVALID_SHAPE` |
 | Forged input dtype metadata | `FRUMPY_STATUS_UNSUPPORTED_DTYPE` |
 | LP64 dimension or byte-count overflow | `FRUMPY_STATUS_OVERFLOW` |
 | Explicit allocation failure | `FRUMPY_STATUS_ALLOCATION_FAILED` |
 | Singular coefficient matrix | `FRUMPY_STATUS_SINGULAR_MATRIX` |
 
-This slice does not add mixed-dtype linear algebra, standalone `dot`,
-other factorizations, norms, random generation, or Python/C bindings.
+Mixed-dtype linear algebra, other factorizations and Python/C bindings remain
+outside this numerical slice. [Random generation](RANDOM.md) has a separate contract.

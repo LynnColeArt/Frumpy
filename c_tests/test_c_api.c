@@ -37,6 +37,24 @@ int main(void) {
   assert(frumpy_export(transposed,NULL,6)==FRUMPY_INVALID_SHAPE);
   ok(frumpy_release(transposed));
   ok(frumpy_release(scalar));
+  /* Float32 linalg uses four-byte buffers and owns results after input release. */
+  int64_t square[2]={2,2};
+  float coefficients[4]={2,0,0,4}, rhs32[4]={2,4,8,12}, answer32[4];
+  frumpy_handle left32=0,right32=0,solution32=0,product32=0;
+  ok(frumpy_import(FRUMPY_R32,2,square,FRUMPY_C,coefficients,4,&left32));
+  ok(frumpy_import(FRUMPY_R32,2,square,FRUMPY_F,rhs32,4,&right32));
+  ok(frumpy_linalg(FRUMPY_SOLVE,left32,right32,&solution32));
+  ok(frumpy_linalg(FRUMPY_MATMUL,left32,right32,&product32));
+  ok(frumpy_release(left32));
+  ok(frumpy_release(right32));
+  ok(frumpy_export(solution32,answer32,4));
+  assert(answer32[0]==1 && answer32[1]==2 && answer32[2]==2 && answer32[3]==3);
+  ok(frumpy_info(product32,&dtype,&rank,actual_shape,strides,2,&offset,&flags));
+  assert(dtype==FRUMPY_R32 && rank==2 && (flags&1) && (flags&4));
+  ok(frumpy_export(product32,answer32,4));
+  assert(answer32[0]==4 && answer32[1]==8 && answer32[2]==32 && answer32[3]==48);
+  ok(frumpy_release(solution32));
+  ok(frumpy_release(product32));
   /* Rehashing and registry reset must preserve retains and release all storage. */
   frumpy_handle many[2048];
   for (int i=0;i<2048;i++)

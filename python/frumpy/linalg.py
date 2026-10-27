@@ -1,4 +1,4 @@
-"""Finite float64 solve and bounded Euclidean/Frobenius norms."""
+"""Finite float32/float64 solve and bounded Euclidean/Frobenius norms."""
 import numpy as np
 from . import _ffi, _linalg
 from ._array import asarray, ndarray, axis_value

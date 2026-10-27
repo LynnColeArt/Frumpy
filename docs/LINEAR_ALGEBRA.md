@@ -1,4 +1,4 @@
-# Float64 linear algebra
+# Floating linear algebra
 
 `outer_r64(lhs, rhs, status)`, `matmul_r64(lhs, rhs, status)` and
 `solve_r64(lhs, rhs, status)` accept
@@ -9,6 +9,14 @@ results. `status` is optional. Inputs retain their values and metadata.
 product = matmul_r64(a, b, status)
 solution = solve_r64(a, rhs, status)
 ```
+
+Float32 `matmul_r32` and `solve_r32` accept `ndarray_r32` and return owned
+C-order float32 results with the same shape, lifetime and failure contracts.
+The C ABI uses the existing `frumpy_linalg` operations 3/4 with two R32 handles;
+Python `matmul`, `@` and `linalg.solve` preserve float32 for two float32 inputs.
+Mixed float32/float64 pairs and integer inputs are rejected with unsupported
+dtype; callers can cast explicitly. Float32 dot, outer and norms remain separate
+future work. Existing float64 APIs and C ABI version 1 remain compatible.
 
 ## Outer product
 
@@ -68,7 +76,7 @@ before payload access. Failed calls return no storage.
 
 ## Matrix multiplication
 
-`matmul_r64` implements NumPy's vector and matrix shape rules:
+`matmul_r32` and `matmul_r64` implement NumPy's vector and matrix shape rules:
 
 - A vector times a vector produces a rank-zero descriptor.
 - A matrix times a vector, or a vector times a matrix, produces a vector.
@@ -80,7 +88,7 @@ before payload access. Failed calls return no storage.
 
 The kernel traverses C/F-order arrays, transposes, reversed/stepped views, and
 zero strides through their metadata. When both rank-two inputs are C-contiguous,
-`DGEMM` computes the transposed product directly into the C-order result, without
+`SGEMM`/`DGEMM` compute the transposed product directly into the C-order result, without
 packing inputs or allocating an output work buffer. When both are F-contiguous,
 inputs are also read directly, but an output work buffer is copied into C order.
 Actual shape/strides determine eligibility; offsets and singleton dimensions are
@@ -95,7 +103,7 @@ contract, rather than a bitwise accumulation-order promise.
 
 ## Linear solve
 
-`solve_r64` solves `A X = B`, with square final two dimensions of A. Only a
+`solve_r32` and `solve_r64` solve `A X = B`, with square final two dimensions of A. Only a
 rank-one B denotes a vector; every higher-rank B denotes matrices in its final
 two dimensions, matching NumPy 2.x. Leading A/B dimensions broadcast. Output
 has the broadcast batch shape followed by `[n]` for vector B or `[n,nrhs]` for
@@ -105,7 +113,7 @@ are supported, and one set of workspace buffers is reused across batches.
 If any batch is singular or nonfinite, the whole result is discarded and sources
 remain unchanged, even if earlier batches succeeded.
 
-LAPACK `DGESV` factors A with pivoting and overwrites its coefficient and RHS
+LAPACK `SGESV`/`DGESV` factor A with pivoting and overwrite their coefficient and RHS
 work arrays. Frumpy therefore packs both inputs into separate work arrays and
 copies the solution into owned C-order storage. A zero-order system returns an
 empty result. When A has positive order and B has zero columns, factorization
@@ -136,8 +144,19 @@ choices can change rounding. The finite comparison corpus uses `rtol=2e-13` and
 `atol=2e-13`; this is a regression tolerance, not a global error bound or a
 bitwise guarantee. Signed-zero output bits are not specified for these kernels.
 
+Float32 computes in single precision through SGEMM/SGESV, including pivoting
+and elimination. The installed NumPy 2.4.6 solve path computes with its double
+precision `dd->d` loop and casts float32 results back; Frumpy intentionally does
+not widen its float32 workspace. Consequently ill-conditioned systems can have
+larger forward error or different zero-pivot classification. No condition
+estimator or refinement is provided. Well-conditioned float32 comparisons use
+`rtol=atol=2e-5`, plus a scaled residual check below `32*epsilon(float32)` on the
+specified test corpus. These are test tolerances, not universal accuracy bounds.
+For workloads requiring the float64 calculation, cast inputs to float64 explicitly.
+Float32 result/workspace overflow guards use four bytes per element.
+
 The matmul/solve backend interface requires conventional LP64 Fortran BLAS/LAPACK: signed int32
-dimensions and pivots, real64 double precision, and compatible Fortran symbol
+dimensions and pivots, real32 single or real64 double precision, and compatible Fortran symbol
 and character calling conventions. ILP64 backends are unsupported. Core dimensions
 are limited to int32 range, even for empty operations. Work-array and result
 byte counts are checked for int64 overflow before allocation; array shapes,
@@ -189,11 +208,15 @@ omitted. Explicit allocations have status paths, subject to the existing
 | Explicit allocation failure | `FRUMPY_STATUS_ALLOCATION_FAILED` |
 | Singular coefficient matrix | `FRUMPY_STATUS_SINGULAR_MATRIX` |
 
-Mixed-dtype linear algebra, other factorizations and Python/C bindings remain
-outside this numerical slice. [Random generation](RANDOM.md) has a separate contract.
+Mixed-dtype linear algebra and other factorizations remain outside this slice. [Random generation](RANDOM.md) has a separate contract.
 
 
 OpenBLAS 0.3.26 LP64 pthread was additionally validated on this Linux host with
 GNU 14 release and one thread. The full differential suite includes singular
 empty-RHS solves. CI now includes a separate LP64 OpenBLAS job. Backend choice
 remains a build/runtime configuration; this does not change Frumpy's defaults.
+
+Float32-specific coverage is in `test/test_linalg_r32.f90` and
+`python/tests/test_float32_linalg.py`, including direct native, raw C ABI and
+Python calls, singular empty RHS, late-batch failure, signed/zero/offset strides,
+input preservation, scaled residuals, unsupported promotion and overflow guards.

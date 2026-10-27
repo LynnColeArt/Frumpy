@@ -347,3 +347,14 @@ def test_binary_array_pair_preserves_view_metadata():
                 np.testing.assert_array_equal(result.numpy(), np.arange(12.).reshape(3, 4).T * 2)
             assert left.strides == (32, -8)
             assert right.flags.f_contiguous
+
+
+@pytest.mark.parametrize("order", ["C", "F"])
+def test_float32_matmul_solve_package(order):
+    a = np.array([[4, 1], [1, 3]], dtype=np.float32, order=order)
+    b = np.array([[1, 2], [3, 4]], dtype=np.float32, order=order)
+    with fp.asarray(a, order='K') as lhs, fp.asarray(b, order='K') as rhs:
+        with lhs @ rhs as product, fp.linalg.solve(lhs, rhs) as solution:
+            assert product.dtype == solution.dtype == np.dtype(np.float32)
+            np.testing.assert_allclose(product.numpy(), a@b, rtol=2e-5, atol=2e-5)
+            np.testing.assert_allclose(solution.numpy(), np.linalg.solve(a,b), rtol=2e-5, atol=2e-5)

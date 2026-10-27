@@ -1,4 +1,4 @@
-!> C entry points for the bounded float64 numerical surface.
+!> C entry points for the bounded floating numerical surface.
 module frumpy_c_numerical
   use iso_c_binding, only: c_ptr, c_int32_t, c_int64_t
   use iso_fortran_env, only: int32, int64
@@ -7,6 +7,7 @@ module frumpy_c_numerical
   use frumpy_statuses, only: frumpy_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
     FRUMPY_STATUS_UNSUPPORTED_DTYPE, FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_INVALID_AXIS
   use frumpy_operands, only: descriptor_dtype
+  use frumpy, only: ndarray_r32, matmul_r32, solve_r32
   use frumpy, only: ndarray_r64, outer_r64, dot_r64, matmul_r64, solve_r64, &
     vector_norm_r64, matrix_norm_r64
   implicit none
@@ -20,6 +21,7 @@ contains
     integer(c_int64_t), pointer :: out
     type(handle_slot), pointer :: left, right, slot
     type(frumpy_status) :: status
+    integer(int32) :: dtype
 
     call output_pointer(output, out, status)
     code = status%code
@@ -33,11 +35,27 @@ contains
     code = FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR
     if (operation < 1 .or. operation > 4) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(left%array) /= 5 .or. descriptor_dtype(right%array) /= 5) return
-    call new_array_slot(5_int32, slot, status)
+    dtype = descriptor_dtype(left%array)
+    if (dtype /= descriptor_dtype(right%array)) return
+    if (dtype /= 5_int32) then
+      if (dtype /= 4_int32 .or. operation < 3) return
+    end if
+    call new_array_slot(dtype, slot, status)
     code = status%code
     if (status%is_failure()) return
     select type (a => left%array)
+    type is (ndarray_r32)
+      select type (b => right%array)
+      type is (ndarray_r32)
+        select type (c => slot%array)
+        type is (ndarray_r32)
+          if (operation == 3) then
+            c = matmul_r32(a, b, status)
+          else
+            c = solve_r32(a, b, status)
+          end if
+        end select
+      end select
     type is (ndarray_r64)
       select type (b => right%array)
       type is (ndarray_r64)

@@ -145,8 +145,8 @@ whitespace. See [building](docs/BUILDING.md), [compiler portability](docs/COMPIL
 and [performance measurements](docs/PERFORMANCE.md).
 
 Float64 `outer_r64` multiplies operands flattened in C logical order.
-`matmul_r64` supports vectors, matrices and broadcast batches;
-`solve_r64` solves broadcast batches of square systems with vector or matrix
+`matmul_r32/r64` supports float32/float64 vectors, matrices and broadcast batches;
+`solve_r32/r64` solves broadcast batches of square systems with vector or matrix
 right-hand sides. Native `dot_r64`, scaled vector/Frobenius norms, and explicit
 seeded [uniform/normal generators](docs/RANDOM.md) are also implemented. See
 [linear algebra](docs/LINEAR_ALGEBRA.md) for the finite-input contract, LP64

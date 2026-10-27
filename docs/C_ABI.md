@@ -63,7 +63,8 @@ already normalized, strict native bounds; the C API does not clip Python slices.
 Reshape is C-contiguous-only and does not infer dimensions. Copy order A/K uses
 the bounded native policy. Norm calls take zero axes for defaults, one for a
 vector axis, or two for matrix axes. Matrix norms are Frobenius; vector norms
-are Euclidean. All numerical backend calls require float64 arrays.
+are Euclidean. Matmul/solve accept two arrays of the same float32 or float64 dtype and return
+that dtype. Dot/outer/norms still require float64. Mixed-dtype pairs are rejected.
 
 Where, take, joins, sorting, search, mask extraction and assignment retain the
 bounded contracts in [SELECTION_SUPPORT.md](SELECTION_SUPPORT.md) and

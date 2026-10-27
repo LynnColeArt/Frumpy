@@ -191,3 +191,14 @@ costs. Native kernels remain unchanged. A small Python array-pair dispatch
 change skips redundant conversion; paired sample ratios improve modestly, while
 whole-session medians remain noisy. Full measurements, unchanged allocation
 counts, a discarded metadata-buffer experiment and validation are retained.
+
+
+## Float32 matmul and solve — 2026-10-27
+
+[The implementation and benchmark report](performance/float32-linalg-2026-10-27/README.md)
+compares float32 and float64 through native Fortran, C ABI, Python and matched
+LP64 backends. On one-thread OpenBLAS, 512-square C matmul takes 2.73–3.09 ms
+for float32 versus 5.03–5.21 ms for float64; solve takes 4.83–5.96 versus
+11.52–11.67 ms. These are precision tradeoffs, not equal-accuracy speedups.
+Payload/workspace real storage halves; tiny timings remain noisy. NumPy's
+float32 solve widens internally, while Frumpy uses SGESV, as documented.

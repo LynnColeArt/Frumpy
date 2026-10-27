@@ -224,3 +224,13 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   configurations and one-thread OpenBLAS pass 3,081 Python tests; ABI/package
   ASan and UBSan each pass 410. See `performance/recheck-2026-10-27/README.md`
   and `validation/recheck-2026-10-27.json` for scope, raw timings and limitations.
+
+- 2026-10-27: additive functionality at `1793767`: same-dtype float32 matmul and
+  solve across native, C ABI and Python. Six compiler configurations pass 36
+  native programs, two examples, the C caller and 3,423 Python tests; one-thread
+  OpenBLAS also passes. Native memory/overflow gates, 752 combined ABI/package/
+  float32 ASan and UBSan cases, fpm and 362 isolated-install package tests pass.
+  See `validation/float32-linalg-2026-10-27.json` and
+  `performance/float32-linalg-2026-10-27/README.md`. Single-precision solve accuracy
+  differences from NumPy's widened path are explicit; mixed-dtype linalg remains
+  outside this slice. No merge, release tag or package publication performed.

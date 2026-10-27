@@ -44,7 +44,11 @@ repeatable performance checks for the supported release surface.
 
 Use the v0.1 coverage table to select small releases, not blanket parity claims:
 
-- Float32 linear algebra, then dtype-promotion-aware matmul/dot/outer.
+- Completed 2026-10-27: float32 matmul/solve across native, C and Python, with
+  single-precision backend semantics, six-compiler validation and matched-backend
+  benchmarks. See [the report](performance/float32-linalg-2026-10-27/README.md).
+  Next: float32 dot/outer, then dtype-promotion-aware matmul/dot/outer; norms are
+  a separately bounded extension.
 - Complex64/complex128 descriptors, storage, casting, promotion, arithmetic and
   conjugation, followed by complex reductions and linear algebra.
 - Remaining constructors, integer unary operations, multi-axis reductions,

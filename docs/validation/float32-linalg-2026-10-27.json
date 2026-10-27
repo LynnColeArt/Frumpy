@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-27",
+  "source_commit": "1793767954a5f54b8e91cbdb4c5a4ef4995168c0",
+  "native_programs": 36,
+  "examples": 2,
+  "matrix": [
+    {
+      "configuration": "gfortran-13-debug",
+      "native_and_examples": "pass",
+      "c_caller": "pass",
+      "python_tests": 3423,
+      "native_validation_log_sha256": "e7f98c9836e41420e5019d45e27f49bb8cd1ad3e48a9a039294803085a68de85",
+      "final_python_log_sha256": "7ef8fe30c3e31fb2230221d9c0bce062a45f21965aeaca59964aa6cad218c4b6",
+      "library_sha256": "2afaafc409e0807cc00591633923b933648f935a5ff73456a3939088c4572ff2"
+    },
+    {
+      "configuration": "gfortran-13-release",
+      "native_and_examples": "pass",
+      "c_caller": "pass",
+      "python_tests": 3423,
+      "native_validation_log_sha256": "fc51536f56a15962e4ea4f5b5e68be3106747c82571519bfaf89488e3adc2312",
+      "final_python_log_sha256": "2b6e59e5f1b0ff6d5f9539f5293183fe07bf47fd5570145ef5f5bad7feab6e0e",
+      "library_sha256": "5a254e154f2ea71e141b83b9aabc40b6b61ba5ec373c0237a07ac800844ad09d"
+    },
+    {
+      "configuration": "gfortran-14-debug",
+      "native_and_examples": "pass",
+      "c_caller": "pass",
+      "python_tests": 3423,
+      "native_validation_log_sha256": "cc7a72aa3255cc524a34f16f1a59419fc0ba3ee83ee1abfd77e7be82513fd53e",
+      "final_python_log_sha256": "af83d62fe42032ce8c5e0c3dee4d0ee9160a0032c3755ce07b5643d02c42f32e",
+      "library_sha256": "03b10319fa3bf9bb65158f0e1074d58e2491c6403258e45f2a06bbe82f7d516c"
+    },
+    {
+      "configuration": "gfortran-14-release",
+      "native_and_examples": "pass",
+      "c_caller": "pass",
+      "python_tests": 3423,
+      "native_validation_log_sha256": "d20ba2a370565a843fd84e1681cf13f1cf1b707b17a5df51ce91702ddeefade7",
+      "final_python_log_sha256": "b85d4b4f707c2095c46374e99922007b652629b550927828e87ca6632e77c8d0",
+      "library_sha256": "8c483b9bdb89b3e4116ff1d7bc0024812ab9dd4a9320dbd925c6e8815ac9efed"
+    },
+    {
+      "configuration": "flang-new-debug",
+      "native_and_examples": "pass",
+      "c_caller": "pass",
+      "python_tests": 3423,
+      "native_validation_log_sha256": "09e22293685b120a867a1af8f4e356df156fe9b538d33698e560232c68966d13",
+      "final_python_log_sha256": "b23b79dee0f45b5fd5239946634d888fdbc1a2f178d2c56deb2f6916de7911a8",
+      "library_sha256": "b844c90acf2cd2bc24e1b102424943d5d32ad03513ce804af23682236cd8ed91"
+    },
+    {
+      "configuration": "flang-new-release",
+      "native_and_examples": "pass",
+      "c_caller": "pass",
+      "python_tests": 3423,
+      "native_validation_log_sha256": "a0637d88a6dd8f24211bd05ac44d29e0aa6389ae6e2d7ee34cf870ecfb1c1182",
+      "final_python_log_sha256": "78813534d9137376e6491249cddd37e4f5536e591a15f42dc34fbacc6373b03d",
+      "library_sha256": "f10365a142b526c503563e7b42f6d4aeacc763c513ea8af3362a96e6d80daf42"
+    }
+  ],
+  "openblas": {
+    "version": "0.3.26+ds-1ubuntu0.1 LP64 pthread",
+    "compiler": "GNU 14 release",
+    "threads": 1,
+    "native_programs": 36,
+    "examples": 2,
+    "python_tests": 3423,
+    "full_validation_log_sha256": "3edfc376bccb72ee55bda71eac6dea509ed746e657ec89272b2d876cd39b8c84",
+    "final_python_log_sha256": "9a58d36c396b0f73da7a5381fc2dcc0b94cede6e50a7a378f5fffd2ca720e525"
+  },
+  "sanitizers": {
+    "compiler": "GNU 14",
+    "native_memory_differential_tests": 2643,
+    "native_overflow_differential_tests": 2159,
+    "abi_package_float32_asan_tests": 752,
+    "abi_package_float32_ubsan_tests": 752,
+    "native_float32_leak_and_overflow_checks": "pass",
+    "standalone_c_leak_detection": true,
+    "python_asan_leak_detection": false,
+    "backend_libraries_sanitized": false,
+    "log_sha256": {
+      "f32-gates.log": "0f765ac24deb43d564260351e27724c8d4201fbfd4bd0b537a14bd11e63ef07d",
+      "f32-native-extra.log": "72c6e6e11e42db35fed729890067169564010c7725874bac53f9be0f2b88be9e",
+      "f32-asan-final-python.log": "87c4ab45486cc465a68e28bc36a575431252f2b87f44a3cd64d23f02f40375ab",
+      "f32-ubsan-final-python.log": "524e1462bfc02b18ba0d98cb720cfe98c612831af61b83df24d323fdebf44c30"
+    }
+  },
+  "fpm": {
+    "compiler": "GNU 14",
+    "native_programs": 36,
+    "result": "pass",
+    "log_sha256": "75127b3b8e07cbdacd46f7ecf982ba551dfa0a1277326a90b43a9903c2a71215"
+  },
+  "source_install": {
+    "isolated_environment": true,
+    "numpy": "2.4.6",
+    "package_tests": 362,
+    "result": "pass",
+    "log_sha256": "d73d53180e04f4077de5af08ad128735e66b7d56e1193e2f6f13c2172bbc8b38"
+  }
+}

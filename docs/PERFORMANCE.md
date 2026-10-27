@@ -1,7 +1,7 @@
 # Frumpy versus NumPy: initial speed baseline
 
-The current kernels prioritize explicit ndarray semantics. They are not yet
-competitive with NumPy on the measured workloads. The checked-in measurements
+The initial kernels prioritized explicit ndarray semantics and showed large
+gaps against NumPy on the measured workloads. The checked-in measurements
 below establish a baseline for optimization, using actual compiled Frumpy
 calls and actual NumPy calls with the same input values.
 
@@ -122,3 +122,17 @@ PYTHONPATH=python FRUMPY_LIBRARY="$PWD/build/gcc14-release/libfrumpy.so" \
 Stop other build/benchmark jobs before collecting comparison samples. Preserve
 the raw source/configuration metadata and compare multiple runs before setting
 performance regression thresholds.
+
+
+## Stable sorting improvement — 2026-10-27
+
+Stable sort/argsort now use merge sort with small insertion runs and lazy,
+reusable workspace. The [controlled before/after report](performance/sort-2026-10-27/README.md)
+records two seven-sample measurement pairs and the memory tradeoff. Native
+8,192-element sorting improved from 10.8–18.9 ms to 0.225–0.384 ms; the
+conservative observed gain is 28×. Larger unsorted inputs show greater gains.
+Tiny and already-sorted results are noisy/roughly flat, so no universal speedup
+is claimed. The frozen v0.1 baseline remains unchanged for historical comparison.
+
+Next: profile and optimize contiguous arithmetic/reduction traversal, comparing
+concrete native and mixed-dispatch paths separately.

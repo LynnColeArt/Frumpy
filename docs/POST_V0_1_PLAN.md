@@ -14,9 +14,10 @@ time. Include small latency-bound arrays and large bandwidth-bound arrays.
 The frozen [v0.1 baseline](PERFORMANCE.md#v01-frozen-baseline--2026-10-26)
 sets the first experiment queue:
 
-1. Replace stable insertion sort with an efficient stable algorithm, preserving
-   NaN/signed-zero ordering and argsort stability. Start with the 8,192-element
-   case, then sweep size and row layouts.
+1. Completed 2026-10-27: stable merge sorting with small insertion runs and lazy
+   workspace; NaN/signed-zero ordering and argsort stability preserved. See the
+   [before/after evidence](performance/sort-2026-10-27/README.md). Keep these
+   workloads as regression cases, including small and already-sorted inputs.
 2. Profile contiguous and strided arithmetic/reductions, comparing concrete
    native kernels with the mixed dispatcher used by Python. Add validated
    contiguous loops where they reduce traversal costs.

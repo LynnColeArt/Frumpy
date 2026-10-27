@@ -186,3 +186,12 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   settings and seven timing samples. See `validation/v0.1.json`,
   `performance/v0.1-native.json` and `performance/v0.1-python.json`.
   Candidate is ready for review; no merge, tag or package publication performed.
+
+- 2026-10-27: review follow-up fixed scalar-axis int32 truncation and mutable
+  Python contiguity flags. First performance change replaces quadratic sort/
+  argsort with stable merges, small insertion runs and lazy reusable buffers.
+  At `61a6bba`, all six compiler configurations pass 35 native programs, two
+  examples, 2,839 Python tests and the C caller. GNU 14 memory/overflow gates
+  and 168 ABI/package ASan/UBSan tests pass. The original v0.1 baseline is retained;
+  `performance/sort-2026-10-27/README.md` records repeated comparisons and timing
+  variability. No merge, release tag or package publication performed.

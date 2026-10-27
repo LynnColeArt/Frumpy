@@ -45,6 +45,16 @@ int main(void) {
   ok(frumpy_import(FRUMPY_R32,2,square,FRUMPY_F,rhs32,4,&right32));
   ok(frumpy_linalg(FRUMPY_SOLVE,left32,right32,&solution32));
   ok(frumpy_linalg(FRUMPY_MATMUL,left32,right32,&product32));
+  frumpy_handle dot32=0,outer32=0;
+  ok(frumpy_linalg(FRUMPY_DOT,left32,right32,&dot32));
+  ok(frumpy_linalg(FRUMPY_OUTER,left32,right32,&outer32));
+  ok(frumpy_export(dot32,answer32,4));
+  assert(answer32[0]==4 && answer32[1]==8 && answer32[2]==32 && answer32[3]==48);
+  float outer_values[16];
+  ok(frumpy_export(outer32,outer_values,16));
+  assert(outer_values[0]==4 && outer_values[3]==24 && outer_values[15]==48);
+  ok(frumpy_release(dot32));
+  ok(frumpy_release(outer32));
   ok(frumpy_release(left32));
   ok(frumpy_release(right32));
   ok(frumpy_export(solution32,answer32,4));

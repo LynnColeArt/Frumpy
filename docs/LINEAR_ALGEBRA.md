@@ -15,18 +15,18 @@ C-order float32 results with the same shape, lifetime and failure contracts.
 The C ABI uses the existing `frumpy_linalg` operations 3/4 with two R32 handles;
 Python `matmul`, `@` and `linalg.solve` preserve float32 for two float32 inputs.
 Mixed float32/float64 pairs and integer inputs are rejected with unsupported
-dtype; callers can cast explicitly. Float32 dot, outer and norms remain separate
+dtype; callers can cast explicitly. Float32 dot and outer are supported below; float32 norms remain separate
 future work. Existing float64 APIs and C ABI version 1 remain compatible.
 
 ## Outer product
 
-`outer_r64` follows NumPy `outer`: flatten both operands in C logical order,
+`outer_r32` and `outer_r64` follow NumPy `outer`: flatten both operands in C logical order,
 then return shape `[lhs.size(), rhs.size()]`. Scalars have one element; an empty
 operand produces an empty rank-two result. C/F layouts, transposes, stepped,
 negative and zero strides are read directly. Inputs are not flattened into
 work buffers; only the independent result payload is allocated.
 
-This native float64 multiplication kernel accepts NaNs and infinities, follows
+These native float32/float64 multiplication kernels accept NaNs and infinities, follow
 IEEE arithmetic (including signed zeros), and has no BLAS int32 dimension limit.
 Element and byte counts are checked for int64 overflow before output allocation.
 An empty result returns without traversing either operand. Floating-point traps
@@ -53,6 +53,39 @@ result element/byte counts are checked before allocation. Numerical comparisons
 use rtol=atol=2e-13; accumulation order may differ from NumPy, and signed zeros in
 contracted results are not guaranteed bitwise identical. Scalar multiplication
 preserves the ordinary IEEE multiply result. Failures return no storage.
+
+### Float32 dot accumulation
+
+`dot_r32` implements the same scalar, vector and higher-rank contraction shapes
+as `dot_r64`, with a float32 result. It uses a fixed balanced pairwise reduction:
+contractions longer than 32 terms split at `floor(k/2)`, recursively sum each
+half, then add the two results. Leaves of at most 32 terms accumulate in increasing
+logical contraction-index order, starting from positive zero. Products and sums
+use real32; there is no explicit float64 widening, BLAS dispatch, product buffer
+or fast-math. Recursion needs logarithmic stack depth and no heap workspace.
+Float64 dot retains its existing sequential accumulation policy.
+
+This reduces the long sequential dependency and limits rounding growth but is
+not compensated summation, a guarantee of greater accuracy than NumPy, or a
+bitwise compatibility promise. NumPy's BLAS uses its own reduction order.
+Ordinary float32 comparisons use rtol=atol=2e-5. Long finite, normal-range cases
+also check a term-magnitude-scaled error bound against float64 products/sums;
+near-zero results are assessed with absolute error, not relative error alone.
+Cancellation can still lose small terms inside a leaf. Overflow, underflow and
+NaN/infinity propagation follow floating arithmetic and can differ by summation
+order; trapping modes and fast-math remain outside the supported contract.
+
+Empty contractions return positive zero. Scalar dot bypasses reduction and uses
+ordinary float32 multiplication, including signed zeros; this deliberately
+matches `numpy.multiply` zero signs even when `numpy.dot` normalizes them through
+BLAS. Outer also preserves multiply zero signs. Contracted-dot zero signs and
+NaN payloads are not specified. Four-byte result-size guards apply before
+allocation; these native kernels have no BLAS int32 dimension restriction.
+
+Native, C ABI and Python expose both products for two float32 inputs without
+promotion. Mixed-dtype pairs remain unsupported. Tests cover rank limits,
+virtual overflow, independent ownership, failure without status, signed/zero
+strides, nonfinite values, long contractions and cancellation across interfaces.
 
 ## Euclidean and Frobenius norms
 

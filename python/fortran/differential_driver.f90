@@ -24,7 +24,7 @@ program differential_driver
   use frumpy, only: astype
   use frumpy, only: random_generator, uniform_r64, normal_r64
   use frumpy, only: vector_norm_r64, matrix_norm_r64
-  use frumpy, only: matmul_r32, solve_r32
+  use frumpy, only: matmul_r32, solve_r32, dot_r32, outer_r32
   use frumpy, only: matmul_r64, solve_r64, outer_r64, dot_r64
   use frumpy, only: copy_bool, asarray_bool, ascontiguousarray_bool, &
     zeros_bool, ones_bool, full_bool
@@ -131,11 +131,15 @@ contains
       else
         output = vector_norm_r64(lhs, axis0, side == 1, status)
       end if
-    case ('matmul_r32', 'solve_r32')
+    case ('matmul_r32', 'solve_r32', 'dot_r32', 'outer_r32')
       call read_r32(lhs32)
       call read_r32(rhs32)
       if (operation == 'matmul_r32') then
         output32 = matmul_r32(lhs32, rhs32, status)
+      else if (operation == 'dot_r32') then
+        output32 = dot_r32(lhs32, rhs32, status)
+      else if (operation == 'outer_r32') then
+        output32 = outer_r32(lhs32, rhs32, status)
       else
         output32 = solve_r32(lhs32, rhs32, status)
       end if

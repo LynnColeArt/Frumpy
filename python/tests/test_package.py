@@ -358,3 +358,15 @@ def test_float32_matmul_solve_package(order):
             assert product.dtype == solution.dtype == np.dtype(np.float32)
             np.testing.assert_allclose(product.numpy(), a@b, rtol=2e-5, atol=2e-5)
             np.testing.assert_allclose(solution.numpy(), np.linalg.solve(a,b), rtol=2e-5, atol=2e-5)
+
+
+@pytest.mark.parametrize("operation", ["dot", "outer"])
+def test_float32_products_package(operation):
+    a = np.arange(12,dtype=np.float32).reshape(3,4)
+    b = np.arange(8,dtype=np.float32).reshape(4,2)
+    with fp.asarray(a) as lhs,fp.asarray(b) as rhs:
+        result = getattr(fp,operation)(lhs,rhs)
+    with result:
+        assert result.dtype == np.dtype(np.float32)
+        assert result.flags.owndata and result.flags.c_contiguous
+        np.testing.assert_allclose(result.numpy(),getattr(np,operation)(a,b),rtol=2e-5,atol=2e-5)

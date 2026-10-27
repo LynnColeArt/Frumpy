@@ -25,7 +25,7 @@ use suffixes `_bool`, `_i32`, `_i64`, `_r32`, `_r64` where concrete.
 | Stable sort/indices | float64, indices return int64 | `sort_r64`, `argsort_r64` | `sort`, `argsort` | `test_sorting_r64`, differential sort, ABI/package |
 | Ordered search | float64, returns int64 | `searchsorted_r64` | `searchsorted` | `test_searching_r64`, differential search, ABI/package |
 | Flat nonzero | bool, returns int64 | `nonzero_bool` | `flatnonzero` | `test_selection_r64`, differential selection, ABI/package |
-| Outer/dot | float64 | `outer_r64`, `dot_r64` | `outer`, `dot` | `test_linalg_r64`, differential outer/dot, ABI/package |
+| Outer/dot | same-dtype float32/float64 | `outer_r32/r64`, `dot_r32/r64` | `outer`, `dot` | `test_products_r32`, `test_linalg_r64`, differential/ABI/package products |
 | Matmul/solve | same-dtype finite float32/float64, LP64 backend | `matmul_r32/r64`, `solve_r32/r64` | `matmul`, `@`, `linalg.solve` | `test_linalg_r32/r64`, differential matmul/solve, `test_float32_linalg`, ABI/package |
 | Euclidean/Frobenius norms | float64 | `vector_norm_r64`, `matrix_norm_r64` | `linalg.vector_norm/matrix_norm` | `test_linalg_r64`, differential norms, ABI/package |
 | Uniform/standard normal | float64 output | explicit `random_generator`, `uniform_r64`, `normal_r64` | `random.default_rng`, `Generator.random/standard_normal/state` | `test_random`, differential random, ABI/package state tests |
@@ -64,6 +64,6 @@ Random reproducibility is in [RANDOM.md](RANDOM.md). Container-copy and compiler
 allocation limitations are in [STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).
 
 No complex/object/string/time dtypes, arbitrary advanced indices, boolean
-assignment, integer unary kernels, float32 dot/outer/norms, multi-axis reduction
+assignment, integer unary kernels, float32 norms, multi-axis reduction
 tuples, FFT, GPU, autograd, zero-copy Python interchange or broad Array API
 conformance are implied. These remain post-v0.1 work.

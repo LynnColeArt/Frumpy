@@ -102,12 +102,6 @@ def test_float32_linalg_promotion_remains_explicit(handles, left, right, op):
                  handles.put(np.eye(2,dtype=right)), status=5)
 
 
-@pytest.mark.parametrize('op', [1, 2])
-def test_float32_outer_dot_still_unsupported(handles, op):
-    a = handles.put(np.ones(3, dtype=np.float32))
-    handles.make('linalg', op, a, a, status=5)
-
-
 @pytest.mark.parametrize('operation,a,b', [
     ('matmul', np.array(1), np.eye(2)),
     ('matmul', np.eye(2), np.array(1)),

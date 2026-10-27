@@ -48,7 +48,7 @@ int32_t frumpy_reduce(int32_t op, frumpy_handle source, int32_t has_axis,
    copy=zero/one order; transpose/ravel/flatten/ascontiguous=no parameters. */
 int32_t frumpy_view(int32_t op, frumpy_handle source, const int64_t *parameters,
                     int32_t count, frumpy_handle *out);
-/* MATMUL/SOLVE accept same-dtype R32 or R64 pairs; OUTER/DOT require R64. */
+/* OUTER/DOT/MATMUL/SOLVE accept same-dtype R32 or R64 pairs. */
 int32_t frumpy_linalg(int32_t op, frumpy_handle lhs, frumpy_handle rhs, frumpy_handle *out);
 int32_t frumpy_norm(int32_t matrix, frumpy_handle source, const int64_t *axes,
                     int32_t count, int32_t keepdims, frumpy_handle *out);

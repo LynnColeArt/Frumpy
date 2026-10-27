@@ -75,8 +75,9 @@ through native `astype`; see [conversion departures](ARRAY_OPERATIONS.md).
 
 Constructors, arithmetic, comparisons, boolean logical operations, views and
 reductions follow the [coverage table](DTYPE_SUPPORT.md). Float64 arange/linspace,
-selection, stable sorting, ordered search, dot/outer and Euclidean/Frobenius norms are exposed. Matmul and batched solve
-accept same-dtype float32 or float64 pairs and preserve that dtype. Other
+selection, stable sorting, ordered search and Euclidean/Frobenius norms are
+exposed. Dot, outer, matmul and batched solve accept same-dtype float32 or float64
+pairs and preserve that dtype. Float32 dot uses bounded pairwise accumulation. Other
 non-float64 selection/numerical input and mixed linalg pairs are rejected; see
 [linear algebra](LINEAR_ALGEBRA.md) for precision and backend limits. `flatnonzero` accepts bool only.
 Reduction results remain Frumpy arrays, including rank-zero results; use `.item()`

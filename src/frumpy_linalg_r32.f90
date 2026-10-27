@@ -2,6 +2,7 @@
 module frumpy_linalg_r32
   use iso_fortran_env, only: int32, int64, real32
   use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+  use frumpy_products_r32, only: dot_r32, outer_r32
   use frumpy_linalg_backend, only: sgemm, sgesv
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_from_metadata
   use frumpy_constructors_r32, only: validate_source => validate_r32
@@ -14,7 +15,7 @@ module frumpy_linalg_r32
     FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_SINGULAR_MATRIX
   implicit none
   private
-  public :: matmul_r32, solve_r32
+  public :: matmul_r32, solve_r32, dot_r32, outer_r32
 
 contains
 

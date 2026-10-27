@@ -52,6 +52,7 @@ SOURCES := \
 	src/frumpy_comparisons.f90 \
 	src/frumpy_arithmetic.f90 \
 	src/frumpy_indexing_r64.f90 \
+	src/frumpy_products_r32.f90 \
 	src/frumpy_products_r64.f90 \
 	src/frumpy_norms_r64.f90 \
 	src/frumpy_linalg_backend.f90 \
@@ -93,6 +94,7 @@ FORTRAN_TESTS := \
 	test/test_constructors_r64.f90 \
 	test/test_constructors_dtypes.f90 \
 	test/test_broadcast.f90 \
+	test/test_products_r32.f90 \
 	test/test_linalg_r32.f90 \
 	test/test_linalg_r64.f90 \
 	test/test_random.f90 \
@@ -158,6 +160,7 @@ memory-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/memory/bin/test_release_edges" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes" \
+		"$(BUILD_DIR)/memory/bin/test_products_r32" \
 		"$(BUILD_DIR)/memory/bin/test_linalg_r32" \
 		"$(BUILD_DIR)/memory/bin/test_linalg_r64" \
 		"$(BUILD_DIR)/memory/bin/test_random" \
@@ -177,6 +180,7 @@ memory-test: $(PY_DEPS_STAMP)
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_release_edges"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_products_r32"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_linalg_r32"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_linalg_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_random"
@@ -201,7 +205,9 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 	$(MAKE) BUILD_DIR="$(BUILD_DIR)/integer-overflow" \
 		FFLAGS="$(FFLAGS) -ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_release_edges" \
-		"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r32" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_products_r32" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_products_r32"
+	"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r32" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_random" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_array_casting" \
@@ -215,6 +221,7 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/integer-overflow/bin/test_elementwise_integer" \
 		"$(BUILD_DIR)/integer-overflow/bin/differential_driver"
 	"$(BUILD_DIR)/integer-overflow/bin/test_release_edges"
+	"$(BUILD_DIR)/integer-overflow/bin/test_products_r32"
 	"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r32"
 	"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64"
 	"$(BUILD_DIR)/integer-overflow/bin/test_random"
@@ -310,7 +317,7 @@ c-memory-test: $(PY_DEPS_STAMP)
 		FRUMPY_LIBRARY="$(abspath $(BUILD_DIR)/c-memory/libfrumpy.so)" \
 		FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/c-memory/bin/differential_driver)" \
 		$(VENV_PY) -m pytest -q python/tests/test_c_boundary.py python/tests/test_package.py \
-		python/tests/test_float32_linalg.py
+		python/tests/test_float32_linalg.py python/tests/test_float32_products.py
 
 # Linux/glibc only; run separately from ASan's own malloc interposition.
 .PHONY: registry-allocation-test

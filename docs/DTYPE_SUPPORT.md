@@ -41,7 +41,7 @@ The current `r64` path includes:
 | Constructors and copies | `empty_r64`, `zeros_r64`, `ones_r64`, `full_r64`, `arange_r64`, `linspace_r64`, `asarray_r64`, `copy_r64`, `ascontiguousarray_r64` |
 | Broadcasting | `broadcast_plan_r64`, `broadcast_plan` |
 | Elementwise kernels | `add_r64`, `subtract_r64`, `multiply_r64`, `divide_r64`, `negate_r64`, `abs_r64`, `sqrt_r64`, `sin_r64`, `cos_r64`, `exp_r64`, `log_r64` |
-| Linear algebra | `outer_r64`, `dot_r64`, vector/Frobenius norms (IEEE float64), `matmul_r32/r64`, `solve_r32/r64` (same-dtype finite float32/float64; see the linear algebra contract) |
+| Linear algebra | `outer_r32/r64`, `dot_r32/r64` (IEEE float32/float64), vector/Frobenius norms (IEEE float64), `matmul_r32/r64`, `solve_r32/r64` (same-dtype finite float32/float64; see the linear algebra contract) |
 | Reductions | `sum_r64`, `prod_r64`, `mean_r64`, `min_r64`, `max_r64` |
 | Selection and ordering | `where_r64`, `take_r64`, `concatenate_r64`, `stack_r64`, `sort_r64`, `argsort_r64`, `searchsorted_r64`, `nonzero_bool` (flat indices) |
 | Views and slicing | `reshape_r64`, `ravel_r64`, `flatten_r64`, `transpose_r64`, `swapaxes_r64`, `squeeze_r64`, `expand_dims_r64`, `slice_r64` |

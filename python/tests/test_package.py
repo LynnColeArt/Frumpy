@@ -143,3 +143,53 @@ def test_selection_numerical_random():
     rng.close()
     with pytest.raises(ReferenceError):
         rng.random()
+
+
+@pytest.mark.parametrize('axis', [2, -2, 2**32, -(2**32), 2**64])
+@pytest.mark.parametrize('dtype', DTYPES)
+def test_scalar_reduction_axis_does_not_wrap(axis, dtype):
+    a = fp.asarray(np.array(1, dtype=dtype))
+    operation = a.all if dtype is np.bool_ else a.sum
+    with pytest.raises((IndexError, ValueError, OverflowError)):
+        operation(axis=axis)
+
+
+def test_layout_flags_are_read_only():
+    a = fp.asarray(np.arange(6.).reshape(2, 3)).T
+    for name in ('c_contiguous', 'f_contiguous', 'owndata'):
+        with pytest.raises(AttributeError):
+            setattr(a.flags, name, True)
+    contiguous = fp.asarray(a, order='C')
+    assert contiguous is not a
+    assert contiguous.flags.c_contiguous
+    assert contiguous.strides == (16, 8)
+    np.testing.assert_array_equal(contiguous.numpy(), a.numpy())
+
+
+@pytest.mark.parametrize('size', [0, 1, 15, 16, 17, 31, 32, 33, 65, 257, 1025])
+@pytest.mark.parametrize('layout', ['C', 'F', 'reverse', 'step', 'transpose'])
+def test_stable_sort_run_boundaries(size, layout):
+    rng = np.random.default_rng(512)
+    data = rng.integers(-5, 6, (3, size)).astype(np.float64)
+    if size:
+        payloads = np.arange(data[:, ::7].size, dtype=np.uint64).reshape(data[:, ::7].shape)
+        data[:, ::7].view(np.uint64)[:] = payloads + np.uint64(0x7ff8000000000001)
+        data[:, 1::7] = -0.0
+        data[:, 2::7] = 0.0
+        data[:, 3::11] = np.inf
+        data[:, 4::11] = -np.inf
+    source = fp.asarray(data, order='F' if layout == 'F' else 'C')
+    if layout == 'reverse':
+        data, source = data[:, ::-1], source[:, ::-1]
+    elif layout == 'step':
+        data, source = data[:, ::2], source[:, ::2]
+    elif layout == 'transpose':
+        data, source = data.T, source.T
+    original = source.numpy().view(np.uint64).copy()
+    for axis in range(data.ndim):
+        expected_indices = np.argsort(data, axis=axis, kind='stable')
+        expected_values = np.take_along_axis(data, expected_indices, axis=axis)
+        with fp.argsort(source, axis=axis) as indices, fp.sort(source, axis=axis) as values:
+            np.testing.assert_array_equal(indices.numpy(), expected_indices)
+            np.testing.assert_array_equal(values.numpy().view(np.uint64), expected_values.view(np.uint64))
+    np.testing.assert_array_equal(source.numpy().view(np.uint64), original)

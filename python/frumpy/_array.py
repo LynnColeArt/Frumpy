@@ -2,10 +2,12 @@
 import ctypes as C
 import math
 import operator
-from types import SimpleNamespace
+from collections import namedtuple
 
 import numpy as np
 from . import _ffi
+
+_ArrayFlags = namedtuple("_ArrayFlags", "c_contiguous f_contiguous owndata")
 
 DTYPES = tuple(np.dtype(t) for t in (np.bool_, np.int32, np.int64, np.float32, np.float64))
 ORDERS = {"C": 0, "F": 1, "A": 2, "K": 3}
@@ -66,7 +68,7 @@ class ndarray(_ffi.OwnedHandle):
         self._strides = tuple(int(n) * self.dtype.itemsize for n in strides[:rank.value])
         self._ndim = rank.value
         self._size = math.prod(self.shape)
-        self._flags = SimpleNamespace(c_contiguous=bool(flags.value & 1),
+        self._flags = _ArrayFlags(c_contiguous=bool(flags.value & 1),
                                      f_contiguous=bool(flags.value & 2),
                                      owndata=bool(flags.value & 4))
 
@@ -245,7 +247,11 @@ class ndarray(_ffi.OwnedHandle):
 
     def _reduce(self, op, axis=None, keepdims=False):
         if axis is not None:
-            axis = axis_value(axis, self.ndim) if self.ndim else operator.index(axis)
+            axis = operator.index(axis)
+            if self.ndim:
+                axis = axis_value(axis, self.ndim)
+            elif axis not in (-1, 0):
+                raise IndexError("axis out of range for scalar")
         return ndarray(_ffi.make("reduce", op, self._handle, axis is not None,
                                  axis or 0, bool(keepdims)))
 

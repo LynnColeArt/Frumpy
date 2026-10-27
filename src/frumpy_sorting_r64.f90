@@ -1,4 +1,4 @@
-!> Initial r64 sorting helpers for sort and argsort.
+!> Stable r64 sorting with bounded insertion runs and reusable merge workspace.
 module frumpy_sorting_r64
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   use iso_fortran_env, only: int32, int64, real64
@@ -18,6 +18,8 @@ module frumpy_sorting_r64
 
   public :: sort_r64
   public :: argsort_r64
+
+  integer(int64), parameter :: SORT_RUN_LENGTH = 16_int64
 
 contains
 
@@ -192,7 +194,9 @@ contains
     integer(int64), allocatable :: outer_index0(:)
     integer(int64), allocatable :: outer_shape(:)
     integer(int64), allocatable :: slice_indices(:)
-    real(real64), allocatable :: slice_values(:)
+    real(real64), allocatable :: slice_values(:), work_values(:)
+    integer(int64), allocatable :: work_indices(:)
+    integer(int64) :: work_size
     integer(int64) :: axis_extent
     integer(int64) :: item1
     integer :: alloc_stat
@@ -203,8 +207,11 @@ contains
     end if
 
     axis_extent = source%shape(axis_dim1)
+    work_size = 0_int64
+    if (axis_extent > SORT_RUN_LENGTH) work_size = axis_extent
     allocate(outer_index0(source%rank), outer_shape(source%rank), &
-      slice_indices(axis_extent), slice_values(axis_extent), stat=alloc_stat)
+      slice_indices(axis_extent), slice_values(axis_extent), &
+      work_indices(work_size), work_values(work_size), stat=alloc_stat)
     if (alloc_stat /= 0) then
       call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "sort_r64 work allocation failed")
@@ -218,7 +225,7 @@ contains
     do
       call gather_sorted_slice(source, outer_index0, axis_dim1, slice_values, &
         slice_indices)
-      call sort_slice_pairs(slice_values, slice_indices)
+      call sort_slice_pairs(slice_values, slice_indices, work_values, work_indices)
 
       do item1 = 1_int64, axis_extent
         outer_index0(axis_dim1) = item1 - 1_int64
@@ -241,7 +248,9 @@ contains
     integer(int64), allocatable :: outer_index0(:)
     integer(int64), allocatable :: outer_shape(:)
     integer(int64), allocatable :: slice_indices(:)
-    real(real64), allocatable :: slice_values(:)
+    real(real64), allocatable :: slice_values(:), work_values(:)
+    integer(int64), allocatable :: work_indices(:)
+    integer(int64) :: work_size
     integer(int64) :: axis_extent
     integer(int64) :: item1
     integer :: alloc_stat
@@ -252,8 +261,11 @@ contains
     end if
 
     axis_extent = source%shape(axis_dim1)
+    work_size = 0_int64
+    if (axis_extent > SORT_RUN_LENGTH) work_size = axis_extent
     allocate(outer_index0(source%rank), outer_shape(source%rank), &
-      slice_indices(axis_extent), slice_values(axis_extent), stat=alloc_stat)
+      slice_indices(axis_extent), slice_values(axis_extent), &
+      work_indices(work_size), work_values(work_size), stat=alloc_stat)
     if (alloc_stat /= 0) then
       call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "argsort_r64 work allocation failed")
@@ -267,7 +279,7 @@ contains
     do
       call gather_sorted_slice(source, outer_index0, axis_dim1, slice_values, &
         slice_indices)
-      call sort_slice_pairs(slice_values, slice_indices)
+      call sort_slice_pairs(slice_values, slice_indices, work_values, work_indices)
 
       do item1 = 1_int64, axis_extent
         outer_index0(axis_dim1) = item1 - 1_int64
@@ -299,34 +311,95 @@ contains
     end do
   end subroutine gather_sorted_slice
 
-  subroutine sort_slice_pairs(values, indices)
+  subroutine sort_slice_pairs(values, indices, work_values, work_indices)
     real(real64), intent(inout) :: values(:)
     integer(int64), intent(inout) :: indices(:)
-    integer(int64) :: item1
-    integer(int64) :: item2
-    real(real64) :: key_value
-    integer(int64) :: key_index
+    real(real64), intent(inout) :: work_values(:)
+    integer(int64), intent(inout) :: work_indices(:)
+    integer(int64) :: count, first, middle, last, width, left, right, output
 
-    do item1 = 2_int64, int(size(values), int64)
+    count = size(values, kind=int64)
+    first = 1_int64
+    do while (first <= count)
+      last = first + min(SORT_RUN_LENGTH, count - first + 1_int64) - 1_int64
+      call insertion_run(values, indices, first, last)
+      first = last + 1_int64
+    end do
+
+    width = SORT_RUN_LENGTH
+    do while (width < count)
+      first = 1_int64
+      do while (first <= count - width)
+        middle = first + width - 1_int64
+        last = middle + min(width, count - middle)
+        ! Already ordered adjacent runs need neither merging nor copying.
+        if (.not. precedes(values(middle), values(middle + 1_int64))) then
+          left = first
+          right = middle + 1_int64
+          do output = first, last
+            if (left > middle) then
+              work_values(output) = values(right)
+              work_indices(output) = indices(right)
+              right = right + 1_int64
+            else if (right > last) then
+              work_values(output) = values(left)
+              work_indices(output) = indices(left)
+              left = left + 1_int64
+            else if (precedes(values(left), values(right))) then
+              work_values(output) = values(left)
+              work_indices(output) = indices(left)
+              left = left + 1_int64
+            else
+              work_values(output) = values(right)
+              work_indices(output) = indices(right)
+              right = right + 1_int64
+            end if
+          end do
+          values(first:last) = work_values(first:last)
+          indices(first:last) = work_indices(first:last)
+        end if
+        first = last + 1_int64
+      end do
+      ! Saturate instead of overflowing when doubling the run length.
+      if (width >= count - width) exit
+      width = width * 2_int64
+    end do
+  end subroutine sort_slice_pairs
+
+  logical function precedes(left, right)
+    real(real64), intent(in) :: left, right
+
+    ! Take the left element on ties, including signed zeros and pairs of NaNs.
+    if (ieee_is_nan(right)) then
+      precedes = .true.
+    else if (ieee_is_nan(left)) then
+      precedes = .false.
+    else
+      precedes = left <= right
+    end if
+  end function precedes
+
+  subroutine insertion_run(values, indices, first, last)
+    real(real64), intent(inout) :: values(:)
+    integer(int64), intent(inout) :: indices(:)
+    integer(int64), intent(in) :: first, last
+    integer(int64) :: item1, item2, key_index
+    real(real64) :: key_value
+
+    do item1 = first + 1_int64, last
       key_value = values(item1)
       key_index = indices(item1)
       item2 = item1 - 1_int64
-
-      do while (item2 >= 1_int64)
-        ! NumPy sorts NaNs last; equal values retain their original order.
-        if (ieee_is_nan(key_value)) exit
-        if (.not. ieee_is_nan(values(item2))) then
-          if (values(item2) <= key_value) exit
-        end if
+      do while (item2 >= first)
+        if (precedes(values(item2), key_value)) exit
         values(item2 + 1_int64) = values(item2)
         indices(item2 + 1_int64) = indices(item2)
         item2 = item2 - 1_int64
       end do
-
       values(item2 + 1_int64) = key_value
       indices(item2 + 1_int64) = key_index
     end do
-  end subroutine sort_slice_pairs
+  end subroutine insertion_run
 
   integer(int64) function storage_position(offset, strides, index0) result(pos)
     integer(int64), intent(in) :: offset

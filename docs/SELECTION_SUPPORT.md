@@ -43,15 +43,22 @@ identical output strides for every arbitrary strided input.
 ## Explicit limits
 
 This is a bounded subset of NumPy's indexing surface. Multidimensional index
-arrays, advanced indexing, boolean gather/scatter, indexed assignment, `out`,
+arrays, arbitrary advanced indexing, boolean scatter, `out`,
 `take` modes `clip`/`wrap`, join `axis=None`, sort `axis=None`, selectable sort
 algorithms, and searchsorted's `sorter` argument are not exposed. `searchsorted`
 expects an already sorted source, just as the corresponding NumPy call does;
 it does not scan for sortedness before each binary search.
 
-Sorting currently uses stable insertion sort, with quadratic worst-case time
-per axis slice. No large-array performance claim is made. Non-float64 value
-kernels and mixed-dtype array execution remain separate work. Float64 results,
+Sorting uses stable bottom-up merge sort with insertion runs of at most 16
+values. Worst-case work per axis slice is O(n log n); already ordered adjacent
+runs skip merging. Both sort and argsort share the ordering rule: NaNs last,
+left element first on ties, preserving signed zeros and NaN payload order.
+Two merge buffers (float64 values and int64 indices) add 16 bytes per axis
+element for slices longer than 16. They are allocated once per operation and
+reused across slices, in addition to the existing 16-byte-per-element gather
+buffers and the result. Allocation failures remain recoverable through status.
+Non-float64 selection kernels remain separate work. Full-shape bool extraction
+and basic-view assignment are documented in [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). Float64 results,
 boolean masks, and integer index results now use managed shared storage; see
 [storage lifetime](STORAGE_LIFETIME.md) for supported assignment/release
 operations, borrowed-buffer rules, and container-copy limits.
@@ -75,3 +82,10 @@ remain part of `make test`.
 The bridge is test infrastructure, not a C ABI or Python package. Existing
 `test_numpy_*.py` files remain reference fixtures; only the compiled differential
 suite executes Frumpy alongside the oracle.
+
+
+The public Python regressions additionally cover sizes around insertion/merge
+boundaries, non-power-of-two runs, C/F/reversed/stepped/transposed inputs, exact
+argsort stability, distinct NaN payloads, signed zeros and source preservation.
+`benchmarks/compare_sort.py` compares allocating native and Python calls against
+the original insertion-sort library with identical compiler/profile settings.

@@ -50,7 +50,7 @@ handle; garbage collection also releases it. Closing a parent does not invalidat
 its views. A context manager is available for deterministic release. Calls are
 serialized around the native registry. Public dtype/shape/strides/ndim/size
 metadata is read-only; Python strides are in bytes. Flags expose C/F contiguity
-and ownership, not a writable-buffer interface.
+and ownership as immutable metadata, not a writable-buffer interface.
 
 Basic indexing supports integers, slices (including clipping/negative steps),
 one ellipsis and new axes. Integer-only scalar indexing returns a NumPy scalar;
@@ -92,3 +92,9 @@ behavior/casting policy), or ReferenceError (closed/invalid handle). Existing
 arrays remain valid after reported failures. Native reductions may return NaN
 without issuing NumPy's warning; accumulation/tolerance departures remain those
 of the Fortran API.
+
+
+Scalar reduction axes are validated in Python before conversion to the ABI's
+int32 axis type, so oversized Python integers cannot wrap to a valid axis.
+Only -1 and 0 reach native scalar-axis handling; operation-specific restrictions
+(such as float64 explicit scalar axes) remain unchanged.

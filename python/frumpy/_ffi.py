@@ -34,6 +34,8 @@ _ERRORS = {
 
 def library():
     global _library
+    if _library is not None:
+        return _library
     with _lock:
         if _library is None:
             path = os.environ.get("FRUMPY_LIBRARY", str(Path(__file__).with_name("libfrumpy.so")))

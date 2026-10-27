@@ -9,11 +9,28 @@ program test_linalg_r64
   use frumpy, only: vector_norm_r64, matrix_norm_r64, FRUMPY_STATUS_INVALID_AXIS
   implicit none
 
+  call exercise_empty_rhs()
   call exercise()
   call exercise_outer()
   call exercise_numerical()
 
 contains
+
+  subroutine exercise_empty_rhs()
+    type(ndarray_r64) :: a, b, result
+    type(frumpy_status) :: status
+
+    a = owned_descriptor_r64([2_int64, 2_int64])
+    b = owned_descriptor_r64([2_int64, 0_int64])
+    a%data = [1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64]
+    result = solve_r64(a, b, status)
+    call require(status%is_ok(), 'nonsingular empty RHS')
+    call require(result%size() == 0_int64, 'empty RHS result remains empty')
+    a%data = 0.0_real64
+    result = solve_r64(a, b, status)
+    call require(status%code == FRUMPY_STATUS_SINGULAR_MATRIX, 'singular empty RHS')
+    call require(.not. result%has_storage(), 'singular empty RHS has no result')
+  end subroutine exercise_empty_rhs
 
   subroutine exercise()
     type(ndarray_r64) :: a, b, rhs, result, solution, reversed, invalid, other

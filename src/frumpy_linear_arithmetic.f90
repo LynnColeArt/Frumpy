@@ -4,6 +4,7 @@ module frumpy_linear_arithmetic
   implicit none
   private
   public :: linear_step, linear_binary_r32, linear_binary_r64
+  public :: row_binary_r32, row_binary_r64
 
 contains
 
@@ -100,5 +101,61 @@ contains
       end do
     end select
   end subroutine linear_binary_r64
+
+  ! Input bounds are validated by callers; only outer coordinates need decoding.
+  subroutine row_binary_r32(left, right, output, left_offset, right_offset, &
+      shape, left_strides, right_strides, operation, index0)
+    real(real32), intent(in) :: left(:), right(:)
+    real(real32), intent(out) :: output(:)
+    integer(int64), intent(in) :: left_offset, right_offset, shape(:)
+    integer(int64), intent(in) :: left_strides(:), right_strides(:)
+    integer(int32), intent(in) :: operation
+    integer(int64), intent(out) :: index0(:)
+    integer(int64) :: first, width, left_base, right_base
+    integer :: rank, dim1
+
+    rank = size(shape)
+    width = shape(rank)
+    index0 = 0_int64
+    do first = 1_int64, size(output, kind=int64), width
+      left_base = left_offset + sum(index0 * left_strides)
+      right_base = right_offset + sum(index0 * right_strides)
+      call linear_binary_r32(left, right, output(first:first + width - 1_int64), &
+        left_base, right_base, left_strides(rank), right_strides(rank), operation)
+      do dim1 = rank - 1, 1, -1
+        index0(dim1) = index0(dim1) + 1_int64
+        if (index0(dim1) < shape(dim1)) exit
+        index0(dim1) = 0_int64
+      end do
+    end do
+  end subroutine row_binary_r32
+
+  ! Input bounds are validated by callers; only outer coordinates need decoding.
+  subroutine row_binary_r64(left, right, output, left_offset, right_offset, &
+      shape, left_strides, right_strides, operation, index0)
+    real(real64), intent(in) :: left(:), right(:)
+    real(real64), intent(out) :: output(:)
+    integer(int64), intent(in) :: left_offset, right_offset, shape(:)
+    integer(int64), intent(in) :: left_strides(:), right_strides(:)
+    integer(int32), intent(in) :: operation
+    integer(int64), intent(out) :: index0(:)
+    integer(int64) :: first, width, left_base, right_base
+    integer :: rank, dim1
+
+    rank = size(shape)
+    width = shape(rank)
+    index0 = 0_int64
+    do first = 1_int64, size(output, kind=int64), width
+      left_base = left_offset + sum(index0 * left_strides)
+      right_base = right_offset + sum(index0 * right_strides)
+      call linear_binary_r64(left, right, output(first:first + width - 1_int64), &
+        left_base, right_base, left_strides(rank), right_strides(rank), operation)
+      do dim1 = rank - 1, 1, -1
+        index0(dim1) = index0(dim1) + 1_int64
+        if (index0(dim1) < shape(dim1)) exit
+        index0(dim1) = 0_int64
+      end do
+    end do
+  end subroutine row_binary_r64
 
 end module frumpy_linear_arithmetic

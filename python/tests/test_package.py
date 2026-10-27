@@ -278,3 +278,49 @@ def test_result_metadata_buffers(dtype, rank):
     assert result.flags.c_contiguous and result.flags.f_contiguous and result.flags.owndata
     np.testing.assert_array_equal(result.numpy(), np.ones(shape, dtype=dtype) + np.ones(shape, dtype=dtype))
     result.close()
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.float64])
+@pytest.mark.parametrize("width", [0, 1, 4, 8, 17, 128])
+@pytest.mark.parametrize("layout", ["row", "column", "transpose", "reversed"])
+def test_row_arithmetic(dtype, width, layout):
+    a = (np.arange(3 * width, dtype=dtype) + 1).reshape(3, width)
+    if layout == "transpose":
+        a = a.T.copy().T
+    elif layout == "reversed":
+        a = a[:, ::-1]
+    owner = fp.asarray(np.ascontiguousarray(a[:, ::-1])) if layout == "reversed" else fp.asarray(a, order="K")
+    fa = owner[:, ::-1] if layout == "reversed" else owner
+    b = np.full((3, 1) if layout == "column" else (1, width), 2, dtype=dtype)
+    with fp.asarray(b) as fb:
+        for operation in ("add", "subtract", "multiply", "divide"):
+            with getattr(fp, operation)(fa, fb) as actual:
+                np.testing.assert_array_equal(actual.numpy(), getattr(np, operation)(a, b))
+    np.testing.assert_array_equal(fa.numpy(), a)
+
+
+@pytest.mark.parametrize("shape", [(1, 1, 1), (1, 17, 3), (3, 17, 1), (7, 9, 11), (2, 0, 3)])
+@pytest.mark.parametrize("layout", ["C", "F", "leftF", "rightF", "offset", "stepped"])
+def test_matmul_output_layout(shape, layout):
+    m, k, n = shape
+    a = np.arange(m*k, dtype=np.float64).reshape(m,k) / max(1,k)
+    b = np.arange(k*n, dtype=np.float64).reshape(k,n) / max(1,n)
+    if layout == "F":
+        a, b = np.asfortranarray(a), np.asfortranarray(b)
+    if layout == "leftF":
+        a = np.asfortranarray(a)
+    elif layout == "rightF":
+        b = np.asfortranarray(b)
+    fa, fb = fp.asarray(a, order="K"), fp.asarray(b, order="K")
+    if layout == "offset":
+        fa = fp.asarray(np.concatenate([np.zeros((1,k)), a]))[1:]
+        fb = fp.asarray(np.concatenate([np.zeros((1,n)), b]))[1:]
+    elif layout == "stepped":
+        pa, pb = np.zeros((m, k*2)), np.zeros((k,n*2))
+        pa[:, ::2], pb[:, ::2] = a, b
+        fa, fb = fp.asarray(pa)[:, ::2], fp.asarray(pb)[:, ::2]
+    with fa @ fb as actual:
+        np.testing.assert_allclose(actual.numpy(), a @ b, rtol=2e-12, atol=2e-12)
+        assert actual.flags.c_contiguous
+    np.testing.assert_array_equal(fa.numpy(), a)
+    np.testing.assert_array_equal(fb.numpy(), b)

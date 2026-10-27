@@ -1,4 +1,4 @@
-!> Float64 outer, matmul and solve; backend calls use explicit column-major work arrays.
+!> Float64 outer, matmul and solve; backend calls preserve C-order results.
 module frumpy_linalg_r64
   use iso_fortran_env, only: int32, int64, real64
   use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
@@ -7,6 +7,7 @@ module frumpy_linalg_r64
   use frumpy_access_r64, only: validate_source => validate_r64
   use frumpy_products_r64, only: outer_r64, dot_r64
   use frumpy_ndarray_r64, only: ndarray_r64, owned_descriptor_r64
+  use frumpy_strides, only: is_c_contiguous, is_f_contiguous
   use frumpy_shape, only: element_count
   use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_OK, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
@@ -26,9 +27,11 @@ contains
     type(frumpy_status) :: local_status
     type(broadcast_plan) :: plan
     integer(int64), allocatable :: shape(:), index0(:)
-    real(real64), allocatable :: a(:, :), b(:, :), c(:, :)
+    real(real64), allocatable :: a(:, :), b(:, :)
     integer(int64) :: m, n, k, rhs_k, row_stride, column_stride, left_k_stride, right_k_stride
     integer(int64) :: row0, column0, inner0, batch1, left_base, right_base, output_base, count
+    integer(int32) :: left_ld, right_ld
+    character(len=1) :: left_trans, right_trans
     integer(int32) :: left_batch_rank, right_batch_rank, output_rank, dim1, alloc_stat
 
     call validate_source(lhs, local_status)
@@ -115,7 +118,40 @@ contains
       if (present(status)) call set_status(status, FRUMPY_STATUS_OK)
       return
     end if
-    allocate(a(m, k), b(k, n), c(m, n), stat=alloc_stat)
+    ! Contiguous C/F matrices use C^T = B^T A^T without input packing.
+    if (lhs%rank == 2_int32 .and. rhs%rank == 2_int32) then
+      if ((is_c_contiguous(lhs%shape, lhs%strides) .or. &
+          is_f_contiguous(lhs%shape, lhs%strides)) .and. &
+          (is_c_contiguous(rhs%shape, rhs%strides) .or. &
+          is_f_contiguous(rhs%shape, rhs%strides))) then
+        if (.not. all(ieee_is_finite(lhs%data(lhs%offset:lhs%offset + m*k - 1_int64))) &
+            .or. .not. all(ieee_is_finite(rhs%data(rhs%offset:rhs%offset + k*n - 1_int64)))) then
+          call array%release()
+          call set_status(local_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+            "matmul currently requires finite input values")
+          if (present(status)) status = local_status
+          return
+        end if
+        left_trans = 'T'
+        left_ld = int(m, int32)
+        if (is_c_contiguous(lhs%shape, lhs%strides)) then
+          left_trans = 'N'
+          left_ld = int(k, int32)
+        end if
+        right_trans = 'T'
+        right_ld = int(k, int32)
+        if (is_c_contiguous(rhs%shape, rhs%strides)) then
+          right_trans = 'N'
+          right_ld = int(n, int32)
+        end if
+        call dgemm(right_trans, left_trans, int(n, int32), int(m, int32), int(k, int32), &
+          1.0_real64, rhs%data(rhs%offset:), right_ld, &
+          lhs%data(lhs%offset:), left_ld, 0.0_real64, array%data, int(n, int32))
+        if (present(status)) call set_status(status, FRUMPY_STATUS_OK)
+        return
+      end if
+    end if
+    allocate(a(m, k), b(k, n), stat=alloc_stat)
     if (alloc_stat /= 0) then
       call array%release()
       call set_status(local_status, FRUMPY_STATUS_ALLOCATION_FAILED, &
@@ -144,14 +180,10 @@ contains
         if (present(status)) status = local_status
         return
       end if
-      call dgemm('N', 'N', int(m, int32), int(n, int32), int(k, int32), &
-        1.0_real64, a, int(m, int32), b, int(k, int32), 0.0_real64, c, int(m, int32))
       output_base = (batch1 - 1_int64) * m * n
-      do row0 = 0_int64, m - 1_int64
-        do column0 = 0_int64, n - 1_int64
-          array%data(output_base + row0 * n + column0 + 1_int64) = c(row0 + 1, column0 + 1)
-        end do
-      end do
+      call dgemm('T', 'T', int(n, int32), int(m, int32), int(k, int32), &
+        1.0_real64, b, int(k, int32), a, int(m, int32), 0.0_real64, &
+        array%data(output_base + 1_int64:), int(n, int32))
       do dim1 = plan%rank, 1_int32, -1_int32
         index0(dim1) = index0(dim1) + 1_int64
         if (index0(dim1) < plan%shape(dim1)) exit
@@ -265,8 +297,8 @@ contains
         call set_status(local_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
           "solve currently requires finite input values")
       else
-        ! Even an empty RHS (NRHS=0) factors A, so singularity remains observable.
-        call dgesv(int(n, int32), int(nrhs, int32), a, int(n, int32), pivots, &
+        ! Some backends return early for NRHS=0; a dummy zero column forces factorization.
+        call dgesv(int(n, int32), int(max(1_int64, nrhs), int32), a, int(n, int32), pivots, &
           b, int(n, int32), info)
         if (info > 0_int32) then
           call set_status(local_status, FRUMPY_STATUS_SINGULAR_MATRIX, "solve matrix is singular")

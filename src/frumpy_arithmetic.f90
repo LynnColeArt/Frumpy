@@ -1,7 +1,8 @@
 !> Arithmetic across registered descriptors, with transactional, caller-typed results.
 module frumpy_arithmetic
   use iso_fortran_env, only: int8, int32, int64, real32, real64
-  use frumpy_linear_arithmetic, only: linear_step, linear_binary_r32, linear_binary_r64
+  use frumpy_linear_arithmetic, only: linear_step, linear_binary_r32, linear_binary_r64, &
+    row_binary_r32, row_binary_r64
   use frumpy_operands, only: operand, bind_operand, descriptor_dtype, &
     integer_value, real32_value, real64_value
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_from_metadata
@@ -67,7 +68,7 @@ contains
     type(frumpy_status) :: local_status
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1, left_position, right_position, left_integer, right_integer
-    logical :: left_linear, right_linear
+    logical :: left_linear, right_linear, use_rows
     integer(int64) :: left_step, right_step
     integer(int32) :: dtype_id, alloc_stat, linear_operation
 
@@ -108,6 +109,8 @@ contains
       end if
       index0 = 0_int64
     end if
+    use_rows = .false.
+    if (plan%rank > 0_int32) use_rows = plan%shape(plan%rank) >= 8_int64
     select case (operation)
     case ('add')
       linear_operation = 1_int32
@@ -201,6 +204,11 @@ contains
               .and. left_linear .and. right_linear) then
             call linear_binary_r32(left%values_r32, right%values_r32, computed%data, &
               left%offset, right%offset, left_step, right_step, linear_operation)
+          else if (use_rows .and. left%dtype_id == FRUMPY_DTYPE_R32 &
+              .and. right%dtype_id == FRUMPY_DTYPE_R32) then
+            call row_binary_r32(left%values_r32, right%values_r32, computed%data, &
+              left%offset, right%offset, plan%shape, plan%lhs_strides, plan%rhs_strides, &
+              linear_operation, index0)
           else
             do item1 = 1_int64, computed%size()
               left_position = left%offset + sum(index0 * plan%lhs_strides)
@@ -235,6 +243,11 @@ contains
               .and. left_linear .and. right_linear) then
             call linear_binary_r64(left%values_r64, right%values_r64, computed%data, &
               left%offset, right%offset, left_step, right_step, linear_operation)
+          else if (use_rows .and. left%dtype_id == FRUMPY_DTYPE_R64 &
+              .and. right%dtype_id == FRUMPY_DTYPE_R64) then
+            call row_binary_r64(left%values_r64, right%values_r64, computed%data, &
+              left%offset, right%offset, plan%shape, plan%lhs_strides, plan%rhs_strides, &
+              linear_operation, index0)
           else
             do item1 = 1_int64, computed%size()
               left_position = left%offset + sum(index0 * plan%lhs_strides)

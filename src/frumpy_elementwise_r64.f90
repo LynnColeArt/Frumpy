@@ -1,7 +1,7 @@
 !> Initial r64 elementwise kernels with strided broadcast fallbacks.
 module frumpy_elementwise_r64
   use iso_fortran_env, only: int32, int64, real64
-  use frumpy_linear_arithmetic, only: linear_step, linear_binary_r64
+  use frumpy_linear_arithmetic, only: linear_step, linear_binary_r64, row_binary_r64
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_r64
   use frumpy_strides, only: storage_bounds_are_valid
   use frumpy_constants, only: FRUMPY_ORDER_C
@@ -141,7 +141,7 @@ contains
     type(ndarray_r64) :: array
     type(broadcast_plan) :: plan
     type(frumpy_status) :: local_status
-    logical :: left_linear, right_linear
+    logical :: left_linear, right_linear, use_rows
     integer(int64) :: left_step, right_step
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1
@@ -174,7 +174,9 @@ contains
 
     left_step = linear_step(plan%shape, plan%lhs_strides, left_linear)
     right_step = linear_step(plan%shape, plan%rhs_strides, right_linear)
-    if (left_linear .and. right_linear) then
+    use_rows = .false.
+    if (plan%rank > 0_int32) use_rows = plan%shape(plan%rank) >= 8_int64
+    if ((left_linear .and. right_linear) .or. use_rows) then
       if (.not. storage_bounds_are_valid(lhs%shape, lhs%strides, lhs%offset, &
           lhs%storage_size()) .or. &
           .not. storage_bounds_are_valid(rhs%shape, rhs%strides, rhs%offset, &
@@ -183,8 +185,17 @@ contains
           "linear arithmetic source is out of bounds")
         return
       end if
-      call linear_binary_r64(lhs%data, rhs%data, array%data, lhs%offset, rhs%offset, &
-        left_step, right_step, op)
+      if (left_linear .and. right_linear) then
+        call linear_binary_r64(lhs%data, rhs%data, array%data, lhs%offset, rhs%offset, &
+          left_step, right_step, op)
+      else
+        if (.not. allocate_index_vector(index0, plan%rank, local_status)) then
+          call set_optional_status_value(status, local_status)
+          return
+        end if
+        call row_binary_r64(lhs%data, rhs%data, array%data, lhs%offset, rhs%offset, &
+          plan%shape, plan%lhs_strides, plan%rhs_strides, op, index0)
+      end if
       if (present(status)) call set_status(status, FRUMPY_STATUS_OK)
       return
     end if

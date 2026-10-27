@@ -55,3 +55,17 @@ jobs:
           cp python/tests/test_package.py /tmp/test_frumpy_installed.py
           cd /tmp
           frumpy-installed/bin/python -m pytest -q test_frumpy_installed.py
+
+  openblas:
+    runs-on: ubuntu-24.04
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y gfortran-14 libopenblas-pthread-dev
+      - name: Validate LP64 OpenBLAS, including empty-RHS singular solves
+        run: make validate FC=gfortran-14 FFLAGS='-std=f2018 -O3 -fimplicit-none'

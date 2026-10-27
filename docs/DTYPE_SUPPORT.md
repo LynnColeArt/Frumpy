@@ -47,8 +47,9 @@ The current `r64` path includes:
 | Views and slicing | `reshape_r64`, `ravel_r64`, `flatten_r64`, `transpose_r64`, `swapaxes_r64`, `squeeze_r64`, `expand_dims_r64`, `slice_r64` |
 
 This is not full NumPy. See [selection support](SELECTION_SUPPORT.md) for the
-bounded indexing/ordering contract. Advanced indexing, FFTs, Python bindings, and C ABI work
-remain outside the current implementation. Float64 linear algebra has a bounded
+bounded indexing/ordering contract. Advanced indexing and FFTs remain outside
+the current implementation. The [v0.1 coverage table](V0_1_COVERAGE.md) includes
+the implemented C ABI and Python package. Float64 linear algebra has a bounded
 [matmul/solve surface](LINEAR_ALGEBRA.md), with finite-input and LP64 requirements.
 
 All five registered descriptors use managed backing storage. Views and explicit
@@ -235,8 +236,7 @@ should not terminate the process or silently fall back to another dtype.
 ## Explicit Non-Scope
 
 This dtype support surface does not add Torch compatibility, autograd, Diffusers
-support, GPU runtime design, model loading, tokenizers, SciPy replacement work,
-or Python packaging. Frumpy remains scoped to NumPy-compatible ndarray behavior.
+support, GPU runtime design, model loading, tokenizers, or SciPy replacement work. Frumpy remains scoped to NumPy-compatible ndarray behavior.
 
 Float64 [uniform and standard normal generation](RANDOM.md) uses explicit seeded
 state and owned C-order results; it does not match NumPy random streams.

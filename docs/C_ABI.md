@@ -79,7 +79,7 @@ returns owned float64 arrays. Empty fills consume no state.
 
 ## Evidence
 
-`test/c/test_c_api.c` checks actual C linkage, retain/release, parent-independent
+`c_tests/test_c_api.c` checks actual C linkage, retain/release, parent-independent
 views, metadata and invalid pointers/handles. `python/tests/test_c_boundary.py`
 uses ctypes directly (without the package wrapper) to compare all dtype pairs,
 views, reductions, numerical and selection dispatch against NumPy and exercise

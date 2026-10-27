@@ -31,6 +31,7 @@ SOURCES := \
 	src/frumpy_ndarray_i64.f90 \
 	src/frumpy_ndarray_r32.f90 \
 	src/frumpy_ndarray_r64.f90 \
+	src/frumpy_access_r64.f90 \
 	src/frumpy_constructors_bool.f90 \
 	src/frumpy_constructors_i32.f90 \
 	src/frumpy_constructors_i64.f90 \
@@ -49,7 +50,6 @@ SOURCES := \
 	src/frumpy_array_casting.f90 \
 	src/frumpy_comparisons.f90 \
 	src/frumpy_arithmetic.f90 \
-	src/frumpy_access_r64.f90 \
 	src/frumpy_indexing_r64.f90 \
 	src/frumpy_products_r64.f90 \
 	src/frumpy_norms_r64.f90 \
@@ -72,6 +72,7 @@ SOURCES := \
 	src/frumpy.f90
 
 FORTRAN_TESTS := \
+	test/test_release_edges.f90 \
 	test/test_statuses.f90 \
 	test/test_dtypes.f90 \
 	test/test_dtype_promotion.f90 \
@@ -108,7 +109,8 @@ FORTRAN_TESTS := \
 	test/test_views_r64.f90
 
 EXAMPLES := \
-	examples/first_vertical_slice.f90
+	examples/first_vertical_slice.f90 \
+	examples/v01_workflow.f90
 
 TEST_BINS := $(patsubst test/%.f90,$(BIN_DIR)/%,$(FORTRAN_TESTS))
 EXAMPLE_BINS := $(patsubst examples/%.f90,$(BIN_DIR)/example_%,$(EXAMPLES))
@@ -117,13 +119,16 @@ EXAMPLE_BINS := $(patsubst examples/%.f90,$(BIN_DIR)/example_%,$(EXAMPLES))
 
 all: build
 
-build: | $(OBJ_DIR) $(MOD_DIR)
-	@set -eu; \
-	for src in $(SOURCES); do \
-		obj="$(OBJ_DIR)/$$(basename "$${src%.f90}").o"; \
-		echo "FC $$src"; \
-		$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) -c "$$src" -o "$$obj"; \
-	done
+CORE_OBJECTS = $(patsubst src/%.f90,$(OBJ_DIR)/%.o,$(SOURCES))
+
+build: $(OBJ_DIR)/core.stamp
+
+# Compile the dependency-ordered core once for each compiler/profile directory.
+# PIC objects work in both native executables and the C shared library.
+$(OBJ_DIR)/core.stamp: $(SOURCES) Makefile | $(OBJ_DIR) $(MOD_DIR)
+	cd $(OBJ_DIR) && $(FC) $(FFLAGS) -fPIC -J$(abspath $(MOD_DIR)) \
+		-I$(abspath $(MOD_DIR)) -c $(abspath $(SOURCES))
+	@touch $@
 
 test: $(TEST_BINS)
 	@set -eu; \
@@ -147,6 +152,7 @@ python-test: $(PY_DEPS_STAMP) $(BIN_DIR)/differential_driver shared
 memory-test: $(PY_DEPS_STAMP)
 	$(MAKE) BUILD_DIR="$(BUILD_DIR)/memory" \
 		FFLAGS="$(FFLAGS) -g -fsanitize=address -fno-omit-frame-pointer -no-pie" \
+		"$(BUILD_DIR)/memory/bin/test_release_edges" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64" \
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_linalg_r64" \
@@ -164,6 +170,7 @@ memory-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/memory/bin/test_reductions_r32" \
 		"$(BUILD_DIR)/memory/bin/allocation_failure_driver" \
 		"$(BUILD_DIR)/memory/bin/differential_driver"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_release_edges"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_linalg_r64"
@@ -188,6 +195,7 @@ memory-test: $(PY_DEPS_STAMP)
 integer-overflow-test: $(PY_DEPS_STAMP)
 	$(MAKE) BUILD_DIR="$(BUILD_DIR)/integer-overflow" \
 		FFLAGS="$(FFLAGS) -ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_release_edges" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_random" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_array_casting" \
@@ -200,6 +208,7 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/integer-overflow/bin/test_arithmetic" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_elementwise_integer" \
 		"$(BUILD_DIR)/integer-overflow/bin/differential_driver"
+	"$(BUILD_DIR)/integer-overflow/bin/test_release_edges"
 	"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64"
 	"$(BUILD_DIR)/integer-overflow/bin/test_random"
 	"$(BUILD_DIR)/integer-overflow/bin/test_array_casting"
@@ -233,17 +242,17 @@ clean:
 	rm -rf $(BUILD_DIR) .pytest_cache python/tests/__pycache__
 	rm -f *.o *.mod *.smod
 
-$(BIN_DIR)/%: test/%.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
-	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@ $(LINALG_LIBS)
+$(BIN_DIR)/%: test/%.f90 $(OBJ_DIR)/core.stamp | $(BIN_DIR) $(MOD_DIR)
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $< $(CORE_OBJECTS) -o $@ $(LINALG_LIBS)
 
-$(BIN_DIR)/example_%: examples/%.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
-	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@ $(LINALG_LIBS)
+$(BIN_DIR)/example_%: examples/%.f90 $(OBJ_DIR)/core.stamp | $(BIN_DIR) $(MOD_DIR)
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $< $(CORE_OBJECTS) -o $@ $(LINALG_LIBS)
 
-$(BIN_DIR)/differential_driver: python/fortran/differential_driver.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
-	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@ $(LINALG_LIBS)
+$(BIN_DIR)/differential_driver: python/fortran/differential_driver.f90 $(OBJ_DIR)/core.stamp | $(BIN_DIR) $(MOD_DIR)
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $< $(CORE_OBJECTS) -o $@ $(LINALG_LIBS)
 
-$(BIN_DIR)/benchmark_driver: benchmarks/benchmark_driver.f90 $(SOURCES) | $(BIN_DIR) $(MOD_DIR)
-	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $(SOURCES) $< -o $@ $(LINALG_LIBS)
+$(BIN_DIR)/benchmark_driver: benchmarks/benchmark_driver.f90 $(OBJ_DIR)/core.stamp | $(BIN_DIR) $(MOD_DIR)
+	$(FC) $(FFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) $< $(CORE_OBJECTS) -o $@ $(LINALG_LIBS)
 
 $(OBJ_DIR)/allocation_failure.o: python/fortran/allocation_failure.c | $(OBJ_DIR)
 	$(CC) -g -Wall -Wextra -Werror -fsanitize=address -c $< -o $@
@@ -272,11 +281,22 @@ C_SOURCES := src/frumpy_c_handles.f90 src/frumpy_c_core.f90 \
 .PHONY: shared c-test
 shared: $(BUILD_DIR)/libfrumpy.so
 
-$(BUILD_DIR)/libfrumpy.so: $(SOURCES) $(C_SOURCES) | $(MOD_DIR)
+$(BUILD_DIR)/libfrumpy.so: $(OBJ_DIR)/core.stamp $(C_SOURCES) | $(MOD_DIR)
 	$(FC) $(FFLAGS) -fPIC -shared -J$(MOD_DIR) -I$(MOD_DIR) \
-		$(SOURCES) $(C_SOURCES) $(LINALG_LIBS) -o $@
+		$(C_SOURCES) $(CORE_OBJECTS) $(LINALG_LIBS) -o $@
 
 c-test: shared
-	$(CC) -std=c11 -Wall -Wextra -Werror -Iinclude test/c/test_c_api.c \
+	$(CC) -std=c11 -Wall -Wextra -Werror -Iinclude c_tests/test_c_api.c \
 		-L$(BUILD_DIR) -lfrumpy -Wl,-rpath,$(abspath $(BUILD_DIR)) -o $(BUILD_DIR)/test_c_api
 	$(BUILD_DIR)/test_c_api
+
+# Standalone C leak checks plus Python/ctypes address checks. CPython/NumPy
+# process-global allocations are excluded only in the Python invocation.
+.PHONY: c-memory-test
+c-memory-test: $(PY_DEPS_STAMP)
+	$(MAKE) c-test BUILD_DIR="$(BUILD_DIR)/c-memory" \
+		CC="$(CC) -fsanitize=address -fno-omit-frame-pointer -no-pie" \
+		FFLAGS="$(FFLAGS) -g -fsanitize=address -fno-omit-frame-pointer"
+	LD_PRELOAD="$$($(FC) -print-file-name=libasan.so)" ASAN_OPTIONS=detect_leaks=0 \
+		FRUMPY_LIBRARY="$(abspath $(BUILD_DIR)/c-memory/libfrumpy.so)" \
+		$(VENV_PY) -m pytest -q python/tests/test_c_boundary.py python/tests/test_package.py

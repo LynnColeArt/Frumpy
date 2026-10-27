@@ -63,7 +63,7 @@ Shape, stride, dtype, memory, and kernel dispatch
         |
 BLAS/LAPACK and native Fortran kernels
         |
-C ABI and Python bindings later
+Versioned C ABI and Python ndarray package
 ```
 
 Frumpy is scoped to NumPy right now. Future projects may find it useful as a
@@ -150,8 +150,8 @@ Float64 `outer_r64` multiplies operands flattened in C logical order.
 right-hand sides. Native `dot_r64`, scaled vector/Frobenius norms, and explicit
 seeded [uniform/normal generators](docs/RANDOM.md) are also implemented. See
 [linear algebra](docs/LINEAR_ALGEBRA.md) for the finite-input contract, LP64
-BLAS/LAPACK dependency and supported limits. Broader linear algebra, a C ABI,
-Python bindings, and measured performance work remain unfinished. Managed storage for all five registered
+BLAS/LAPACK dependency and supported limits. Broader linear algebra and
+performance optimization remain post-v0.1 work. Managed storage for all five registered
 dtypes now retains aliases and views, with explicit limits on Fortran container
 copying. Borrowed external buffers still require caller lifetime management. See
 [storage lifetime](docs/STORAGE_LIFETIME.md). This is not yet a drop-in NumPy

@@ -1,6 +1,8 @@
 !> Constructors and explicit data-movement helpers for r64 ndarrays.
 module frumpy_constructors_r64
   use iso_fortran_env, only: int32, int64, real64
+  use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+  use frumpy_access_r64, only: validate_r64
   use frumpy_constants, only: FRUMPY_ORDER_A, FRUMPY_ORDER_C, FRUMPY_ORDER_F, &
     FRUMPY_ORDER_K
   use frumpy_ndarray_r64, only: ndarray_r64, owned_descriptor_r64
@@ -81,6 +83,13 @@ contains
     resolved_step = 1.0_real64
     if (present(step)) resolved_step = step
 
+    if (.not. ieee_is_finite(start) .or. .not. ieee_is_finite(stop) .or. &
+        .not. ieee_is_finite(resolved_step)) then
+      call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+        "arange_r64 requires finite arguments")
+      return
+    end if
+
     if (abs(resolved_step) <= tiny(resolved_step)) then
       call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
         "arange_r64 step must be non-zero")
@@ -88,9 +97,13 @@ contains
     end if
 
     raw_count = (stop - start) / resolved_step
+    if (.not. ieee_is_finite(raw_count)) then
+      call set_optional_status(status, FRUMPY_STATUS_OVERFLOW, "arange_r64 count overflow")
+      return
+    end if
     if (raw_count <= 0.0_real64) then
       count = 0_int64
-    else if (raw_count > real(huge(count), real64)) then
+    else if (raw_count >= real(shiftr(huge(count),3), real64)) then
       call set_optional_status(status, FRUMPY_STATUS_OVERFLOW, &
         "arange_r64 element count overflows int64")
       return
@@ -174,6 +187,11 @@ contains
     type(frumpy_status) :: local_status
     integer(int32) :: resolved_order
 
+    call validate_r64(source, local_status)
+    if (local_status%is_failure()) then
+      call set_optional_status_value(status, local_status)
+      return
+    end if
     resolved_order = resolve_copy_order(source, order, local_status)
     if (local_status%is_failure()) then
       call set_optional_status_value(status, local_status)

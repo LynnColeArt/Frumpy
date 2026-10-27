@@ -1,0 +1,57 @@
+name: Linux release checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gfortran-13, gfortran-14, flang-new-19]
+        profile: [debug, release]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Native dependencies
+        run: sudo apt-get update && sudo apt-get install -y gfortran-13 gfortran-14 flang-19 libblas-dev liblapack-dev
+      - name: Validate native, C and Python surfaces
+        shell: bash
+        run: |
+          flags='-std=f2018 -Wall -Wextra -Werror -fimplicit-none -fcheck=all -fbacktrace'
+          if [[ '${{ matrix.profile }}' == release ]]; then flags='-std=f2018 -O3 -fimplicit-none'; fi
+          if [[ '${{ matrix.compiler }}' == flang-new-19 ]]; then
+            flags='-O0 -g -Werror'
+            if [[ '${{ matrix.profile }}' == release ]]; then flags='-O3 -Werror'; fi
+          fi
+          make validate FC='${{ matrix.compiler }}' FFLAGS="$flags"
+  sanitizers-and-install:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gfortran-13, gfortran-14]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y gfortran-13 gfortran-14 libblas-dev liblapack-dev
+      - run: make memory-test integer-overflow-test c-memory-test FC='${{ matrix.compiler }}'
+      - name: fpm and source installation
+        env:
+          FC: ${{ matrix.compiler }}
+        run: |
+          .venv/bin/python -m pip install build fpm==0.12.0
+          .venv/bin/fpm test --compiler "$FC"
+          .venv/bin/python -m build
+          python -m venv /tmp/frumpy-installed
+          /tmp/frumpy-installed/bin/python -m pip install dist/frumpy-0.1.0.tar.gz pytest
+          /tmp/frumpy-installed/bin/python examples/v01_workflow.py
+          cp python/tests/test_package.py /tmp/test_frumpy_installed.py
+          cd /tmp
+          frumpy-installed/bin/python -m pytest -q test_frumpy_installed.py

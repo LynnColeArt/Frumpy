@@ -4,7 +4,7 @@ module frumpy_ndarray_i64
   use frumpy_constants, only: FRUMPY_ORDER_C, FRUMPY_ORDER_F
   use frumpy_dtypes, only: FRUMPY_DTYPE_I64
   use frumpy_shape, only: element_count, is_valid_shape
-  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
+  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, FRUMPY_STATUS_OVERFLOW, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status, set_status
   use frumpy_strides, only: allocate_c_order_strides, allocate_f_order_strides, &
@@ -73,6 +73,11 @@ contains
     element_count_value = element_count(shape, local_status)
     if (local_status%is_failure()) then
       call set_optional_status_value(status, local_status)
+      return
+    end if
+
+    if (element_count_value > shiftr(huge(element_count_value), 3)) then
+      call set_optional_status(status, FRUMPY_STATUS_OVERFLOW, "owned storage byte count overflow")
       return
     end if
 

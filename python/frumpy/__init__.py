@@ -179,3 +179,15 @@ for _op, _name in enumerate(("sum", "prod", "min", "max", "mean", "all", "any"),
         source, order="K")._reduce(op, axis, keepdims)
 
 from . import linalg, random  # noqa: E402: modules use the established array boundary
+
+
+__all__ = [
+    "ndarray", "bool_", "int32", "int64", "float32", "float64", "array", "asarray",
+    "empty", "zeros", "ones", "full", "copy", "ascontiguousarray", "arange", "linspace",
+    "reshape", "transpose", "swapaxes", "squeeze", "expand_dims", "ravel",
+    "add", "subtract", "multiply", "divide", "equal", "not_equal", "less", "less_equal",
+    "greater", "greater_equal", "logical_and", "logical_or", "logical_xor", "logical_not",
+    "negative", "absolute", "sqrt", "exp", "log", "sin", "cos", "sum", "prod", "min", "max",
+    "mean", "all", "any", "where", "take", "concatenate", "stack", "sort", "argsort",
+    "searchsorted", "flatnonzero", "outer", "dot", "matmul", "linalg", "random",
+]

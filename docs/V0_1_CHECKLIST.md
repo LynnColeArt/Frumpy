@@ -98,13 +98,13 @@ Depends on the storage contract; design can start before B/C are complete.
 
 ## E. Release acceptance and performance handoff
 
-- [ ] E1: publish an operation-by-dtype coverage table linked to public APIs and
+- [x] E1: publish an operation-by-dtype coverage table linked to public APIs and
   tests. Audit every v0.1 export against it; no unsupported operation silently
   changes dtype or falls back to NumPy.
 - [ ] E2: pass the full compiler matrix and applicable sanitizer gates on the
   release candidate; verify fpm with development libraries installed, as well
   as Make. Automate the supported Linux build and differential checks in CI.
-- [ ] E3: end-to-end Fortran and installed-Python examples covering creation,
+- [x] E3: end-to-end Fortran and installed-Python examples covering creation,
   views, broadcast mixed arithmetic, reduction, selection, matmul and solve;
   compare results and ownership behavior with the declared NumPy contract.
 - [ ] E4: release notes enumerate compatibility departures, build requirements,
@@ -164,3 +164,12 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   The source archive builds/installs in a separate environment and all 38 public
   package tests pass against that installed library. Full compiler acceptance
   and release audit remain under E1–E5.
+
+- 2026-10-26: release audit completed the operation/API/dtype map and found
+  missing native byte-count guards and float64 constructor validation. Added
+  failing edge regressions, then guarded all multi-byte owner allocations,
+  nonfinite/range-overflow arange, and malformed copy sources. Added equivalent
+  Fortran/installed-Python workflow examples. fpm test passes with isolated
+  BLAS/LAPACK development archives. Moved the standalone C caller outside fpm's
+  test source tree and reused per-profile PIC core objects in Make. Full final
+  compiler/sanitizer evidence and baseline capture are still in progress.

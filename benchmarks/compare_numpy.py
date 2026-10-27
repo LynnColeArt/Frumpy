@@ -79,6 +79,11 @@ def main():
               'git_dirty': bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root)),
               'method': 'Single CPU; warmed inputs; allocation/call/release timed; setup/checks untimed; '
                         'median of batch means calibrated per backend to about 20 ms; no process startup in timing; no fast-math.',
+              'numpy_build': np.show_config(mode='dicts'),
+              'threads': {name: os.environ[name] for name in
+                          ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')},
+              'allocation_scope': 'One owned result payload per iteration; descriptor and scratch '
+                                  'allocations included in timing but not individually counted.',
               'rows': []}
     for operation, layout, count in cases():
         iterations = 1 if operation == 'sort_r64' else (100 if count == 1024 else 3)
@@ -100,6 +105,8 @@ def main():
         numpy_iterations = min(100000, max(1, math.ceil(0.02 / estimate)))
         times = numpy_samples(numpy_iterations, args.samples)
         row = {'operation': operation, 'layout': layout, 'count': count,
+               'result_payload_bytes_per_call': (1 if operation == 'sum_r64' else count) *
+                   (4 if operation == 'add_r32' else 8),
                'iterations': {'numpy': numpy_iterations}, 'checksum': checksum, 'numpy': summarize(times), 'frumpy': {}}
         for label, path in drivers.items():
             def run_driver(repetitions, samples):

@@ -140,3 +140,23 @@ The numeric-descriptor lifetime and `make memory-test` gate are documented in
 
 See [COMPILER_PORTABILITY.md](COMPILER_PORTABILITY.md) for the tested compiler
 matrix and [PERFORMANCE.md](PERFORMANCE.md) for reproducible timed comparisons.
+
+## Native C/Python release surface
+
+`make shared` builds `$(BUILD_DIR)/libfrumpy.so`; `make c-test` compiles and runs
+`c_tests/test_c_api.c`. `make validate` includes those checks and the direct ABI
+and public package tests, in addition to the native/NumPy suite. The core is
+compiled once into PIC objects per build directory and reused by executables
+and the shared library. Use a fresh `BUILD_DIR` (or clean it) when changing
+compiler or flags; module files and object profiles must not be mixed.
+
+`make c-memory-test FC=gfortran-14` checks standalone C ownership with ASan/leak
+detection, then the ABI/Python suite with ASan address checks. Only the Python
+process disables leak detection to exclude CPython/NumPy global allocations.
+The native memory and integer-overflow gates remain separate.
+
+See [PYTHON.md](PYTHON.md) for isolated source installation and [C_ABI.md](C_ABI.md)
+for buffer, status and serialization requirements. `examples/v01_workflow.f90`
+and `examples/v01_workflow.py` show equivalent workflows, including ownership
+and NumPy-checked results. The GitHub workflow `.github/workflows/linux.yml`
+defines the supported Linux matrix, GNU sanitizers, fpm and source-install jobs.

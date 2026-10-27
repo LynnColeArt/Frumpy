@@ -24,7 +24,7 @@ Native subroutines `call dot(lhs, rhs, result, status)`, `outer` and `matmul`
 accept any registered descriptor pair whose promoted dtype is float32 or float64.
 The caller supplies a result descriptor of that concrete type; a wrong destination
 or any reported failure preserves its previous value. Status is optional.
-Inputs and output must be distinct actual arguments, as with native arithmetic.
+The output must be distinct from both input actual arguments, as with native arithmetic.
 Concrete `_r32`/`_r64` functions remain available without promotion.
 
 | Input pair (either order) | Result / computation dtype |

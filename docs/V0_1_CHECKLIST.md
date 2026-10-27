@@ -244,3 +244,13 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   See `validation/float32-products-2026-10-27.json` and
   `performance/float32-products-2026-10-27/README.md`. Mixed-dtype products and
   float32 norms remain separate. No merge, release tag or publication performed.
+
+- 2026-10-27: floating-result promotion for dot, outer and matmul at `02aa4df`.
+  All 16 ordered floating-result pairs work through native, C and Python; casts
+  precede computation. Integral-only products and mixed solve remain unsupported.
+  Six compiler profiles pass 4,262 tests plus the final package smoke separately;
+  one-thread OpenBLAS passes all 4,263. The 38 native programs, C caller, fpm,
+  memory/overflow gates, 1,592 combined tests under each of ASan/UBSan and 365
+  isolated-install tests pass. See `validation/product-promotion-2026-10-27.json`
+  and `performance/product-promotion-2026-10-27/README.md` for conversion-cost
+  benchmarks and limitations. No merge, release tag or publication performed.

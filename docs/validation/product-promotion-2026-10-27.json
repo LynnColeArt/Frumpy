@@ -1,0 +1,107 @@
+{
+  "source_commit": "02aa4df",
+  "numpy": "2.4.6",
+  "status": "passed",
+  "logs": {
+    "flang-new-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/promotion-matrix/flang-new-debug.log",
+      "sha256": "a367743a4385b43182e708af89c882a3c569ebcfaeb1c1899075099888879f80",
+      "python_passed": 4262,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "flang-new-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/promotion-matrix/flang-new-release.log",
+      "sha256": "ba589d218040daccdb7c11d4970cf2471dcee42a75098a8dd08f5447ac8d517b",
+      "python_passed": 4262,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/promotion-matrix/gfortran-13-debug.log",
+      "sha256": "438018faab121dc0e526dae6fe2eb7a8a9fd7f02c5bd00b95de0feb1df15bacf",
+      "python_passed": 4262,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/promotion-matrix/gfortran-13-release.log",
+      "sha256": "c7da6c73f4ed0cc97e4c99aa860c073a9d83c60ed8251965b46e89cc9e10da01",
+      "python_passed": 4262,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/promotion-matrix/gfortran-14-debug.log",
+      "sha256": "d9e59ca28018652b98c134abb193a28c27bd9b9a1c7dfbcd2f993dd5af4d585d",
+      "python_passed": 4262,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/promotion-matrix/gfortran-14-release.log",
+      "sha256": "89c465d68906be52d8246d6b13041cea215e8555e053df9214d255b00e343386",
+      "python_passed": 4262,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gates": {
+      "path": "/tmp/promotion-gates.log",
+      "sha256": "1c73460ef3bc4e0400b9531bfeec0294231191398daf31c185f4e062472bc039",
+      "pytest_summaries": [
+        "2643 passed, 4 warnings in 66.51s (0:01:06)",
+        "2159 passed, 484 deselected, 4 warnings in 18.10s",
+        "1592 passed, 6 warnings in 7.94s"
+      ]
+    },
+    "ubsan": {
+      "path": "/tmp/promotion-ubsan.log",
+      "sha256": "b90f165ea852568a8bb1aaff4aec6d59b5b23a0cc23653baf8a9de552769ec7d",
+      "pytest_summaries": [
+        "1592 passed, 6 warnings in 5.99s"
+      ]
+    },
+    "fpm": {
+      "path": "/tmp/promotion-fpm.log",
+      "sha256": "96502c9431d8fc290657d70f102adc7f9bac50e146fff38df96d0ca4e4e5790a",
+      "pytest_summaries": []
+    },
+    "install": {
+      "path": "/tmp/promotion-install.log",
+      "sha256": "492df7a5aae5fa49fe8f6ae469162ce4629593fa869ddec5b348ea9fe4a37d52",
+      "pytest_summaries": [
+        "365 passed in 0.53s"
+      ]
+    },
+    "extra-validation": {
+      "path": "/tmp/promotion-extra-validation.log",
+      "sha256": "6ebba09a1b7425d06bfaacb6ab279d3a21d0c177a7be6aca253b2f38fb4f9c8f",
+      "pytest_summaries": [
+        "1 passed, 364 deselected in 0.11s",
+        "1 passed, 364 deselected in 0.10s",
+        "1 passed, 364 deselected in 0.10s",
+        "1 passed, 364 deselected in 0.10s",
+        "1 passed, 364 deselected in 0.09s",
+        "1 passed, 364 deselected in 0.12s",
+        "4263 passed, 12 warnings in 28.36s"
+      ]
+    }
+  },
+  "native_programs": 38,
+  "final_python_tests": 4263,
+  "promoted_product_tests": 408,
+  "notes": [
+    "Six compiler profiles each ran 4262 tests; the subsequently added installed-package promotion smoke passed separately in all six profiles.",
+    "OpenBLAS GNU14 release ran all 4263 tests. Native/C ASan leak checks enabled; Python ASan leak detection disabled. Backend libraries are not sanitized.",
+    "ASan native differential: 2643; integer-overflow differential: 2159 with 484 deselected; C/package/float32/promotion ASan and UBSan: 1592 each.",
+    "Source-distribution isolated install passed all 365 package tests; fpm completed 38 native programs.",
+    "Initial full-suite run found an obsolete assertion rejecting integer/float outer; updated to check the newly supported result before final validation.",
+    "Hosted CI was not run by this validation."
+  ]
+}

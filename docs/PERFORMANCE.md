@@ -213,3 +213,14 @@ Payload size halves, but contiguous dot is broadly comparable to float64 and
 NumPy remains substantially faster on large vector/matrix dot cases. Generic
 outer traversal also leaves a performance gap. Full timings and limitations
 are retained; this is added functionality, not a universal speed improvement.
+
+## Mixed-dtype products — 2026-10-27
+
+[The promotion report](performance/product-promotion-2026-10-27/README.md) compares
+implicit casts with reusable precasts, plus isolated conversion costs, across
+native Fortran, C and Python. For int32/float32 inputs, Python's 65,536-element
+dot takes 685–687 µs versus 58–59 µs after precasting with the reference backend;
+OpenBLAS 128×128 matmul takes 322–332 µs versus 103–110 µs. Outer conversion
+is a smaller share of its quadratic output work. Repeated stable inputs benefit
+from reusable casts; contiguous `astype` is a focused future optimization target.
+Raw timing ranges, backend distinctions, memory costs and noise remain explicit.

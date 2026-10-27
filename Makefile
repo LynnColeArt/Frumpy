@@ -139,9 +139,9 @@ examples: $(EXAMPLE_BINS)
 		"$$example_bin"; \
 	done
 
-python-test: $(PY_DEPS_STAMP) $(BIN_DIR)/differential_driver
+python-test: $(PY_DEPS_STAMP) $(BIN_DIR)/differential_driver shared
 	FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BIN_DIR)/differential_driver)" \
-		$(VENV_PY) -m pytest -q python/tests
+		FRUMPY_LIBRARY="$(abspath $(BUILD_DIR)/libfrumpy.so)" $(VENV_PY) -m pytest -q python/tests
 
 # Optional GNU/Linux memory gate; keep instrumentation out of normal build products.
 memory-test: $(PY_DEPS_STAMP)
@@ -224,7 +224,7 @@ fpm-test:
 		echo "fpm not found; install fpm to run fpm test. make validate remains canonical."; \
 	fi
 
-validate: test examples python-test diff-check
+validate: test examples python-test c-test diff-check
 
 diff-check:
 	git diff --check
@@ -261,3 +261,22 @@ $(PY_DEPS_STAMP): python/requirements-test.txt
 
 $(BIN_DIR) $(MOD_DIR) $(OBJ_DIR):
 	@mkdir -p $@
+
+# The C boundary is separate from the native library surface.
+C_SOURCES := src/frumpy_c_handles.f90 src/frumpy_c_core.f90 \
+	src/frumpy_c_operations.f90 src/frumpy_c_views.f90 src/frumpy_c_reductions.f90 \
+	src/frumpy_c_numerical.f90 src/frumpy_c_random.f90 \
+	src/frumpy_c_sequences.f90 src/frumpy_c_indexing.f90 \
+	src/frumpy_c_selection.f90 src/frumpy_c_ordering.f90
+
+.PHONY: shared c-test
+shared: $(BUILD_DIR)/libfrumpy.so
+
+$(BUILD_DIR)/libfrumpy.so: $(SOURCES) $(C_SOURCES) | $(MOD_DIR)
+	$(FC) $(FFLAGS) -fPIC -shared -J$(MOD_DIR) -I$(MOD_DIR) \
+		$(SOURCES) $(C_SOURCES) $(LINALG_LIBS) -o $@
+
+c-test: shared
+	$(CC) -std=c11 -Wall -Wextra -Werror -Iinclude test/c/test_c_api.c \
+		-L$(BUILD_DIR) -lfrumpy -Wl,-rpath,$(abspath $(BUILD_DIR)) -o $(BUILD_DIR)/test_c_api
+	$(BUILD_DIR)/test_c_api

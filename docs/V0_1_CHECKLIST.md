@@ -81,18 +81,18 @@ is not sufficient evidence for it.
 
 Depends on the storage contract; design can start before B/C are complete.
 
-- [ ] D1: versioned C header with opaque array handles, create/retain/release,
+- [x] D1: versioned C header with opaque array handles, create/retain/release,
   dtype/shape/stride queries and explicit status/error handling. No exposed
   compiler-specific Fortran layouts. Test ownership from a C caller.
-- [ ] D2: owned buffer import/export and operation dispatch for the v0.1 surface.
+- [x] D2: owned buffer import/export and operation dispatch for the v0.1 surface.
   Copying imports are acceptable and must be explicit; zero-copy interchange is
   deferred. Test invalid handles/arguments within the documented API contract.
-- [ ] D3: installable Python package with ndarray, constructors, arithmetic,
+- [x] D3: installable Python package with ndarray, constructors, arithmetic,
   views/indexing, reductions, selection and numerical calls from B/C; map status
   to exceptions and define Python scalar/coercion behavior.
-- [ ] D4: test Python lifetime, aliasing, exception cleanup and round trips with
+- [x] D4: test Python lifetime, aliasing, exception cleanup and round trips with
   NumPy; a Python reference must keep its view's backing alive.
-- [ ] D5: reproducible source build/install on Linux x86_64, documented compiler
+- [x] D5: reproducible source build/install on Linux x86_64, documented compiler
   and BLAS/LAPACK prerequisites, clean-environment installation smoke test.
   Binary wheels and additional platforms are later release work.
 
@@ -155,3 +155,12 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   2,671 Python tests; memory: 2,643 compiled comparisons; overflow: 2,159 cases.
   ARRAY_OPERATIONS.md records float-to-integer and accumulation-order departures.
   Next: D1–D5 C ABI and installable Python integration.
+
+- 2026-10-26: completed D1–D5: ABI-v1 opaque handles and native operation
+  dispatch, serialized ctypes package, Linux source distribution and clean-venv
+  installation. 49 direct ABI tests and 38 package tests pass on GNU 14; the
+  combined 87 pass with ASan instrumentation (Python leak detection disabled),
+  and the standalone C ownership program passes ASan with leak detection.
+  The source archive builds/installs in a separate environment and all 38 public
+  package tests pass against that installed library. Full compiler acceptance
+  and release audit remain under E1–E5.

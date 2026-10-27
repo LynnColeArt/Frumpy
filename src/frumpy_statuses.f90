@@ -12,6 +12,7 @@ module frumpy_statuses
   public :: FRUMPY_STATUS_INVALID_SHAPE
   public :: FRUMPY_STATUS_INVALID_AXIS
   public :: FRUMPY_STATUS_ALLOCATION_FAILED
+  public :: FRUMPY_STATUS_INVALID_HANDLE
   public :: FRUMPY_STATUS_SINGULAR_MATRIX
   public :: FRUMPY_STATUS_OVERFLOW
   public :: FRUMPY_STATUS_UNSUPPORTED_DTYPE
@@ -30,6 +31,8 @@ module frumpy_statuses
   integer(int32), parameter :: FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR = 6_int32
 
   integer(int32), parameter :: FRUMPY_STATUS_SINGULAR_MATRIX = 7_int32
+
+  integer(int32), parameter :: FRUMPY_STATUS_INVALID_HANDLE = 8_int32
 
   type :: frumpy_status
     integer(int32) :: code = FRUMPY_STATUS_OK
@@ -97,6 +100,8 @@ contains
       name = "unsupported_dtype"
     case (FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR)
       name = "unsupported_behavior"
+    case (FRUMPY_STATUS_INVALID_HANDLE)
+      name = "invalid_handle"
     case (FRUMPY_STATUS_SINGULAR_MATRIX)
       name = "singular_matrix"
     case default

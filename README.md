@@ -156,3 +156,15 @@ dtypes now retains aliases and views, with explicit limits on Fortran container
 copying. Borrowed external buffers still require caller lifetime management. See
 [storage lifetime](docs/STORAGE_LIFETIME.md). This is not yet a drop-in NumPy
 replacement.
+
+
+## C and Python interfaces
+
+`make shared` builds ABI-v1 `libfrumpy.so`; `make c-test` checks a real C caller.
+See [the C ownership and buffer contract](docs/C_ABI.md).
+
+A Linux source package is available with `.venv/bin/python -m pip install .`
+after installing the compiler and BLAS/LAPACK development prerequisites.
+See [Python installation and API semantics](docs/PYTHON.md). Native operations
+never silently fall back to NumPy computation. The release acceptance checklist
+remains the source of truth for candidate readiness.

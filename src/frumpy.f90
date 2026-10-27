@@ -70,7 +70,7 @@ module frumpy
   use frumpy_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
     min_r64, prod_r64, sum_r64
   use frumpy_slices, only: slice_all, slice_range, slice_spec
-  use frumpy_statuses, only: FRUMPY_STATUS_ALLOCATION_FAILED, &
+  use frumpy_statuses, only: FRUMPY_STATUS_INVALID_HANDLE, FRUMPY_STATUS_ALLOCATION_FAILED, &
     FRUMPY_STATUS_INVALID_AXIS, FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OK, &
     FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, FRUMPY_STATUS_SINGULAR_MATRIX, &
     FRUMPY_STATUS_UNSUPPORTED_DTYPE, frumpy_status
@@ -103,6 +103,7 @@ module frumpy
   public :: sum_i32, prod_i32, min_i32, max_i32, mean_i32
   public :: sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
   public :: mask_select_r64, assign_r64
+  public :: FRUMPY_STATUS_INVALID_HANDLE
   public :: astype
   public :: random_generator, uniform_r64, normal_r64
   public :: vector_norm_r64, matrix_norm_r64

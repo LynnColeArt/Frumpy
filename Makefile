@@ -206,8 +206,7 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 		FFLAGS="$(FFLAGS) -ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_release_edges" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_products_r32" \
-		"$(BUILD_DIR)/integer-overflow/bin/test_products_r32"
-	"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r32" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r32" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_random" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_array_casting" \

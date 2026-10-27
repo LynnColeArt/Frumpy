@@ -6,10 +6,29 @@ import json
 import os
 from pathlib import Path
 import subprocess
-from compare_sort import timed
+import statistics
+import time
+for name in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
+    os.environ[name] = "1"
 import numpy as np
 import frumpy as fp
 from frumpy import _ffi
+
+
+def timed(call, samples):
+    call()
+    start = time.perf_counter()
+    call()
+    iterations = max(1, min(1000, int(.03 / max(time.perf_counter()-start, 1e-9))))
+    wall, cpu = [], []
+    for _ in range(samples):
+        start, cpu_start = time.perf_counter(), time.process_time()
+        for _ in range(iterations):
+            call()
+        cpu.append((time.process_time()-cpu_start)/iterations)
+        wall.append((time.perf_counter()-start)/iterations)
+    return dict(iterations=iterations, seconds=wall, median_seconds=statistics.median(wall),
+                cpu_seconds=cpu, median_cpu_seconds=statistics.median(cpu))
 
 
 def main():
@@ -44,7 +63,8 @@ def main():
         affinity=sorted(os.sched_getaffinity(0)), threads=1, numpy=np.__version__,
         method='Seven warmed samples, allocating call/release timed, setup/export excluded. '
                'Raw BLAS uses the same library and thread count; it omits Frumpy metadata and finite checks. '
-               'NumPy uses its own wheel backend, recorded as a separate reference.',
+               'NumPy uses its own wheel backend, recorded as a separate reference. '
+               'Wall and process CPU times are recorded for each batch.',
         arithmetic=[], matrices=[], small=[])
     for width in (1,4,8,16,128,1024):
         rows = 1024 if width < 128 else 256

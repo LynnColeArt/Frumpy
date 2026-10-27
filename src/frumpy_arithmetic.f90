@@ -110,7 +110,7 @@ contains
       index0 = 0_int64
     end if
     use_rows = .false.
-    if (plan%rank > 0_int32) use_rows = plan%shape(plan%rank) >= 8_int64
+    if (plan%rank > 0_int32) use_rows = plan%shape(plan%rank) >= 4_int64
     select case (operation)
     case ('add')
       linear_operation = 1_int32

@@ -106,7 +106,7 @@ contains
       return
     end if
     if (plan%rank > 0_int32) then
-      if (plan%shape(plan%rank) >= 8_int64) then
+      if (plan%shape(plan%rank) >= 4_int64) then
         call row_binary_r32(lhs%data, rhs%data, array%data, lhs%offset, rhs%offset, &
           plan%shape, plan%lhs_strides, plan%rhs_strides, operation, index0)
         if (present(status)) call set_status(status, FRUMPY_STATUS_OK)

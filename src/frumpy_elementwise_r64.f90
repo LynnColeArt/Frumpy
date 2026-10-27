@@ -175,7 +175,7 @@ contains
     left_step = linear_step(plan%shape, plan%lhs_strides, left_linear)
     right_step = linear_step(plan%shape, plan%rhs_strides, right_linear)
     use_rows = .false.
-    if (plan%rank > 0_int32) use_rows = plan%shape(plan%rank) >= 8_int64
+    if (plan%rank > 0_int32) use_rows = plan%shape(plan%rank) >= 4_int64
     if ((left_linear .and. right_linear) .or. use_rows) then
       if (.not. storage_bounds_are_valid(lhs%shape, lhs%strides, lhs%offset, &
           lhs%storage_size()) .or. &

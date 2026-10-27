@@ -11,12 +11,20 @@ layout and allocation count. Compare equivalent NumPy behavior, compiler flags
 and BLAS thread counts; separate Python dispatch, allocation, copying and kernel
 time. Include small latency-bound arrays and large bandwidth-bound arrays.
 
-Investigate in measured order:
+The frozen [v0.1 baseline](PERFORMANCE.md#v01-frozen-baseline--2026-10-26)
+sets the first experiment queue:
 
-1. Repeated allocation and descriptor/dispatch overhead.
-2. Contiguous elementwise/reduction loops, stride traversal, vectorization.
-3. Avoidable matrix packing and backend copies for compatible layouts.
-4. BLAS implementation/thread configuration and, only where justified, OpenMP.
+1. Replace stable insertion sort with an efficient stable algorithm, preserving
+   NaN/signed-zero ordering and argsort stability. Start with the 8,192-element
+   case, then sweep size and row layouts.
+2. Profile contiguous and strided arithmetic/reductions, comparing concrete
+   native kernels with the mixed dispatcher used by Python. Add validated
+   contiguous loops where they reduce traversal costs.
+3. Separate small-call Python dispatch/metadata and native allocation costs;
+   measure heap allocations explicitly before choosing reuse or caching APIs.
+4. Compare matched BLAS implementations/thread settings, then investigate
+   matrix packing/copies. Consider OpenMP only after evidence identifies a
+   workload where it improves the supported semantics.
 
 Each optimization needs a before/after benchmark, unchanged differential and
 lifetime results, and evidence on strided as well as contiguous cases. Keep a

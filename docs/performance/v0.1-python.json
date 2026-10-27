@@ -1,0 +1,806 @@
+{
+  "utc": "2026-10-27T04:37:38.569817+00:00",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3",
+  "numpy": "2.4.6",
+  "frumpy": "0.1.0",
+  "git_head": "3e1a191e417eb252e3670f93226a8320d7b7b7c1",
+  "git_dirty": false,
+  "library": "/home/lynn/Documents/Codex/2026-09-07/so/work/rc-matrix/gfortran-14-release/libfrumpy.so",
+  "numpy_build": {
+    "Compilers": {
+      "c": {
+        "name": "gcc",
+        "linker": "ld.bfd",
+        "version": "14.2.1",
+        "commands": "cc"
+      },
+      "cython": {
+        "name": "cython",
+        "linker": "cython",
+        "version": "3.2.4",
+        "commands": "cython"
+      },
+      "c++": {
+        "name": "gcc",
+        "linker": "ld.bfd",
+        "version": "14.2.1",
+        "commands": "c++"
+      }
+    },
+    "Machine Information": {
+      "host": {
+        "cpu": "x86_64",
+        "family": "x86_64",
+        "endian": "little",
+        "system": "linux"
+      },
+      "build": {
+        "cpu": "x86_64",
+        "family": "x86_64",
+        "endian": "little",
+        "system": "linux"
+      }
+    },
+    "Build Dependencies": {
+      "blas": {
+        "name": "scipy-openblas",
+        "found": true,
+        "version": "0.3.31.188.0",
+        "detection method": "pkgconfig",
+        "include directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/include",
+        "lib directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/lib",
+        "openblas configuration": "OpenBLAS 0.3.31.188.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY SkylakeX MAX_THREADS=64",
+        "pc file directory": "/project/.openblas"
+      },
+      "lapack": {
+        "name": "scipy-openblas",
+        "found": true,
+        "version": "0.3.31.188.0",
+        "detection method": "pkgconfig",
+        "include directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/include",
+        "lib directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/lib",
+        "openblas configuration": "OpenBLAS 0.3.31.188.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY SkylakeX MAX_THREADS=64",
+        "pc file directory": "/project/.openblas"
+      }
+    },
+    "Python Information": {
+      "path": "/tmp/build-env-tgi5ymto/bin/python",
+      "version": "3.12"
+    },
+    "SIMD Extensions": {
+      "baseline": [
+        "X86_V2"
+      ],
+      "found": [
+        "X86_V3"
+      ],
+      "not found": [
+        "X86_V4",
+        "AVX512_ICL",
+        "AVX512_SPR"
+      ]
+    }
+  },
+  "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+  "threads": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "affinity": [
+    0
+  ],
+  "method": "One CPU, warmed calls; native dispatch, result/metadata allocation and release timed; input imports, setup, exports and correctness checks excluded; no out/reuse API.",
+  "allocation_scope": "Each iteration creates and releases one owned result payload. Native descriptor/scratch and Python metadata allocations are included in time, not individually counted. Matmul/solve also allocate packing/work buffers.",
+  "results": [
+    {
+      "operation": "add",
+      "layout": "contiguous",
+      "size": 1024,
+      "dtype": "float64",
+      "shape": [
+        1024
+      ],
+      "strides_bytes": [
+        8
+      ],
+      "result_payload_bytes_per_call": 8192,
+      "frumpy": {
+        "iterations": 951,
+        "seconds": [
+          3.915601365902822e-05,
+          3.549257203002316e-05,
+          3.769630072912599e-05,
+          4.062093268579497e-05,
+          3.338873817401298e-05,
+          4.219135016004127e-05,
+          4.1356461612776034e-05
+        ],
+        "median_seconds": 3.915601365902822e-05,
+        "min_seconds": 3.338873817401298e-05,
+        "max_seconds": 4.219135016004127e-05
+      },
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          7.615990180056542e-07,
+          8.184280013665557e-07,
+          8.832689782138914e-07,
+          6.301479879766703e-07,
+          7.351090025622397e-07,
+          7.313290261663497e-07,
+          6.350390031002462e-07
+        ],
+        "median_seconds": 7.351090025622397e-07,
+        "min_seconds": 6.301479879766703e-07,
+        "max_seconds": 8.832689782138914e-07
+      },
+      "ratio": 53.26558853523629
+    },
+    {
+      "operation": "add",
+      "layout": "reverse",
+      "size": 1024,
+      "dtype": "float64",
+      "shape": [
+        1024
+      ],
+      "strides_bytes": [
+        -8
+      ],
+      "result_payload_bytes_per_call": 8192,
+      "frumpy": {
+        "iterations": 1000,
+        "seconds": [
+          4.786002897890285e-05,
+          3.84869969857391e-05,
+          3.310104701085947e-05,
+          4.680179100250825e-05,
+          4.4659876002697275e-05,
+          3.4634964016731826e-05,
+          3.657876001670957e-05
+        ],
+        "median_seconds": 3.84869969857391e-05,
+        "min_seconds": 3.310104701085947e-05,
+        "max_seconds": 4.786002897890285e-05
+      },
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          8.997489931061864e-07,
+          9.43888007896021e-07,
+          9.187179966829717e-07,
+          8.415280026383698e-07,
+          8.292490092571824e-07,
+          8.501879929099232e-07,
+          9.293479961343109e-07
+        ],
+        "median_seconds": 8.997489931061864e-07,
+        "min_seconds": 8.292490092571824e-07,
+        "max_seconds": 9.43888007896021e-07
+      },
+      "ratio": 42.7752598564975
+    },
+    {
+      "operation": "add",
+      "layout": "stride2",
+      "size": 1024,
+      "dtype": "float64",
+      "shape": [
+        1024
+      ],
+      "strides_bytes": [
+        16
+      ],
+      "result_payload_bytes_per_call": 8192,
+      "frumpy": {
+        "iterations": 852,
+        "seconds": [
+          4.852950821511509e-05,
+          4.82910586875741e-05,
+          4.038190727527669e-05,
+          4.3814775812441807e-05,
+          3.9786826309522815e-05,
+          3.300179108270081e-05,
+          3.259205164419522e-05
+        ],
+        "median_seconds": 4.038190727527669e-05,
+        "min_seconds": 3.259205164419522e-05,
+        "max_seconds": 4.852950821511509e-05
+      },
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          1.2221869837958366e-06,
+          8.435090130660683e-07,
+          8.401279919780791e-07,
+          8.525379817001522e-07,
+          8.804689859971404e-07,
+          9.866879845503718e-07,
+          1.497866993304342e-06
+        ],
+        "median_seconds": 8.804689859971404e-07,
+        "min_seconds": 8.401279919780791e-07,
+        "max_seconds": 1.497866993304342e-06
+      },
+      "ratio": 45.86408825013155
+    },
+    {
+      "operation": "add",
+      "layout": "broadcast",
+      "size": 1024,
+      "dtype": "float64",
+      "shape": [
+        1024
+      ],
+      "strides_bytes": [
+        8
+      ],
+      "result_payload_bytes_per_call": 8192,
+      "frumpy": {
+        "iterations": 611,
+        "seconds": [
+          4.5170911580915587e-05,
+          3.2809430418182436e-05,
+          3.9704441898479544e-05,
+          4.489307364970202e-05,
+          5.509817675358133e-05,
+          3.4630883834896376e-05,
+          3.823202290860311e-05
+        ],
+        "median_seconds": 3.9704441898479544e-05,
+        "min_seconds": 3.2809430418182436e-05,
+        "max_seconds": 5.509817675358133e-05
+      },
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          6.168090039864183e-07,
+          5.80277992412448e-07,
+          5.751489952672273e-07,
+          6.003089947625994e-07,
+          5.947989993728697e-07,
+          7.193890050984919e-07,
+          5.987580225337297e-07
+        ],
+        "median_seconds": 5.987580225337297e-07,
+        "min_seconds": 5.751489952672273e-07,
+        "max_seconds": 7.193890050984919e-07
+      },
+      "ratio": 66.31133179721677
+    },
+    {
+      "operation": "sum",
+      "layout": "contiguous",
+      "size": 1024,
+      "dtype": "float64",
+      "shape": [
+        1024
+      ],
+      "strides_bytes": [
+        8
+      ],
+      "result_payload_bytes_per_call": 8,
+      "frumpy": {
+        "iterations": 1000,
+        "seconds": [
+          2.239580699824728e-05,
+          2.4931672989623623e-05,
+          2.2960475995205342e-05,
+          2.3577126004965977e-05,
+          2.3784693999914453e-05,
+          2.6668649981729687e-05,
+          2.2984695999184622e-05
+        ],
+        "median_seconds": 2.3577126004965977e-05,
+        "min_seconds": 2.239580699824728e-05,
+        "max_seconds": 2.6668649981729687e-05
+      },
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          1.2114179844502359e-06,
+          1.938485977007076e-06,
+          1.4069369935896248e-06,
+          1.2118879822082818e-06,
+          1.1338079930283129e-06,
+          1.1139480047859251e-06,
+          1.1742879869416357e-06
+        ],
+        "median_seconds": 1.2114179844502359e-06,
+        "min_seconds": 1.1139480047859251e-06,
+        "max_seconds": 1.938485977007076e-06
+      },
+      "ratio": 19.462420326924335
+    },
+    {
+      "operation": "sum",
+      "layout": "stride2",
+      "size": 1024,
+      "dtype": "float64",
+      "shape": [
+        1024
+      ],
+      "strides_bytes": [
+        16
+      ],
+      "result_payload_bytes_per_call": 8,
+      "frumpy": {
+        "iterations": 1000,
+        "seconds": [
+          3.163643999141641e-05,
+          1.9169153005350383e-05,
+          1.9068653986323627e-05,
+          2.0793461007997394e-05,
+          1.997969197691418e-05,
+          2.5696780998259783e-05,
+          2.1893949015066027e-05
+        ],
+        "median_seconds": 2.0793461007997394e-05,
+        "min_seconds": 1.9068653986323627e-05,
+        "max_seconds": 3.163643999141641e-05
+      },
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          1.1718969908542931e-06,
+          1.206148008350283e-06,
+          1.1276479926891626e-06,
+          1.1255080171395093e-06,
+          1.1236569844186305e-06,
+          1.138977997470647e-06,
+          1.4417580096051097e-06
+        ],
+        "median_seconds": 1.138977997470647e-06,
+        "min_seconds": 1.1236569844186305e-06,
+        "max_seconds": 1.4417580096051097e-06
+      },
+      "ratio": 18.256244680910324
+    },
+    {
+      "operation": "add",
+      "layout": "contiguous",
+      "size": 1048576,
+      "dtype": "float64",
+      "shape": [
+        1048576
+      ],
+      "strides_bytes": [
+        8
+      ],
+      "result_payload_bytes_per_call": 8388608,
+      "frumpy": {
+        "iterations": 2,
+        "seconds": [
+          0.017882765998365358,
+          0.015688935498474166,
+          0.01540489548642654,
+          0.018783779494697228,
+          0.015448800491867587,
+          0.01981597251142375,
+          0.01647078851237893
+        ],
+        "median_seconds": 0.01647078851237893,
+        "min_seconds": 0.01540489548642654,
+        "max_seconds": 0.01981597251142375
+      },
+      "numpy": {
+        "iterations": 44,
+        "seconds": [
+          0.00043218690883474085,
+          0.0003791497272852046,
+          0.0003527566137067466,
+          0.00036736497779863635,
+          0.0004036321816701357,
+          0.0006214901818153025,
+          0.0005385494316049682
+        ],
+        "median_seconds": 0.0004036321816701357,
+        "min_seconds": 0.0003527566137067466,
+        "max_seconds": 0.0006214901818153025
+      },
+      "ratio": 40.806430360004136
+    },
+    {
+      "operation": "add",
+      "layout": "reverse",
+      "size": 1048576,
+      "dtype": "float64",
+      "shape": [
+        1048576
+      ],
+      "strides_bytes": [
+        -8
+      ],
+      "result_payload_bytes_per_call": 8388608,
+      "frumpy": {
+        "iterations": 2,
+        "seconds": [
+          0.015222460991935804,
+          0.01649569399887696,
+          0.020371601000078954,
+          0.016221639496507123,
+          0.015304595508496277,
+          0.016608093501417898,
+          0.016940143003012054
+        ],
+        "median_seconds": 0.01649569399887696,
+        "min_seconds": 0.015222460991935804,
+        "max_seconds": 0.020371601000078954
+      },
+      "numpy": {
+        "iterations": 42,
+        "seconds": [
+          0.000634713548130267,
+          0.0006599823328932482,
+          0.000734342404896216,
+          0.0006628927859267042,
+          0.0006453620950369874,
+          0.0006530525958320746,
+          0.0005875934044265055
+        ],
+        "median_seconds": 0.0006530525958320746,
+        "min_seconds": 0.0005875934044265055,
+        "max_seconds": 0.000734342404896216
+      },
+      "ratio": 25.25936517848043
+    },
+    {
+      "operation": "add",
+      "layout": "stride2",
+      "size": 1048576,
+      "dtype": "float64",
+      "shape": [
+        1048576
+      ],
+      "strides_bytes": [
+        16
+      ],
+      "result_payload_bytes_per_call": 8388608,
+      "frumpy": {
+        "iterations": 2,
+        "seconds": [
+          0.016510618486790918,
+          0.017172602500068024,
+          0.01743016199907288,
+          0.022788211499573663,
+          0.01593957950535696,
+          0.016067994496552274,
+          0.01658870349638164
+        ],
+        "median_seconds": 0.01658870349638164,
+        "min_seconds": 0.01593957950535696,
+        "max_seconds": 0.022788211499573663
+      },
+      "numpy": {
+        "iterations": 27,
+        "seconds": [
+          0.001108690480813729,
+          0.0010264617406021527,
+          0.0009777455556171913,
+          0.0013236722971433428,
+          0.001157361111836508,
+          0.0012731498152586734,
+          0.0012021466294148315
+        ],
+        "median_seconds": 0.001157361111836508,
+        "min_seconds": 0.0009777455556171913,
+        "max_seconds": 0.0013236722971433428
+      },
+      "ratio": 14.333213140416115
+    },
+    {
+      "operation": "add",
+      "layout": "broadcast",
+      "size": 1048576,
+      "dtype": "float64",
+      "shape": [
+        1048576
+      ],
+      "strides_bytes": [
+        8
+      ],
+      "result_payload_bytes_per_call": 8388608,
+      "frumpy": {
+        "iterations": 2,
+        "seconds": [
+          0.01810695050517097,
+          0.021214774998952635,
+          0.017856686012237333,
+          0.015516415005549788,
+          0.016626448501483537,
+          0.02253566699801013,
+          0.023140660996432416
+        ],
+        "median_seconds": 0.01810695050517097,
+        "min_seconds": 0.015516415005549788,
+        "max_seconds": 0.023140660996432416
+      },
+      "numpy": {
+        "iterations": 43,
+        "seconds": [
+          0.0002530848608774588,
+          0.00022865002325107885,
+          0.00021905586093685827,
+          0.00021034053548477417,
+          0.00017204758139911954,
+          0.00018654381423149,
+          0.00018903244148701603
+        ],
+        "median_seconds": 0.00021034053548477417,
+        "min_seconds": 0.00017204758139911954,
+        "max_seconds": 0.0002530848608774588
+      },
+      "ratio": 86.08398026295636
+    },
+    {
+      "operation": "sum",
+      "layout": "contiguous",
+      "size": 1048576,
+      "dtype": "float64",
+      "shape": [
+        1048576
+      ],
+      "strides_bytes": [
+        8
+      ],
+      "result_payload_bytes_per_call": 8,
+      "frumpy": {
+        "iterations": 8,
+        "seconds": [
+          0.0049386081263946835,
+          0.005597526876954362,
+          0.00607610337465303,
+          0.006288702999881934,
+          0.005387577250075992,
+          0.005450543376355199,
+          0.005879490123334108
+        ],
+        "median_seconds": 0.005597526876954362,
+        "min_seconds": 0.0049386081263946835,
+        "max_seconds": 0.006288702999881934
+      },
+      "numpy": {
+        "iterations": 129,
+        "seconds": [
+          0.00019153590695824215,
+          0.00019292808530397366,
+          0.00019375505417679227,
+          0.00020050938744747707,
+          0.00019514513185767588,
+          0.0001744788138704851,
+          0.000157174201503526
+        ],
+        "median_seconds": 0.00019292808530397366,
+        "min_seconds": 0.000157174201503526,
+        "max_seconds": 0.00020050938744747707
+      },
+      "ratio": 29.01354081307037
+    },
+    {
+      "operation": "sum",
+      "layout": "stride2",
+      "size": 1048576,
+      "dtype": "float64",
+      "shape": [
+        1048576
+      ],
+      "strides_bytes": [
+        16
+      ],
+      "result_payload_bytes_per_call": 8,
+      "frumpy": {
+        "iterations": 6,
+        "seconds": [
+          0.005392308167453545,
+          0.00598049183220913,
+          0.006433096166195658,
+          0.005895633667629833,
+          0.006172260002737555,
+          0.0054417546683301525,
+          0.006898776831803843
+        ],
+        "median_seconds": 0.00598049183220913,
+        "min_seconds": 0.005392308167453545,
+        "max_seconds": 0.006898776831803843
+      },
+      "numpy": {
+        "iterations": 49,
+        "seconds": [
+          0.0003497503467417341,
+          0.00029032987753898666,
+          0.0003135132654427494,
+          0.00030958491831314656,
+          0.00032749265308815,
+          0.00036539726508116085,
+          0.0003495562651755326
+        ],
+        "median_seconds": 0.00032749265308815,
+        "min_seconds": 0.00029032987753898666,
+        "max_seconds": 0.00036539726508116085
+      },
+      "ratio": 18.26145342747394
+    },
+    {
+      "operation": "sort",
+      "layout": "contiguous",
+      "size": 1024,
+      "dtype": "float64",
+      "shape": [
+        1024
+      ],
+      "strides_bytes": [
+        8
+      ],
+      "result_payload_bytes_per_call": 8192,
+      "frumpy": {
+        "iterations": 210,
+        "seconds": [
+          0.00022521423331151407,
+          0.00025082661900558464,
+          0.0002322563190578616,
+          0.00022257171901098142,
+          0.000325181857139493,
+          0.00034385067618651583,
+          0.0003071134618949145
+        ],
+        "median_seconds": 0.00025082661900558464,
+        "min_seconds": 0.00022257171901098142,
+        "max_seconds": 0.00034385067618651583
+      },
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          1.2463627004763111e-05,
+          1.2423576001310721e-05,
+          1.763244697940536e-05,
+          1.440645198454149e-05,
+          1.4539382013026626e-05,
+          1.3343814993277193e-05,
+          1.3727623998420314e-05
+        ],
+        "median_seconds": 1.3727623998420314e-05,
+        "min_seconds": 1.2423576001310721e-05,
+        "max_seconds": 1.763244697940536e-05
+      },
+      "ratio": 18.271670249305206
+    },
+    {
+      "operation": "sort",
+      "layout": "contiguous",
+      "size": 8192,
+      "dtype": "float64",
+      "shape": [
+        8192
+      ],
+      "strides_bytes": [
+        8
+      ],
+      "result_payload_bytes_per_call": 65536,
+      "frumpy": {
+        "iterations": 3,
+        "seconds": [
+          0.011308661671743417,
+          0.010774503006056571,
+          0.010667279663418109,
+          0.013403810997260734,
+          0.011285585002042353,
+          0.009892204659990966,
+          0.011173098668223247
+        ],
+        "median_seconds": 0.011173098668223247,
+        "min_seconds": 0.009892204659990966,
+        "max_seconds": 0.013403810997260734
+      },
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          4.2973487987183035e-05,
+          4.5505842979764564e-05,
+          4.7773878992302343e-05,
+          3.994304299703799e-05,
+          4.956913599744439e-05,
+          4.2049640003824605e-05,
+          5.240479001076892e-05
+        ],
+        "median_seconds": 4.5505842979764564e-05,
+        "min_seconds": 3.994304299703799e-05,
+        "max_seconds": 5.240479001076892e-05
+      },
+      "ratio": 245.5310776946089
+    },
+    {
+      "operation": "matmul",
+      "layout": "contiguous",
+      "size": 128,
+      "dtype": "float64",
+      "shape": [
+        128,
+        128
+      ],
+      "strides_bytes": [
+        1024,
+        8
+      ],
+      "result_payload_bytes_per_call": 131072,
+      "frumpy": {
+        "iterations": 23,
+        "seconds": [
+          0.0014804136957062165,
+          0.0014819006521619208,
+          0.0014970910434266957,
+          0.0013362048699965944,
+          0.0012741940862843362,
+          0.0012656180010906057,
+          0.0014004830002744236
+        ],
+        "median_seconds": 0.0014004830002744236,
+        "min_seconds": 0.0012656180010906057,
+        "max_seconds": 0.0014970910434266957
+      },
+      "numpy": {
+        "iterations": 348,
+        "seconds": [
+          9.028370976889634e-05,
+          8.178975567925486e-05,
+          9.03636781463999e-05,
+          7.921410339814878e-05,
+          8.654095399415591e-05,
+          9.024376434343599e-05,
+          9.557866950013579e-05
+        ],
+        "median_seconds": 9.024376434343599e-05,
+        "min_seconds": 7.921410339814878e-05,
+        "max_seconds": 9.557866950013579e-05
+      },
+      "ratio": 15.518889426472485
+    },
+    {
+      "operation": "solve",
+      "layout": "contiguous",
+      "size": 64,
+      "dtype": "float64",
+      "shape": [
+        64,
+        64
+      ],
+      "strides_bytes": [
+        512,
+        8
+      ],
+      "result_payload_bytes_per_call": 32768,
+      "frumpy": {
+        "iterations": 88,
+        "seconds": [
+          0.0004308604319786272,
+          0.00033754628417558376,
+          0.000337817647960037,
+          0.00032748153402776967,
+          0.00034644525029844687,
+          0.0002516059999338309,
+          0.00026435892042090103
+        ],
+        "median_seconds": 0.00033754628417558376,
+        "min_seconds": 0.0002516059999338309,
+        "max_seconds": 0.0004308604319786272
+      },
+      "numpy": {
+        "iterations": 415,
+        "seconds": [
+          8.523742645889162e-05,
+          8.875344583977867e-05,
+          8.287386504473187e-05,
+          9.127187469682421e-05,
+          7.052374456683735e-05,
+          6.721047474161149e-05,
+          7.40627735062132e-05
+        ],
+        "median_seconds": 8.287386504473187e-05,
+        "min_seconds": 6.721047474161149e-05,
+        "max_seconds": 9.127187469682421e-05
+      },
+      "ratio": 4.073012450829828
+    }
+  ]
+}

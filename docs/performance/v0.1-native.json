@@ -1,0 +1,771 @@
+{
+  "utc": "2026-10-27T04:37:32.558091+00:00",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+  "numpy": "2.4.6",
+  "python": "3.12.3",
+  "compilers": {
+    "GNU14": "GCC version 14.2.0\n-I /home/lynn/Documents/Codex/2026-09-07/so/work/rc-matrix/gfortran-14-release/mod -mtune=generic -march=x86-64 -O3 -std=f2018 -fimplicit-none -foffload-options=-l_GCC_gfortran -foffload-options=-l_GCC_m -J /home/lynn/Documents/Codex/2026-09-07/so/work/rc-matrix/gfortran-14-release/mod -fpre-include=/usr/include/finclude/x86_64-linux-gnu/math-vector-fortran.h"
+  },
+  "affinity": [
+    0
+  ],
+  "git_head": "3e1a191e417eb252e3670f93226a8320d7b7b7c1",
+  "git_dirty": false,
+  "method": "Single CPU; warmed inputs; allocation/call/release timed; setup/checks untimed; median of batch means calibrated per backend to about 20 ms; no process startup in timing; no fast-math.",
+  "numpy_build": {
+    "Compilers": {
+      "c": {
+        "name": "gcc",
+        "linker": "ld.bfd",
+        "version": "14.2.1",
+        "commands": "cc"
+      },
+      "cython": {
+        "name": "cython",
+        "linker": "cython",
+        "version": "3.2.4",
+        "commands": "cython"
+      },
+      "c++": {
+        "name": "gcc",
+        "linker": "ld.bfd",
+        "version": "14.2.1",
+        "commands": "c++"
+      }
+    },
+    "Machine Information": {
+      "host": {
+        "cpu": "x86_64",
+        "family": "x86_64",
+        "endian": "little",
+        "system": "linux"
+      },
+      "build": {
+        "cpu": "x86_64",
+        "family": "x86_64",
+        "endian": "little",
+        "system": "linux"
+      }
+    },
+    "Build Dependencies": {
+      "blas": {
+        "name": "scipy-openblas",
+        "found": true,
+        "version": "0.3.31.188.0",
+        "detection method": "pkgconfig",
+        "include directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/include",
+        "lib directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/lib",
+        "openblas configuration": "OpenBLAS 0.3.31.188.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY SkylakeX MAX_THREADS=64",
+        "pc file directory": "/project/.openblas"
+      },
+      "lapack": {
+        "name": "scipy-openblas",
+        "found": true,
+        "version": "0.3.31.188.0",
+        "detection method": "pkgconfig",
+        "include directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/include",
+        "lib directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/lib",
+        "openblas configuration": "OpenBLAS 0.3.31.188.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY SkylakeX MAX_THREADS=64",
+        "pc file directory": "/project/.openblas"
+      }
+    },
+    "Python Information": {
+      "path": "/tmp/build-env-tgi5ymto/bin/python",
+      "version": "3.12"
+    },
+    "SIMD Extensions": {
+      "baseline": [
+        "X86_V2"
+      ],
+      "found": [
+        "X86_V3"
+      ],
+      "not found": [
+        "X86_V4",
+        "AVX512_ICL",
+        "AVX512_SPR"
+      ]
+    }
+  },
+  "threads": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "allocation_scope": "One owned result payload per iteration; descriptor and scratch allocations included in timing but not individually counted.",
+  "rows": [
+    {
+      "operation": "add_r64",
+      "layout": "contiguous",
+      "count": 1024,
+      "result_payload_bytes_per_call": 8192,
+      "iterations": {
+        "numpy": 26358,
+        "GNU14": 2052
+      },
+      "checksum": 2559.5,
+      "numpy": {
+        "seconds": [
+          8.627777902902126e-07,
+          1.0493769628258035e-06,
+          8.208577660041658e-07,
+          8.430358145270935e-07,
+          8.121291443224881e-07,
+          1.000660140745673e-06,
+          8.773562487684599e-07
+        ],
+        "median_seconds": 8.627777902902126e-07,
+        "min_seconds": 8.121291443224881e-07,
+        "max_seconds": 1.0493769628258035e-06
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            1.3967961013645224e-05,
+            1.1267532163742691e-05,
+            1.1153058966861599e-05,
+            1.0294887914230019e-05,
+            1.1154628167641325e-05,
+            1.1432546783625731e-05,
+            1.1576859649122807e-05
+          ],
+          "median_seconds": 1.1267532163742691e-05,
+          "min_seconds": 1.0294887914230019e-05,
+          "max_seconds": 1.3967961013645224e-05,
+          "ratio_to_numpy": 13.059599227690633
+        }
+      }
+    },
+    {
+      "operation": "add_r64",
+      "layout": "reverse",
+      "count": 1024,
+      "result_payload_bytes_per_call": 8192,
+      "iterations": {
+        "numpy": 12342,
+        "GNU14": 2012
+      },
+      "checksum": 2559.5,
+      "numpy": {
+        "seconds": [
+          1.0583920772859757e-06,
+          1.1196413879625207e-06,
+          1.1209021247724161e-06,
+          1.1382250845083054e-06,
+          1.4530040499819296e-06,
+          1.4501228320776506e-06,
+          8.398153446901489e-07
+        ],
+        "median_seconds": 1.1209021247724161e-06,
+        "min_seconds": 8.398153446901489e-07,
+        "max_seconds": 1.4530040499819296e-06
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            1.077714662027833e-05,
+            1.0190895626242545e-05,
+            1.029204324055666e-05,
+            1.2337168986083499e-05,
+            1.2136110337972166e-05,
+            1.1101539761431412e-05,
+            1.150319930417495e-05
+          ],
+          "median_seconds": 1.1101539761431412e-05,
+          "min_seconds": 1.0190895626242545e-05,
+          "max_seconds": 1.2337168986083499e-05,
+          "ratio_to_numpy": 9.904111622310849
+        }
+      }
+    },
+    {
+      "operation": "add_r64",
+      "layout": "stride2",
+      "count": 1024,
+      "result_payload_bytes_per_call": 8192,
+      "iterations": {
+        "numpy": 12136,
+        "GNU14": 2067
+      },
+      "checksum": 2560.0,
+      "numpy": {
+        "seconds": [
+          1.306801252258173e-06,
+          1.1083087519372353e-06,
+          8.686593585119975e-07,
+          8.647799924967273e-07,
+          8.545551257132477e-07,
+          8.635357629763173e-07,
+          8.557794986321267e-07
+        ],
+        "median_seconds": 8.647799924967273e-07,
+        "min_seconds": 8.545551257132477e-07,
+        "max_seconds": 1.306801252258173e-06
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            1.057518045476536e-05,
+            1.2268912433478472e-05,
+            1.089962167392356e-05,
+            1.1690630865989356e-05,
+            1.0056671988388969e-05,
+            1.2307403483309143e-05,
+            1.0729288340590228e-05
+          ],
+          "median_seconds": 1.089962167392356e-05,
+          "min_seconds": 1.0056671988388969e-05,
+          "max_seconds": 1.2307403483309143e-05,
+          "ratio_to_numpy": 12.603924429906153
+        }
+      }
+    },
+    {
+      "operation": "add_r64",
+      "layout": "broadcast",
+      "count": 1024,
+      "result_payload_bytes_per_call": 8192,
+      "iterations": {
+        "numpy": 14543,
+        "GNU14": 1664
+      },
+      "checksum": 2559.5,
+      "numpy": {
+        "seconds": [
+          6.49151000248877e-07,
+          9.9739338488605e-07,
+          6.496034514430234e-07,
+          9.960284686703645e-07,
+          7.230151971364215e-07,
+          1.0891556069956745e-06,
+          7.44538265240401e-07
+        ],
+        "median_seconds": 7.44538265240401e-07,
+        "min_seconds": 6.49151000248877e-07,
+        "max_seconds": 1.0891556069956745e-06
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            1.1337292668269231e-05,
+            1.1459383413461538e-05,
+            1.174303125e-05,
+            1.1286931490384616e-05,
+            1.115548377403846e-05,
+            1.2118967548076922e-05,
+            1.1570116586538462e-05
+          ],
+          "median_seconds": 1.1459383413461538e-05,
+          "min_seconds": 1.115548377403846e-05,
+          "max_seconds": 1.2118967548076922e-05,
+          "ratio_to_numpy": 15.391261871223588
+        }
+      }
+    },
+    {
+      "operation": "add_r32",
+      "layout": "contiguous",
+      "count": 1024,
+      "result_payload_bytes_per_call": 4096,
+      "iterations": {
+        "numpy": 26477,
+        "GNU14": 3557
+      },
+      "checksum": 2559.5,
+      "numpy": {
+        "seconds": [
+          6.871007288742017e-07,
+          8.253989874588924e-07,
+          7.435329539031122e-07,
+          6.167991079014241e-07,
+          6.248490765938997e-07,
+          7.407116366908195e-07,
+          7.030005657456374e-07
+        ],
+        "median_seconds": 7.030005657456374e-07,
+        "min_seconds": 6.167991079014241e-07,
+        "max_seconds": 8.253989874588924e-07
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            5.798136631993253e-06,
+            4.987691031768344e-06,
+            4.8968448130447006e-06,
+            6.019954737138037e-06,
+            4.567736856901883e-06,
+            5.165722800112455e-06,
+            4.483553556367726e-06
+          ],
+          "median_seconds": 4.987691031768344e-06,
+          "min_seconds": 4.483553556367726e-06,
+          "max_seconds": 6.019954737138037e-06,
+          "ratio_to_numpy": 7.094860622876101
+        }
+      }
+    },
+    {
+      "operation": "sum_r64",
+      "layout": "contiguous",
+      "count": 1024,
+      "result_payload_bytes_per_call": 8,
+      "iterations": {
+        "numpy": 8657,
+        "GNU14": 3719
+      },
+      "checksum": 511.5,
+      "numpy": {
+        "seconds": [
+          2.1572063082470447e-06,
+          1.9262964064611446e-06,
+          1.9588284610536227e-06,
+          2.7186283925103888e-06,
+          2.568535060751217e-06,
+          1.926740094474124e-06,
+          2.314193368210237e-06
+        ],
+        "median_seconds": 2.1572063082470447e-06,
+        "min_seconds": 1.9262964064611446e-06,
+        "max_seconds": 2.7186283925103888e-06
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            7.582319709599355e-06,
+            6.4610497445549875e-06,
+            6.0438069373487494e-06,
+            5.721427803172896e-06,
+            5.615732723850497e-06,
+            6.281639150309223e-06,
+            6.6267445549879e-06
+          ],
+          "median_seconds": 6.281639150309223e-06,
+          "min_seconds": 5.615732723850497e-06,
+          "max_seconds": 7.582319709599355e-06,
+          "ratio_to_numpy": 2.9119324963469584
+        }
+      }
+    },
+    {
+      "operation": "sum_r64",
+      "layout": "stride2",
+      "count": 1024,
+      "result_payload_bytes_per_call": 8,
+      "iterations": {
+        "numpy": 10472,
+        "GNU14": 3205
+      },
+      "checksum": 512.0,
+      "numpy": {
+        "seconds": [
+          2.326652309551374e-06,
+          2.272262794940894e-06,
+          3.1727479963411838e-06,
+          2.443755826356268e-06,
+          2.3655150890278484e-06,
+          2.145741787750482e-06,
+          2.3122807480256104e-06
+        ],
+        "median_seconds": 2.326652309551374e-06,
+        "min_seconds": 2.145741787750482e-06,
+        "max_seconds": 3.1727479963411838e-06
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            6.828211544461778e-06,
+            6.344446801872074e-06,
+            6.148459594383775e-06,
+            6.235173790951638e-06,
+            7.601015600624025e-06,
+            5.988450546021841e-06,
+            7.365792823712949e-06
+          ],
+          "median_seconds": 6.344446801872074e-06,
+          "min_seconds": 5.988450546021841e-06,
+          "max_seconds": 7.601015600624025e-06,
+          "ratio_to_numpy": 2.7268564262166928
+        }
+      }
+    },
+    {
+      "operation": "add_r64",
+      "layout": "contiguous",
+      "count": 1048576,
+      "result_payload_bytes_per_call": 8388608,
+      "iterations": {
+        "numpy": 43,
+        "GNU14": 3
+      },
+      "checksum": 2621439.5,
+      "numpy": {
+        "seconds": [
+          0.00044079779019189433,
+          0.00042970406993422225,
+          0.00045446309309755994,
+          0.00046782865091551874,
+          0.0005136729762239685,
+          0.0004431786980794006,
+          0.00040122437179846646
+        ],
+        "median_seconds": 0.0004431786980794006,
+        "min_seconds": 0.00040122437179846646,
+        "max_seconds": 0.0005136729762239685
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.011412451666666665,
+            0.010183044333333334,
+            0.010037151333333333,
+            0.010101824333333334,
+            0.009513628666666668,
+            0.009497555333333333,
+            0.010588936666666666
+          ],
+          "median_seconds": 0.010101824333333334,
+          "min_seconds": 0.009497555333333333,
+          "max_seconds": 0.011412451666666665,
+          "ratio_to_numpy": 22.794020509360028
+        }
+      }
+    },
+    {
+      "operation": "add_r64",
+      "layout": "reverse",
+      "count": 1048576,
+      "result_payload_bytes_per_call": 8388608,
+      "iterations": {
+        "numpy": 49,
+        "GNU14": 2
+      },
+      "checksum": 2621439.5,
+      "numpy": {
+        "seconds": [
+          0.0005119290405988921,
+          0.0006984686734373396,
+          0.0007368728978207753,
+          0.0007008696937154294,
+          0.0005063925102372103,
+          0.0006011368163946864,
+          0.0005608420202518072
+        ],
+        "median_seconds": 0.0006011368163946864,
+        "min_seconds": 0.0005063925102372103,
+        "max_seconds": 0.0007368728978207753
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.0146109775,
+            0.0118593125,
+            0.0115808485,
+            0.0116159425,
+            0.0116216185,
+            0.0119641075,
+            0.0110839445
+          ],
+          "median_seconds": 0.0116216185,
+          "min_seconds": 0.0110839445,
+          "max_seconds": 0.0146109775,
+          "ratio_to_numpy": 19.33273455068111
+        }
+      }
+    },
+    {
+      "operation": "add_r64",
+      "layout": "stride2",
+      "count": 1048576,
+      "result_payload_bytes_per_call": 8388608,
+      "iterations": {
+        "numpy": 14,
+        "GNU14": 2
+      },
+      "checksum": 2621440.0,
+      "numpy": {
+        "seconds": [
+          0.0013102096418151632,
+          0.0015104207143719708,
+          0.001679183285367409,
+          0.0016396732847039988,
+          0.0015868412862930978,
+          0.001211196999065578,
+          0.0011335300015551703
+        ],
+        "median_seconds": 0.0015104207143719708,
+        "min_seconds": 0.0011335300015551703,
+        "max_seconds": 0.001679183285367409
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.011616658,
+            0.009506007,
+            0.0097878115,
+            0.011434173,
+            0.0098066865,
+            0.0104263255,
+            0.0109277495
+          ],
+          "median_seconds": 0.0104263255,
+          "min_seconds": 0.009506007,
+          "max_seconds": 0.011616658,
+          "ratio_to_numpy": 6.902928039049862
+        }
+      }
+    },
+    {
+      "operation": "add_r64",
+      "layout": "broadcast",
+      "count": 1048576,
+      "result_payload_bytes_per_call": 8388608,
+      "iterations": {
+        "numpy": 91,
+        "GNU14": 2
+      },
+      "checksum": 2621439.5,
+      "numpy": {
+        "seconds": [
+          0.00018028680210840982,
+          0.00019922291196033276,
+          0.00019947830766726,
+          0.0001855444835990176,
+          0.00019634929664719565,
+          0.00019525590091739055,
+          0.00019299634060679146
+        ],
+        "median_seconds": 0.00019525590091739055,
+        "min_seconds": 0.00018028680210840982,
+        "max_seconds": 0.00019947830766726
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.0134446745,
+            0.010513225,
+            0.0103860305,
+            0.0108506695,
+            0.0107022995,
+            0.0108441745,
+            0.010581215
+          ],
+          "median_seconds": 0.0107022995,
+          "min_seconds": 0.0103860305,
+          "max_seconds": 0.0134446745,
+          "ratio_to_numpy": 54.81165716229985
+        }
+      }
+    },
+    {
+      "operation": "add_r32",
+      "layout": "contiguous",
+      "count": 1048576,
+      "result_payload_bytes_per_call": 4194304,
+      "iterations": {
+        "numpy": 106,
+        "GNU14": 7
+      },
+      "checksum": 2621439.5,
+      "numpy": {
+        "seconds": [
+          0.00016262450003952562,
+          0.0001590518681178713,
+          0.00016212743407176844,
+          0.00016144460357093025,
+          0.0001623670472807409,
+          0.0001598035662439388,
+          0.00015957941513130758
+        ],
+        "median_seconds": 0.00016144460357093025,
+        "min_seconds": 0.0001590518681178713,
+        "max_seconds": 0.00016262450003952562
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.0033708994285714285,
+            0.003520741857142857,
+            0.0038796898571428575,
+            0.0028677945714285715,
+            0.0026878664285714285,
+            0.0026931107142857146,
+            0.002734442
+          ],
+          "median_seconds": 0.0028677945714285715,
+          "min_seconds": 0.0026878664285714285,
+          "max_seconds": 0.0038796898571428575,
+          "ratio_to_numpy": 17.763334964420867
+        }
+      }
+    },
+    {
+      "operation": "sum_r64",
+      "layout": "contiguous",
+      "count": 1048576,
+      "result_payload_bytes_per_call": 8,
+      "iterations": {
+        "numpy": 132,
+        "GNU14": 4
+      },
+      "checksum": 524287.5,
+      "numpy": {
+        "seconds": [
+          0.0001765551968481194,
+          0.0001956222044871979,
+          0.0001847159393505673,
+          0.00015337872724613231,
+          0.00016488619682301456,
+          0.0001756609545378579,
+          0.00017250475745337704
+        ],
+        "median_seconds": 0.0001756609545378579,
+        "min_seconds": 0.00015337872724613231,
+        "max_seconds": 0.0001956222044871979
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.00463024375,
+            0.004743461,
+            0.0047298235,
+            0.004727961,
+            0.0046989885,
+            0.00468585125,
+            0.0052551925
+          ],
+          "median_seconds": 0.004727961,
+          "min_seconds": 0.00463024375,
+          "max_seconds": 0.0052551925,
+          "ratio_to_numpy": 26.915264194246678
+        }
+      }
+    },
+    {
+      "operation": "sum_r64",
+      "layout": "stride2",
+      "count": 1048576,
+      "result_payload_bytes_per_call": 8,
+      "iterations": {
+        "numpy": 59,
+        "GNU14": 4
+      },
+      "checksum": 524288.0,
+      "numpy": {
+        "seconds": [
+          0.00030360705124498423,
+          0.000332254796561201,
+          0.0003263812543729604,
+          0.00027156845761178915,
+          0.0002721477969810051,
+          0.0003335958137571559,
+          0.00032893038982272907
+        ],
+        "median_seconds": 0.0003263812543729604,
+        "min_seconds": 0.00027156845761178915,
+        "max_seconds": 0.0003335958137571559
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.00458890125,
+            0.00490963825,
+            0.0055727945,
+            0.0049707155,
+            0.004967373,
+            0.0049979555,
+            0.0048303235
+          ],
+          "median_seconds": 0.004967373,
+          "min_seconds": 0.00458890125,
+          "max_seconds": 0.0055727945,
+          "ratio_to_numpy": 15.219541359822442
+        }
+      }
+    },
+    {
+      "operation": "sort_r64",
+      "layout": "contiguous",
+      "count": 1024,
+      "result_payload_bytes_per_call": 8192,
+      "iterations": {
+        "numpy": 1333,
+        "GNU14": 67
+      },
+      "checksum": 511.5,
+      "numpy": {
+        "seconds": [
+          1.3890048775951876e-05,
+          1.395865342550438e-05,
+          1.364132407853563e-05,
+          1.3735623414881824e-05,
+          1.4251540882222282e-05,
+          1.4939086279599171e-05,
+          1.545184621058505e-05
+        ],
+        "median_seconds": 1.395865342550438e-05,
+        "min_seconds": 1.364132407853563e-05,
+        "max_seconds": 1.545184621058505e-05
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.000214294223880597,
+            0.00019872649253731343,
+            0.0001664705671641791,
+            0.00016683297014925374,
+            0.0001798729552238806,
+            0.000193482776119403,
+            0.00024443670149253735
+          ],
+          "median_seconds": 0.000193482776119403,
+          "min_seconds": 0.0001664705671641791,
+          "max_seconds": 0.00024443670149253735,
+          "ratio_to_numpy": 13.861134754293944
+        }
+      }
+    },
+    {
+      "operation": "sort_r64",
+      "layout": "contiguous",
+      "count": 8192,
+      "result_payload_bytes_per_call": 65536,
+      "iterations": {
+        "numpy": 552,
+        "GNU14": 3
+      },
+      "checksum": 4095.5,
+      "numpy": {
+        "seconds": [
+          3.664639856045445e-05,
+          4.233966483034369e-05,
+          4.299290763362702e-05,
+          3.5665114093875594e-05,
+          5.0047369544357196e-05,
+          3.5196309751051516e-05,
+          3.689018300012348e-05
+        ],
+        "median_seconds": 3.689018300012348e-05,
+        "min_seconds": 3.5196309751051516e-05,
+        "max_seconds": 5.0047369544357196e-05
+      },
+      "frumpy": {
+        "GNU14": {
+          "seconds": [
+            0.009449365333333333,
+            0.010303623666666666,
+            0.012226320333333334,
+            0.011450515,
+            0.011527118333333334,
+            0.012366183333333334,
+            0.012131240666666668
+          ],
+          "median_seconds": 0.011527118333333334,
+          "min_seconds": 0.009449365333333333,
+          "max_seconds": 0.012366183333333334,
+          "ratio_to_numpy": 312.471161590463
+        }
+      }
+    }
+  ]
+}

@@ -83,3 +83,42 @@ at 8,192 elements warrants replacing it with an efficient stable algorithm.
 Compiler choice also affects the float32 fallback substantially, so improvements
 need both GNU and LLVM validation and measurement. These are conclusions from
 the code and baseline, not proof that one specific change will close the gap.
+
+
+## v0.1 frozen baseline — 2026-10-26
+
+Measured clean source: `3e1a191`, after all six compiler configurations passed.
+The new [native table](performance/v0.1-native.md) and
+[Python table](performance/v0.1-python.md) retain their
+[native raw samples](performance/v0.1-native.json) and
+[Python raw samples](performance/v0.1-python.json). Both use GNU 14 `-O3`, single
+CPU affinity, seven warmed samples and thread environment variables fixed at
+one. Inputs/exports are outside timing; result allocation and release are inside.
+Result payload bytes are recorded. Descriptor, scratch and Python metadata
+allocation costs are included in time but individual heap calls are not counted.
+
+The Python baseline adds 128×128 matmul and 64×64 solve. Frumpy links reference
+LP64 BLAS/LAPACK 3.12.0; NumPy uses its wheel's OpenBLAS 0.3.31.188.0. These
+backend differences are material, so matrix timing is not isolated wrapper cost.
+Likewise, Python arithmetic uses the mixed dispatcher while the native addition
+baseline uses concrete typed kernels; their timing difference cannot all be
+attributed to Python overhead.
+
+Representative Python medians: 1,024-element add 39.16 µs versus NumPy 0.74 µs;
+one-million-element add 16.47 ms versus 0.404 ms; 8,192-element stable sort
+11.17 ms versus 0.046 ms. These are measured starting points, not speed targets.
+The next investigations are efficient stable sorting, contiguous/mixed traversal,
+small-call allocation/dispatch, and backend/packing policy, with before/after
+checks on signed strides and ownership. See [the post-v0.1 plan](POST_V0_1_PLAN.md).
+
+To reproduce the Python entry point after the validated release build:
+
+```sh
+PYTHONPATH=python FRUMPY_LIBRARY="$PWD/build/gcc14-release/libfrumpy.so" \
+  .venv/bin/python benchmarks/compare_python.py --samples 7 \
+  --output build/benchmark/python.json
+```
+
+Stop other build/benchmark jobs before collecting comparison samples. Preserve
+the raw source/configuration metadata and compare multiple runs before setting
+performance regression thresholds.

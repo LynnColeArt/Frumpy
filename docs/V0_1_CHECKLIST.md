@@ -1,6 +1,7 @@
 # Frumpy v0.1 release checklist
 
-Status: in progress. Release scope established on 2026-10-26.
+Status: release candidate ready for review. Scope established on 2026-10-26.
+Publishing/tagging is a separate step; no full NumPy compatibility is implied.
 
 v0.1 is a usable CPU array library for Fortran and Python, with an explicit
 NumPy-compatible subset. It is not full NumPy or Array API conformance. This
@@ -101,16 +102,16 @@ Depends on the storage contract; design can start before B/C are complete.
 - [x] E1: publish an operation-by-dtype coverage table linked to public APIs and
   tests. Audit every v0.1 export against it; no unsupported operation silently
   changes dtype or falls back to NumPy.
-- [ ] E2: pass the full compiler matrix and applicable sanitizer gates on the
+- [x] E2: pass the full compiler matrix and applicable sanitizer gates on the
   release candidate; verify fpm with development libraries installed, as well
   as Make. Automate the supported Linux build and differential checks in CI.
 - [x] E3: end-to-end Fortran and installed-Python examples covering creation,
   views, broadcast mixed arithmetic, reduction, selection, matmul and solve;
   compare results and ownership behavior with the declared NumPy contract.
-- [ ] E4: release notes enumerate compatibility departures, build requirements,
+- [x] E4: release notes enumerate compatibility departures, build requirements,
   numerical tolerances, backend limits and remaining work. Resolve blockers,
   then prepare the v0.1 release candidate; publishing/tagging is a separate step.
-- [ ] E5: capture reproducible performance baselines through both Fortran and
+- [x] E5: capture reproducible performance baselines through both Fortran and
   Python entry points, including allocations, sizes/layouts and BLAS threading.
   This freezes the starting point for the optimization phase, not a speed target.
 
@@ -173,3 +174,15 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   BLAS/LAPACK development archives. Moved the standalone C caller outside fpm's
   test source tree and reused per-profile PIC core objects in Make. Full final
   compiler/sanitizer evidence and baseline capture are still in progress.
+
+- 2026-10-26: completed release acceptance at source snapshot `3e1a191`.
+  All six GNU 13/14 and Flang 19 debug/release configurations pass 35 native
+  programs, two examples, 2,758 Python tests and the C caller. Both GNU memory
+  gates pass 2,643 differential cases; overflow gates pass 2,159; C/Python address
+  checks pass 87, with standalone C leak detection. fpm and clean source install
+  pass. CI is configured; hosted execution is not claimed. Release notes and
+  operation coverage are published in this tree. Native and Python baselines
+  capture clean-source, allocating calls, layouts, result bytes, backend/thread
+  settings and seven timing samples. See `validation/v0.1.json`,
+  `performance/v0.1-native.json` and `performance/v0.1-python.json`.
+  Candidate is ready for review; no merge, tag or package publication performed.

@@ -44,7 +44,7 @@ and the compiled differential driver with AddressSanitizer/leak detection. It
 also injects selected allocation failures. Compiler-temporary limitations are
 described in [STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).
 The separate integer overflow gate checks integer/mixed and linear algebra
-invariant programs and 1,505 NumPy comparisons with `-ftrapv`, `-fsanitize=undefined`, and
+invariant programs and 2,159 NumPy comparisons with `-ftrapv`, `-fsanitize=undefined`, and
 `-fno-sanitize-recover=undefined`; it does not enable floating-point traps.
 
 ## Observed results on 2026-10-26
@@ -61,33 +61,40 @@ flags are recorded in the matrix logs. See [linear algebra](LINEAR_ALGEBRA.md)
 for the conventional `-llapack -lblas` development-library default and ABI limits.
 
 Both GNU memory gates reported no leaks or memory errors on the exercised
-paths. The ordinary Python suite emitted two expected warnings from its
-existing empty-mean NumPy reference fixture.
+native paths. Each ordinary configuration passes **35 Fortran test programs,
+two examples, 2,758 Python tests, and the standalone C ownership caller**.
+The Python total comprises 2,643 compiled native differential cases, 28 NumPy
+oracle fixtures, 49 direct ABI tests and 38 public package tests. Six expected
+warnings come from NumPy's empty-mean oracle cases.
+
+Both GNU memory suites pass 2,643 compiled comparisons plus lifetime,
+allocation-failure and native invariant programs. Both overflow suites pass
+2,159 comparisons (484 unrelated cases deselected). Both C memory suites pass
+the standalone caller with leak detection and 87 ABI/package cases with address
+checks; only the Python process disables leak detection for CPython/NumPy
+process-global allocations. Flang sanitization is not claimed.
+
+fpm 0.12.0 passes all 35 native programs with GNU 14 and the Ubuntu
+BLAS/LAPACK 3.12.0 development archives extracted into an isolated SDK and supplied
+through LIBRARY_PATH. This exercises the conventional `-llapack -lblas` route,
+without changing the host package installation. The source archive builds and
+installs into a separate virtual environment; all 38 public API tests and the
+workflow example pass there without source-tree imports or library overrides.
+
+The measured source snapshot is `3e1a191`. [Machine-readable acceptance evidence](validation/v0.1.json)
+records suite counts, configurations and SHA-256 hashes of the complete local
+logs. The [operation table](V0_1_COVERAGE.md) maps the exercised surface and its
+numerical limits. The GitHub workflow mirrors the matrix, GNU gates, fpm and
+clean source installation; a hosted CI execution is not claimed by local results.
 
 ## Scope of the evidence
 
-The matrix covers 27 Fortran test programs, one example, and 2,017 Python tests
-(1,989 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
-float32 cases include exact results, signed zeros, NaNs/infinities, scalar and
-empty broadcasting, signed/zero strides, reduction axes, keepdims, empty-axis
-identities, pairwise summation, and seven unary functions. Unary comparisons
-include seeded float32 bit patterns, domain/range events, and a four-ULP finite
-result threshold, described in [dtype support](DTYPE_SUPPORT.md#float32-unary-arithmetic).
-The [reduction numerical contract](FLOAT32_REDUCTIONS.md)
-records intentional rounding-order differences. Lifetime tests cover all five
-registered dtypes and the explicit descriptor-vector sharing API. The integer
-cases cover both widths, four operations, exact full-range modular results,
-float64 true division, broadcasting, and signed/zero strides; see
-[integer arithmetic](INTEGER_ARITHMETIC.md). Mixed arithmetic adds 1,200 cases
-covering every ordered registered dtype pair, output types, random values,
-strides, boolean semantics and invalid shapes. Typed-result replacement and
-failure preservation are checked in Fortran; see
-[mixed arithmetic](MIXED_ARITHMETIC.md). Linear algebra adds 126 comparisons
-covering finite float64 matmul ranks/batches and unbatched solves, residuals,
-empty and singular cases, and explicit unsupported behavior. Another 51 outer
-product cases cover C-logical flattening, scalar/empty inputs, signed and zero
-strides, nonfinite values, signed zeros and floating-point extremes. Fortran invariants
-exercise input preservation and LP64/workspace/output overflow guards.
+These checks include managed lifetime and views for all five dtypes, modular
+integer arithmetic, every mixed arithmetic dtype pair, casts/comparisons,
+integer/bool/float reductions, selection/indexing, float64 dot/norms/batched
+solve, random state, C handles and Python ownership/coercion. The release-edge
+regression tests cover byte-count overflow, nonfinite arange and malformed
+float64 copies. Explicit Fortran container-copy restrictions remain in force.
 
 These are executable compatibility checks, not a general certification of
 Fortran portability. Intrinsic copying of descriptor containers remains

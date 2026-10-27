@@ -162,7 +162,9 @@ def test_numerical_boundary(handles):
     axes = np.array([-1], dtype=np.int64)
     np.testing.assert_allclose(handles.get(handles.make("norm", 0, x, axes.ctypes.data, 1, 0)),
                                np.linalg.vector_norm(a, axis=-1))
-    handles.make("linalg", 1, handles.put(np.array([1], dtype=np.int32)), y, status=5)
+    promoted = handles.get(handles.make("linalg", 1, handles.put(np.array([1], dtype=np.int32)), y))
+    assert promoted.dtype == np.float64
+    np.testing.assert_array_equal(promoted, b[None, :])
 
 
 def test_generator_handles(handles):

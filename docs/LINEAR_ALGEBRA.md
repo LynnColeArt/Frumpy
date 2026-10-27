@@ -14,9 +14,43 @@ Float32 `matmul_r32` and `solve_r32` accept `ndarray_r32` and return owned
 C-order float32 results with the same shape, lifetime and failure contracts.
 The C ABI uses the existing `frumpy_linalg` operations 3/4 with two R32 handles;
 Python `matmul`, `@` and `linalg.solve` preserve float32 for two float32 inputs.
-Mixed float32/float64 pairs and integer inputs are rejected with unsupported
-dtype; callers can cast explicitly. Float32 dot and outer are supported below; float32 norms remain separate
+Mixed-dtype solve remains unsupported. Dot, outer and matmul support the
+floating-result promotion contract below. Float32 dot and outer are supported below; float32 norms remain separate
 future work. Existing float64 APIs and C ABI version 1 remain compatible.
+
+## Floating-result promotion
+
+Native subroutines `call dot(lhs, rhs, result, status)`, `outer` and `matmul`
+accept any registered descriptor pair whose promoted dtype is float32 or float64.
+The caller supplies a result descriptor of that concrete type; a wrong destination
+or any reported failure preserves its previous value. Status is optional.
+Inputs and output must be distinct actual arguments, as with native arithmetic.
+Concrete `_r32`/`_r64` functions remain available without promotion.
+
+| Input pair (either order) | Result / computation dtype |
+| --- | --- |
+| bool + float32; float32 + float32 | float32 |
+| int32/int64 + float32 | float64 |
+| any registered dtype + float64 | float64 |
+
+All-integer/bool pairs remain unsupported. C `frumpy_linalg` operations 1–3 and
+Python `dot`, `outer`, `matmul`/`@` use this same policy. Python scalar inputs are
+first converted with `asarray`; these products do not apply weak-scalar arithmetic
+promotion. Mixed solve remains unsupported; norms remain float64-only.
+
+Each input whose dtype changes is converted to an owned C-order temporary using
+`astype` before computation. Already-matching inputs are borrowed with their
+original strides. Extra conversion payload is `sum(input.size * result.itemsize)`
+for changed inputs, plus descriptor overhead; matmul can need its existing backend
+workspaces. Casts currently happen before kernel shape checks and even for vacuous
+products. Large int64 values may round when converted to float64, matching NumPy.
+There is no cache: repeated calls repeat conversion; explicit reusable precasts
+avoid that cost. Returned results own independent storage after temporaries die.
+
+The promoted dtype selects the existing numerical policy: pairwise real32 dot,
+sequential real64 dot, or the corresponding SGEMM/DGEMM matmul. This can change
+cancellation behavior relative to computing in float32 and then casting the answer.
+IEEE and finite-input restrictions below apply after conversion.
 
 ## Outer product
 
@@ -83,7 +117,7 @@ NaN payloads are not specified. Four-byte result-size guards apply before
 allocation; these native kernels have no BLAS int32 dimension restriction.
 
 Native, C ABI and Python expose both products for two float32 inputs without
-promotion. Mixed-dtype pairs remain unsupported. Tests cover rank limits,
+promotion. Mixed pairs use the promoted accumulation dtype described above. Tests cover rank limits,
 virtual overflow, independent ownership, failure without status, signed/zero
 strides, nonfinite values, long contractions and cancellation across interfaces.
 

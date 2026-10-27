@@ -370,3 +370,12 @@ def test_float32_products_package(operation):
         assert result.dtype == np.dtype(np.float32)
         assert result.flags.owndata and result.flags.c_contiguous
         np.testing.assert_allclose(result.numpy(),getattr(np,operation)(a,b),rtol=2e-5,atol=2e-5)
+
+
+def test_promoted_products_package():
+    a = np.array([2**24, 1, -2**24], dtype=np.float32)
+    b = np.ones(3, dtype=np.int32)
+    for operation in ('dot', 'outer', 'matmul'):
+        with getattr(fp, operation)(a, b) as result:
+            assert result.dtype == np.dtype('float64')
+            np.testing.assert_array_equal(result.numpy(), getattr(np, operation)(a, b))

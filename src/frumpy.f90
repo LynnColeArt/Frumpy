@@ -24,6 +24,7 @@ module frumpy
   use frumpy_array_casting, only: astype
   use frumpy_random, only: random_generator, uniform_r64, normal_r64
   use frumpy_norms_r64, only: vector_norm_r64, matrix_norm_r64
+  use frumpy_product_promotion, only: dot, outer, matmul
   use frumpy_arithmetic, only: add, subtract, multiply, divide
   use frumpy_linalg_r32, only: matmul_r32, solve_r32, dot_r32, outer_r32
   use frumpy_linalg_r64, only: matmul_r64, solve_r64, outer_r64, dot_r64
@@ -82,6 +83,7 @@ module frumpy
 
   private
 
+  public :: dot, outer, matmul
   public :: matmul_r32, solve_r32, dot_r32, outer_r32
   public :: matmul_r64, solve_r64, outer_r64, dot_r64, FRUMPY_STATUS_SINGULAR_MATRIX
   public :: empty_bool, zeros_bool, ones_bool, full_bool

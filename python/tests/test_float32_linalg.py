@@ -96,7 +96,7 @@ def test_float32_nonfinite(handles, op, value):
 
 @pytest.mark.parametrize('left,right', [(np.float32,np.float64), (np.float64,np.float32),
                                        (np.int32,np.int32)])
-@pytest.mark.parametrize('op', [3, 4])
+@pytest.mark.parametrize('op', [4])
 def test_float32_linalg_promotion_remains_explicit(handles, left, right, op):
     handles.make('linalg', op, handles.put(np.eye(2,dtype=left)),
                  handles.put(np.eye(2,dtype=right)), status=5)

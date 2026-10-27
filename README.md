@@ -168,3 +168,6 @@ after installing the compiler and BLAS/LAPACK development prerequisites.
 See [Python installation and API semantics](docs/PYTHON.md). Native operations
 never silently fall back to NumPy computation. The release acceptance checklist
 remains the source of truth for candidate readiness.
+
+Dot, outer and matmul now support [floating-result mixed-dtype promotion](docs/LINEAR_ALGEBRA.md#floating-result-promotion).
+Integer-only products and mixed-dtype solve remain unsupported.

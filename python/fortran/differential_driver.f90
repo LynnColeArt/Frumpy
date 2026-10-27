@@ -16,6 +16,8 @@ program differential_driver
   use frumpy, only: owned_descriptor_i64, view_descriptor_i64, &
     add_i64, subtract_i64, multiply_i64, divide_i64
   use frumpy, only: add, subtract, multiply, divide, binary_result_dtype
+  use frumpy, only: dot, outer, matmul
+  use frumpy_promotion, only: promote_dtypes
   use frumpy, only: equal, not_equal, less, less_equal, greater, greater_equal, &
     logical_and_bool, logical_or_bool, logical_xor_bool, logical_not_bool
   use frumpy, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
@@ -89,7 +91,8 @@ contains
       return
     end if
     select case (trim(operation))
-    case ('mixed_add', 'mixed_subtract', 'mixed_multiply', 'mixed_divide')
+    case ('mixed_add', 'mixed_subtract', 'mixed_multiply', 'mixed_divide', &
+        'mixed_dot', 'mixed_outer', 'mixed_matmul')
       call run_mixed(operation(7:), axis0, side)
       return
     case ('mask_select_r64')
@@ -314,7 +317,11 @@ contains
     call allocate_mixed(right, rhs_dtype)
     call read_mixed(left)
     call read_mixed(right)
-    output_dtype = binary_result_dtype(lhs_dtype, rhs_dtype, operation, status)
+    if (operation == 'dot' .or. operation == 'outer' .or. operation == 'matmul') then
+      output_dtype = promote_dtypes(lhs_dtype, rhs_dtype, status)
+    else
+      output_dtype = binary_result_dtype(lhs_dtype, rhs_dtype, operation, status)
+    end if
     if (status%is_failure()) then
       write (*, '(i0)') status%code
       write (*, '(a)') trim(status%message)
@@ -322,6 +329,12 @@ contains
     end if
     call allocate_mixed(output, output_dtype)
     select case (operation)
+    case ('dot')
+      call dot(left, right, output, status)
+    case ('outer')
+      call outer(left, right, output, status)
+    case ('matmul')
+      call matmul(left, right, output, status)
     case ('add')
       call add(left, right, output, status)
     case ('subtract')

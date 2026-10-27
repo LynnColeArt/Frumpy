@@ -49,8 +49,7 @@ Use the v0.1 coverage table to select small releases, not blanket parity claims:
   benchmarks. See [the report](performance/float32-linalg-2026-10-27/README.md).
   Float32 dot/outer are also completed with pairwise float32 dot accumulation;
   [their report](performance/float32-products-2026-10-27/README.md) records the
-  accuracy and performance tradeoffs. Next: explicitly designed dtype promotion
-  for matmul/dot/outer; float32 norms remain a separately bounded extension.
+  accuracy and performance tradeoffs. Floating-result dtype promotion for matmul/dot/outer is now implemented; float32 norms remain a separately bounded extension.
 - Complex64/complex128 descriptors, storage, casting, promotion, arithmetic and
   conjugation, followed by complex reductions and linear algebra.
 - Remaining constructors, integer unary operations, multi-axis reductions,

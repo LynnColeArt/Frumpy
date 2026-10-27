@@ -55,6 +55,22 @@ int main(void) {
   assert(outer_values[0]==4 && outer_values[3]==24 && outer_values[15]==48);
   ok(frumpy_release(dot32));
   ok(frumpy_release(outer32));
+  int32_t integer_values[4]={1,2,3,4};
+  double promoted_values[16];
+  frumpy_handle integers=0,promoted=0;
+  ok(frumpy_import(FRUMPY_I32,2,square,FRUMPY_C,integer_values,4,&integers));
+  for (int operation=FRUMPY_OUTER;operation<=FRUMPY_MATMUL;operation++) {
+    ok(frumpy_linalg(operation,integers,left32,&promoted));
+    ok(frumpy_info(promoted,&dtype,&rank,actual_shape,strides,2,&offset,&flags));
+    assert(dtype==FRUMPY_R64 && rank==2);
+    ok(frumpy_export(promoted,promoted_values,operation==FRUMPY_OUTER?16:4));
+    assert(promoted_values[0]==2);
+    ok(frumpy_release(promoted));
+  }
+  promoted=999;
+  assert(frumpy_linalg(FRUMPY_SOLVE,integers,left32,&promoted)==FRUMPY_UNSUPPORTED_DTYPE);
+  assert(promoted==0);
+  ok(frumpy_release(integers));
   ok(frumpy_release(left32));
   ok(frumpy_release(right32));
   ok(frumpy_export(solution32,answer32,4));

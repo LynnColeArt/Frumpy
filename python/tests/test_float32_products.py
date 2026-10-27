@@ -133,7 +133,7 @@ def test_float32_product_views(frumpy_driver,operation,layout):
 
 
 @pytest.mark.parametrize('operation',[1,2])
-@pytest.mark.parametrize('left,right',[(np.float32,np.float64),(np.float64,np.float32),(np.int32,np.int32)])
+@pytest.mark.parametrize('left,right',[(np.int32,np.int32)])
 def test_float32_product_promotion_explicit(handles,operation,left,right):
     handles.make('linalg',operation,handles.put(np.ones(3,dtype=left)),
                  handles.put(np.ones(3,dtype=right)),status=5)

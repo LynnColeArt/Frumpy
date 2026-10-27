@@ -7,8 +7,9 @@ module frumpy_c_numerical
   use frumpy_statuses, only: frumpy_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
     FRUMPY_STATUS_UNSUPPORTED_DTYPE, FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_INVALID_AXIS
   use frumpy_operands, only: descriptor_dtype
-  use frumpy, only: ndarray_r32, matmul_r32, solve_r32, dot_r32, outer_r32
-  use frumpy, only: ndarray_r64, outer_r64, dot_r64, matmul_r64, solve_r64, &
+  use frumpy, only: ndarray_r32, solve_r32, dot, outer, matmul
+  use frumpy_promotion, only: promote_dtypes
+  use frumpy, only: ndarray_r64, solve_r64, &
     vector_norm_r64, matrix_norm_r64
   implicit none
   private
@@ -36,42 +37,42 @@ contains
     if (operation < 1 .or. operation > 4) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
     dtype = descriptor_dtype(left%array)
-    if (dtype /= descriptor_dtype(right%array)) return
+    if (operation == 4) then
+      if (dtype /= descriptor_dtype(right%array)) return
+    else
+      dtype = promote_dtypes(dtype, descriptor_dtype(right%array), status)
+      code = status%code
+      if (status%is_failure()) return
+      code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
+    end if
     if (dtype /= 5_int32 .and. dtype /= 4_int32) return
     call new_array_slot(dtype, slot, status)
     code = status%code
     if (status%is_failure()) return
-    select type (a => left%array)
-    type is (ndarray_r32)
-      select type (b => right%array)
+    select case (operation)
+    case (1)
+      call outer(left%array, right%array, slot%array, status)
+    case (2)
+      call dot(left%array, right%array, slot%array, status)
+    case (3)
+      call matmul(left%array, right%array, slot%array, status)
+    case (4)
+      select type (a => left%array)
       type is (ndarray_r32)
-        select type (c => slot%array)
+        select type (b => right%array)
         type is (ndarray_r32)
-          select case (operation)
-          case (1)
-            c = outer_r32(a, b, status)
-          case (2)
-            c = dot_r32(a, b, status)
-          case (3)
-            c = matmul_r32(a, b, status)
-          case (4)
+          select type (c => slot%array)
+          type is (ndarray_r32)
             c = solve_r32(a, b, status)
           end select
         end select
       end select
-    type is (ndarray_r64)
-      select type (b => right%array)
+      select type (a => left%array)
       type is (ndarray_r64)
-        select type (c => slot%array)
+        select type (b => right%array)
         type is (ndarray_r64)
-          select case (operation)
-          case (1)
-            c = outer_r64(a, b, status)
-          case (2)
-            c = dot_r64(a, b, status)
-          case (3)
-            c = matmul_r64(a, b, status)
-          case (4)
+          select type (c => slot%array)
+          type is (ndarray_r64)
             c = solve_r64(a, b, status)
           end select
         end select

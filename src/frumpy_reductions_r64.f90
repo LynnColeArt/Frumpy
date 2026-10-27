@@ -2,6 +2,7 @@
 module frumpy_reductions_r64
   use, intrinsic :: ieee_arithmetic, only: ieee_quiet_nan, ieee_value
   use iso_fortran_env, only: int32, int64, real64
+  use frumpy_strides, only: is_c_contiguous
   use frumpy_constants, only: FRUMPY_ORDER_C
   use frumpy_constructors_r64, only: empty_r64
   use frumpy_ndarray_r64, only: ndarray_r64
@@ -348,6 +349,12 @@ contains
       return
     end if
 
+    if (is_c_contiguous(source%shape, source%strides)) then
+      call reduce_linear_values(source, source%offset, source%size(), operation, &
+        reduced_value, status)
+      return
+    end if
+
     if (.not. allocate_index_vector(index0, source%rank, status)) return
     index0 = 0_int64
     running_value = initial_reduction_value(operation)
@@ -370,6 +377,43 @@ contains
     call set_status(status, FRUMPY_STATUS_OK)
   end subroutine reduce_all_values
 
+  subroutine reduce_linear_values(source, first, count, operation, reduced_value, status)
+    type(ndarray_r64), intent(in) :: source
+    integer(int64), intent(in) :: first, count
+    integer(int32), intent(in) :: operation
+    real(real64), intent(out) :: reduced_value
+    type(frumpy_status), intent(out) :: status
+    real(real64) :: running
+    integer(int64) :: i
+
+    if (.not. valid_position(source, first)) then
+      call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, "linear reduction offset out of bounds")
+      return
+    end if
+    if (count > source%storage_size() - first + 1_int64) then
+      call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, "linear reduction extent out of bounds")
+      return
+    end if
+    running = initial_reduction_value(operation)
+    ! Deliberately sequential: no reassociation or intrinsic SUM/PRODUCT.
+    select case (operation)
+    case (REDUCE_SUM, REDUCE_MEAN)
+      do i = first, first + count - 1_int64
+        running = running + source%data(i)
+      end do
+    case (REDUCE_PROD)
+      do i = first, first + count - 1_int64
+        running = running * source%data(i)
+      end do
+    case (REDUCE_MIN, REDUCE_MAX)
+      do i = first, first + count - 1_int64
+        call update_reduction_value(operation, running, source%data(i), i - first + 1_int64)
+      end do
+    end select
+    reduced_value = finalize_reduction_value(operation, running, count)
+    call set_status(status, FRUMPY_STATUS_OK)
+  end subroutine reduce_linear_values
+
   subroutine reduce_axis_values(source, dim1, source_index0, operation, &
       reduced_value, status)
     type(ndarray_r64), intent(in) :: source
@@ -387,6 +431,14 @@ contains
     if (reduction_extent == 0_int64) then
       reduced_value = empty_reduction_value(operation)
       call set_status(status, FRUMPY_STATUS_OK)
+      return
+    end if
+
+    if (source%strides(dim1) == 1_int64) then
+      source_index0(dim1) = 0_int64
+      source_position = storage_position(source, source_index0)
+      call reduce_linear_values(source, source_position, reduction_extent, operation, &
+        reduced_value, status)
       return
     end if
 

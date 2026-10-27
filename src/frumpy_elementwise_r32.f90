@@ -1,6 +1,7 @@
 !> Float32 elementwise arithmetic with NumPy broadcasting and signed element strides.
 module frumpy_elementwise_r32
   use iso_fortran_env, only: int32, int64, real32
+  use frumpy_linear_arithmetic, only: linear_step, linear_binary_r32
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_from_metadata
   use frumpy_ndarray_r32, only: ndarray_r32, owned_descriptor_r32
   use frumpy_strides, only: storage_bounds_are_valid
@@ -65,6 +66,7 @@ contains
     type(ndarray_r32) :: array
     type(broadcast_plan) :: plan
     type(frumpy_status) :: local_status
+    integer(int64) :: left_step, right_step
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1, lhs_position, rhs_position
     integer(int32) :: dim1, alloc_stat
@@ -93,6 +95,15 @@ contains
       if (present(status)) status = local_status
       return
     end if
+    left_step = linear_step(plan%shape, plan%lhs_strides)
+    right_step = linear_step(plan%shape, plan%rhs_strides)
+    if (left_step >= 0_int64 .and. right_step >= 0_int64) then
+      call linear_binary_r32(lhs%data, rhs%data, array%data, lhs%offset, rhs%offset, &
+        left_step, right_step, operation)
+      if (present(status)) call set_status(status, FRUMPY_STATUS_OK)
+      return
+    end if
+
     index0 = 0_int64
     do item1 = 1_int64, array%size()
       lhs_position = lhs%offset + sum(index0 * plan%lhs_strides)

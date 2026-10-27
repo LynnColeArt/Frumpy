@@ -193,3 +193,47 @@ def test_stable_sort_run_boundaries(size, layout):
             np.testing.assert_array_equal(indices.numpy(), expected_indices)
             np.testing.assert_array_equal(values.numpy().view(np.uint64), expected_values.view(np.uint64))
     np.testing.assert_array_equal(source.numpy().view(np.uint64), original)
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.float64])
+@pytest.mark.parametrize("operation", ["add", "subtract", "multiply", "divide"])
+@pytest.mark.parametrize("layout", ["offset", "singleton", "scalar_left", "scalar_right", "row"])
+def test_contiguous_arithmetic(dtype, operation, layout):
+    a = np.arange(1, 25, dtype=dtype).reshape(4, 6)
+    backing = fp.asarray(np.concatenate([np.zeros((1, 6), dtype=dtype), a]))
+    fa = backing[1:]
+    b = np.full(a.shape, 2, dtype=dtype)
+    if layout == "singleton":
+        a, fa, b = a[:, None, :], fa[:, None, :], b[:, None, :]
+    elif layout == "scalar_left":
+        b, a = a, np.array(2, dtype=dtype)
+        fa = fp.asarray(a)
+    elif layout == "scalar_right":
+        b = np.array(2, dtype=dtype)
+    elif layout == "row":
+        b = b[0]
+    fb = fp.asarray(b)
+    with getattr(fp, operation)(fa, fb) as actual:
+        np.testing.assert_array_equal(actual.numpy(), getattr(np, operation)(a, b))
+    np.testing.assert_array_equal(fa.numpy(), a)
+
+
+@pytest.mark.parametrize("dtype", [np.float32, np.float64])
+@pytest.mark.parametrize("operation", ["sum", "mean", "prod", "min", "max"])
+@pytest.mark.parametrize("axis", [None, 0, 1])
+@pytest.mark.parametrize("special", [False, True])
+def test_contiguous_reduction_order(dtype, operation, axis, special):
+    # Cancellation, signed zeros and non-finite values must match strided traversal bitwise.
+    a = np.resize(np.array([1e16, 1, -1e16, 3, -0., 0., 1, -1, 2], dtype=dtype), (3, 65))
+    if operation == "prod":
+        a = np.resize(np.array([1, -1, .5, 2, -0., 0.], dtype=dtype), a.shape)
+    if special:
+        a[0, 0], a[1, 8], a[2, -1] = np.nan, np.inf, -np.inf
+    padded = np.zeros((3, 130), dtype=dtype)
+    padded[:, ::2] = a
+    contiguous, backing = fp.asarray(a), fp.asarray(padded)
+    strided = backing[:, ::2]
+    with getattr(contiguous, operation)(axis=axis) as fast, \
+            getattr(strided, operation)(axis=axis) as fallback:
+        bits = np.uint32 if dtype == np.float32 else np.uint64
+        np.testing.assert_array_equal(fast.numpy().view(bits), fallback.numpy().view(bits))

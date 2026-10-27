@@ -1,7 +1,9 @@
 !> Initial r64 elementwise kernels with strided broadcast fallbacks.
 module frumpy_elementwise_r64
   use iso_fortran_env, only: int32, int64, real64
+  use frumpy_linear_arithmetic, only: linear_step, linear_binary_r64
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_r64
+  use frumpy_strides, only: storage_bounds_are_valid
   use frumpy_constants, only: FRUMPY_ORDER_C
   use frumpy_constructors_r64, only: empty_r64
   use frumpy_ndarray_r64, only: ndarray_r64
@@ -139,6 +141,7 @@ contains
     type(ndarray_r64) :: array
     type(broadcast_plan) :: plan
     type(frumpy_status) :: local_status
+    integer(int64) :: left_step, right_step
     integer(int64), allocatable :: index0(:)
     integer(int64) :: item1
     integer(int64) :: lhs_position
@@ -165,6 +168,23 @@ contains
 
     if (array%size() == 0_int64) then
       call set_optional_status(status, FRUMPY_STATUS_OK)
+      return
+    end if
+
+    left_step = linear_step(plan%shape, plan%lhs_strides)
+    right_step = linear_step(plan%shape, plan%rhs_strides)
+    if (left_step >= 0_int64 .and. right_step >= 0_int64) then
+      if (.not. storage_bounds_are_valid(lhs%shape, lhs%strides, lhs%offset, &
+          lhs%storage_size()) .or. &
+          .not. storage_bounds_are_valid(rhs%shape, rhs%strides, rhs%offset, &
+          rhs%storage_size())) then
+        call set_optional_status(status, FRUMPY_STATUS_INVALID_SHAPE, &
+          "linear arithmetic source is out of bounds")
+        return
+      end if
+      call linear_binary_r64(lhs%data, rhs%data, array%data, lhs%offset, rhs%offset, &
+        left_step, right_step, op)
+      if (present(status)) call set_status(status, FRUMPY_STATUS_OK)
       return
     end if
 

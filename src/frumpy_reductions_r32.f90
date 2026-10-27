@@ -3,7 +3,7 @@ module frumpy_reductions_r32
   use iso_fortran_env, only: int32, int64, real32
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan, ieee_quiet_nan, ieee_value
   use frumpy_ndarray_r32, only: ndarray_r32, owned_descriptor_r32
-  use frumpy_strides, only: storage_bounds_are_valid
+  use frumpy_strides, only: storage_bounds_are_valid, is_c_contiguous
   use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_OK, &
     FRUMPY_STATUS_INVALID_AXIS, FRUMPY_STATUS_INVALID_SHAPE, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, FRUMPY_STATUS_ALLOCATION_FAILED
@@ -177,8 +177,11 @@ contains
     integer(int64), intent(in) :: extent
     type(ndarray_r32), intent(inout) :: array
     integer(int64) :: item1, remaining, base_position
+    logical :: linear
     integer(int32) :: source_dim1
 
+    linear = .false.
+    if (dim1 == 0_int32) linear = is_c_contiguous(source%shape, source%strides)
     do item1 = 1_int64, array%size()
       base_position = source%offset
       remaining = item1 - 1_int64
@@ -190,26 +193,33 @@ contains
           remaining = remaining / source%shape(source_dim1)
         end do
       end if
-      array%data(item1) = pairwise_sum(source, dim1, base_position, 0_int64, extent)
+      array%data(item1) = pairwise_sum(source, dim1, base_position, 0_int64, extent, linear)
     end do
   end subroutine sum_outputs
 
   ! Bound sequential rounding to short leaves; recursion uses no input buffer copies.
-  recursive function pairwise_sum(source, dim1, base_position, first0, count) result(value)
+  recursive function pairwise_sum(source, dim1, base_position, first0, count, linear) result(value)
     type(ndarray_r32), intent(in) :: source
     integer(int32), intent(in) :: dim1
     integer(int64), intent(in) :: base_position, first0, count
+    logical, intent(in) :: linear
     real(real32) :: value
     integer(int64) :: item0, half, remaining, position
     integer(int32) :: source_dim1
 
     if (count > SUM_LEAF_SIZE) then
       half = count / 2_int64
-      value = pairwise_sum(source, dim1, base_position, first0, half) &
-        + pairwise_sum(source, dim1, base_position, first0 + half, count - half)
+      value = pairwise_sum(source, dim1, base_position, first0, half, linear) &
+        + pairwise_sum(source, dim1, base_position, first0 + half, count - half, linear)
       return
     end if
     value = 0.0_real32
+    if (linear) then
+      do item0 = first0, first0 + count - 1_int64
+        value = value + source%data(base_position + item0)
+      end do
+      return
+    end if
     do item0 = first0, first0 + count - 1_int64
       position = base_position
       if (dim1 /= 0_int32) then

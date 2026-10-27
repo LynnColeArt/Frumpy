@@ -41,6 +41,7 @@ SOURCES := \
 	src/frumpy_broadcast.f90 \
 	src/frumpy_integer_scalars.f90 \
 	src/frumpy_random.f90 \
+	src/frumpy_linear_arithmetic.f90 \
 	src/frumpy_elementwise_i32.f90 \
 	src/frumpy_elementwise_i64.f90 \
 	src/frumpy_elementwise_r32.f90 \

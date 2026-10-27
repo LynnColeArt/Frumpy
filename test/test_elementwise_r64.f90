@@ -15,6 +15,7 @@ program test_elementwise_r64
   real(real64), parameter :: PI = acos(-1.0_real64)
   integer(int64) :: scalar_shape(0)
 
+  call test_linear_metadata()
   call test_binary_broadcast_kernels()
   call test_scalar_broadcast_kernel()
   call test_zero_extent_broadcast_kernel()
@@ -24,6 +25,33 @@ program test_elementwise_r64
   call test_elementwise_status_paths()
 
 contains
+
+  subroutine test_linear_metadata()
+    type(ndarray_r64) :: source, scalar, result
+    type(frumpy_status) :: status
+
+    source = asarray_r64([1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64], &
+      [1_int64, 4_int64], status=status)
+    scalar = asarray_r64([2.0_real64], scalar_shape, status=status)
+    source%shape = [1_int64, 3_int64]
+    source%offset = 2_int64
+    source%strides(1) = huge(0_int64)
+    source%is_c_contiguous = .false.
+    result = subtract_r64(scalar, source, status)
+    call assert_status_ok(status, "offset singleton linear arithmetic")
+    call assert_close_vector(result%data, [0.0_real64, -1.0_real64, -2.0_real64], &
+      "offset singleton values")
+    source%offset = 4_int64
+    source%strides(2) = -1_int64
+    source%is_c_contiguous = .true.
+    result = subtract_r64(scalar, source, status)
+    call assert_status_ok(status, "stale contiguous flag")
+    call assert_close_vector(result%data, [-2.0_real64, -1.0_real64, 0.0_real64], &
+      "actual strides override flag")
+    source%strides(2) = 1_int64
+    result = add_r64(source, scalar, status)
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, "linear extent bounds")
+  end subroutine test_linear_metadata
 
   subroutine test_binary_broadcast_kernels()
     type(frumpy_status) :: status

@@ -7,13 +7,14 @@ program test_reductions_r64
   use frumpy_reductions_r64, only: axis0_to_dim1, max_r64, mean_r64, &
     min_r64, prod_r64, sum_r64
   use frumpy_statuses, only: FRUMPY_STATUS_INVALID_AXIS, FRUMPY_STATUS_OK, &
-    FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status
+    FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status
 
   implicit none
 
   real(real64), parameter :: TOLERANCE = 1.0e-12_real64
   integer(int64) :: scalar_shape(0)
 
+  call test_linear_bounds()
   call test_axis0_validation_helper()
   call test_axis_reductions()
   call test_keepdims_and_all_axes()
@@ -23,6 +24,29 @@ program test_reductions_r64
   call test_reduction_status_paths()
 
 contains
+
+  subroutine test_linear_bounds()
+    type(ndarray_r64) :: source, result
+    type(frumpy_status) :: status
+
+    source = asarray_r64([1.0_real64, 2.0_real64, 4.0_real64, 8.0_real64], &
+      [1_int64, 4_int64], status=status)
+    source%shape = [1_int64, 3_int64]
+    source%strides(1) = huge(0_int64)
+    source%offset = 2_int64
+    source%is_c_contiguous = .false.
+    result = sum_r64(source, status=status)
+    call assert_status_ok(status, "offset singleton sum")
+    call assert_close_vector(result%data, [14.0_real64], "offset singleton sum value")
+    source%offset = 4_int64
+    result = sum_r64(source, status=status)
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, "linear all-axis bounds")
+    result = sum_r64(source, axis0=1_int32, status=status)
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, "linear axis bounds")
+    source%offset = 0_int64
+    result = sum_r64(source, status=status)
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, "linear offset bounds")
+  end subroutine test_linear_bounds
 
   subroutine test_axis0_validation_helper()
     type(frumpy_status) :: status

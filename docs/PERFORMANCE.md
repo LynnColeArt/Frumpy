@@ -134,5 +134,23 @@ conservative observed gain is 28×. Larger unsorted inputs show greater gains.
 Tiny and already-sorted results are noisy/roughly flat, so no universal speedup
 is claimed. The frozen v0.1 baseline remains unchanged for historical comparison.
 
-Next: profile and optimize contiguous arithmetic/reduction traversal, comparing
-concrete native and mixed-dispatch paths separately.
+The subsequent contiguous arithmetic/reduction comparison is recorded below.
+
+
+## Contiguous arithmetic and reductions — 2026-10-27
+
+Validated C-contiguous/constant-broadcast float32 and float64 arithmetic now
+uses shared linear loops through both native and Python entry points. Float64
+reductions read contiguous ranges linearly without changing sequential order;
+float32 sum/mean keep their pairwise tree while simplifying leaf addressing.
+No new payload/scratch buffers or fast-math are used.
+
+The [repeated before/after comparison](performance/contiguous-2026-10-27/README.md)
+records conservative gains at 1,048,576 elements: native float64 addition 11.8×,
+Python float64 addition 18.2×, Python float32 addition 31.4×, and Python float64
+sum 5.6×. Small sums are noisy/roughly flat. Stride-2 addition was slower: a
+focused alternating check found about 3% native and 11% Python slowdown, with
+larger penalties in the main runs. Full samples and these limitations are retained.
+
+Next: investigate strided dispatch/code generation and quantify small-call
+metadata/allocation costs before choosing reuse or caching APIs.

@@ -18,9 +18,11 @@ sets the first experiment queue:
    workspace; NaN/signed-zero ordering and argsort stability preserved. See the
    [before/after evidence](performance/sort-2026-10-27/README.md). Keep these
    workloads as regression cases, including small and already-sorted inputs.
-2. Profile contiguous and strided arithmetic/reductions, comparing concrete
-   native kernels with the mixed dispatcher used by Python. Add validated
-   contiguous loops where they reduce traversal costs.
+2. Completed 2026-10-27: same-dtype floating contiguous arithmetic and selected
+   contiguous reductions, preserving accumulation order. See the
+   [before/after evidence](performance/contiguous-2026-10-27/README.md).
+   Follow up on the measured stride-2 addition slowdown and general strided
+   dispatch/code generation; this change does not claim faster fallback layouts.
 3. Separate small-call Python dispatch/metadata and native allocation costs;
    measure heap allocations explicitly before choosing reuse or caching APIs.
 4. Compare matched BLAS implementations/thread settings, then investigate

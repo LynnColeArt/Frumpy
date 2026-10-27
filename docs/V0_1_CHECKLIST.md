@@ -195,3 +195,10 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   and 168 ABI/package ASan/UBSan tests pass. The original v0.1 baseline is retained;
   `performance/sort-2026-10-27/README.md` records repeated comparisons and timing
   variability. No merge, release tag or package publication performed.
+
+- 2026-10-27: contiguous arithmetic/reduction follow-up at `1d83bc3` preserves
+  reduction order, offsets, strides and storage checks. Six compiler configurations
+  pass 35 native programs, two examples, 2,939 Python tests and the C caller.
+  GNU 14 memory/overflow gates, 268 ABI/package ASan/UBSan tests and fpm pass.
+  `performance/contiguous-2026-10-27/README.md` records repeated before/after
+  measurements, strong contiguous gains and the observed stride-2 slowdown.

@@ -217,3 +217,10 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   recovery and fpm pass. See `validation/queue-2026-10-27.json` and
   `performance/queue-2026-10-27/README.md` for evidence and deferred boundaries.
   Candidate is ready for review; no merge, tag or package publication performed.
+
+- 2026-10-27: focused regression/dispatch follow-up at `315a44e`. Stepped matmul
+  and solve regressions were not consistently reproduced; native code unchanged.
+  Python array-pair dispatch skips redundant coercion. All six existing compiler
+  configurations and one-thread OpenBLAS pass 3,081 Python tests; ABI/package
+  ASan and UBSan each pass 410. See `performance/recheck-2026-10-27/README.md`
+  and `validation/recheck-2026-10-27.json` for scope, raw timings and limitations.

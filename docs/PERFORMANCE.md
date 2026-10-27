@@ -181,3 +181,13 @@ allocation counts, a rejected backend experiment and explicit deferred cases.
 Both reference LP64 BLAS and one-thread OpenBLAS pass correctness validation.
 The bounded initial optimization queue is complete; broader dtype coverage,
 distribution and any further API/threading changes follow the post-v0.1 plan.
+
+## Focused regression recheck and tiny dispatch — 2026-10-27
+
+The [focused follow-up](performance/recheck-2026-10-27/README.md) did not
+reproduce a consistent stepped-matmul or solve regression in six alternating
+process pairs. Backend timing probes also show overlapping backend and remaining
+costs. Native kernels remain unchanged. A small Python array-pair dispatch
+change skips redundant conversion; paired sample ratios improve modestly, while
+whole-session medians remain noisy. Full measurements, unchanged allocation
+counts, a discarded metadata-buffer experiment and validation are retained.

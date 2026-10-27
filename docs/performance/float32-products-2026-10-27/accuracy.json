@@ -1,0 +1,35 @@
+{
+  "numpy": "2.4.6",
+  "rows": [
+    {
+      "small_terms": 64,
+      "contracted_length": 66,
+      "exact_sum": 64,
+      "frumpy": 48.0,
+      "numpy": 63.0,
+      "sequential_float32": 0.0,
+      "frumpy_absolute_error": 16.0,
+      "numpy_absolute_error": 1.0
+    },
+    {
+      "small_terms": 4096,
+      "contracted_length": 4098,
+      "exact_sum": 4096,
+      "frumpy": 4064.0,
+      "numpy": 3969.0,
+      "sequential_float32": 0.0,
+      "frumpy_absolute_error": 32.0,
+      "numpy_absolute_error": 127.0
+    },
+    {
+      "small_terms": 65536,
+      "contracted_length": 65538,
+      "exact_sum": 65536,
+      "frumpy": 65504.0,
+      "numpy": 63489.0,
+      "sequential_float32": 0.0,
+      "frumpy_absolute_error": 32.0,
+      "numpy_absolute_error": 2047.0
+    }
+  ]
+}

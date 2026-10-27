@@ -234,3 +234,13 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   `performance/float32-linalg-2026-10-27/README.md`. Single-precision solve accuracy
   differences from NumPy's widened path are explicit; mixed-dtype linalg remains
   outside this slice. No merge, release tag or package publication performed.
+
+- 2026-10-27: float32 dot/outer implemented at `37cc4fe`, with sanitizer target
+  wiring corrected at `85566f8`. Fixed pairwise float32 dot accumulation has
+  explicit cancellation, IEEE and signed-zero limits. Six compiler configurations
+  and one-thread OpenBLAS pass 37 native programs, two examples, the C caller
+  and 3,861 Python tests. GNU 14 memory/overflow gates, 1,190 combined sanitizer
+  tests under each sanitizer, fpm and 364 installed-package tests pass.
+  See `validation/float32-products-2026-10-27.json` and
+  `performance/float32-products-2026-10-27/README.md`. Mixed-dtype products and
+  float32 norms remain separate. No merge, release tag or publication performed.

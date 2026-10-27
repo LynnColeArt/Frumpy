@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-27",
+  "source_commit": "84bdda1b7a30467e79cb06d44abeda271d54022d",
+  "numerical_implementation_commit": "37cc4fe",
+  "native_programs": 37,
+  "examples": 2,
+  "matrix": [
+    {
+      "configuration": "gfortran-13-debug",
+      "native_and_examples": "pass",
+      "python_tests": 3861,
+      "c_caller": "pass",
+      "log_sha256": "2905dc5054cee1f71b44f0e3ce572d333d734051a7918984edbae903cd6cbb98",
+      "library_sha256": "2fcc43d13d38bb1fc5e3e0cc333b1e8e0aed5acaa0b446d70c01de0ec1d98261"
+    },
+    {
+      "configuration": "gfortran-13-release",
+      "native_and_examples": "pass",
+      "python_tests": 3861,
+      "c_caller": "pass",
+      "log_sha256": "2f98c121055b5db04715a70622530ee857a8953d77ab489f770dac5593205bc5",
+      "library_sha256": "ce9ce27be8f0fedbfd98f00de05f163aedd5384e80832564c87d4031ff5f6193"
+    },
+    {
+      "configuration": "gfortran-14-debug",
+      "native_and_examples": "pass",
+      "python_tests": 3861,
+      "c_caller": "pass",
+      "log_sha256": "e70ebde297c439a461215853b83100aea2fc3b3c0886bda8a858718370df51f3",
+      "library_sha256": "f9e2cd5cf8d5b2809ed64629cdeb87a92689521eb4e7cde804ac69cc1c4e7654"
+    },
+    {
+      "configuration": "gfortran-14-release",
+      "native_and_examples": "pass",
+      "python_tests": 3861,
+      "c_caller": "pass",
+      "log_sha256": "5ecd36be8f2285f448b1f7b9c4ffdb2581bc89c39afd303c6f7815e1d80fddaf",
+      "library_sha256": "049a21d528eb825912bd26121d7035edb73fd70a619faceeaf8dcf9ae637db06"
+    },
+    {
+      "configuration": "flang-new-debug",
+      "native_and_examples": "pass",
+      "python_tests": 3861,
+      "c_caller": "pass",
+      "log_sha256": "eade66263b5f6466071311593c7fce52d91e4dcc61b302176d05552b448d98a9",
+      "library_sha256": "df66b8d85327746e90ee609e5360090a5a4e7f3969d97bb4ce41f5cefe93f981"
+    },
+    {
+      "configuration": "flang-new-release",
+      "native_and_examples": "pass",
+      "python_tests": 3861,
+      "c_caller": "pass",
+      "log_sha256": "3f8629e082784ac9b5408d7c7092b52b31ee051296a22f40661f03094f028cf9",
+      "library_sha256": "9c7735d2474b11ab2ee2c6c4c072cafd61240695a49f52e599a5d8ad52a169d2"
+    }
+  ],
+  "openblas": {
+    "version": "0.3.26+ds-1ubuntu0.1 LP64 pthread",
+    "compiler": "GNU 14 release",
+    "threads": 1,
+    "native_programs": 37,
+    "examples": 2,
+    "python_tests": 3861,
+    "c_caller": "pass",
+    "log_sha256": "d91638aa1056a4233f7d1e73662702575a8809d571254c5f72fffb7737da5c1d"
+  },
+  "sanitizers": {
+    "compiler": "GNU 14",
+    "native_memory_differential_tests": 2643,
+    "native_overflow_differential_tests": 2159,
+    "combined_abi_package_float32_asan_tests": 1190,
+    "combined_abi_package_float32_ubsan_tests": 1190,
+    "native_products_lifetime_and_overflow": "pass",
+    "python_asan_leak_detection": false,
+    "native_asan_leak_detection": true,
+    "backend_libraries_sanitized": false,
+    "notes": "Initial overflow target wiring failed before its suite ran; fixed in 85566f8. The complete overflow and C-memory targets then passed. The original log supplies memory-gate evidence only.",
+    "log_sha256": {
+      "products-gates.log": "b22c0706b5182fce40833d0830005916b4dd5ee9a9b8df8cd67bf94782108022",
+      "products-remaining-gates.log": "fb829034d8435d6e2c98fbcdf574593246c8399e801036f2954be53c5f9b69f8",
+      "products-ubsan.log": "d3aeb46d07394d3aa1c55b91ff69f7e0334a6dd98adf2344a94b76d30fc1498c"
+    }
+  },
+  "fpm": {
+    "compiler": "GNU 14",
+    "native_programs": 37,
+    "result": "pass",
+    "log_sha256": "97a3f77860a2b1ea5e7f81c135a1a74639e168fe850096fa5abecf0e4ed4263b"
+  },
+  "source_install": {
+    "isolated_environment": true,
+    "numpy": "2.4.6",
+    "package_tests": 364,
+    "result": "pass",
+    "log_sha256": "b071a57764180492ddf94327d6c747f0ced82b7f87a662d16617b120f251a616"
+  }
+}

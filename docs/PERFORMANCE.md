@@ -202,3 +202,14 @@ for float32 versus 5.03–5.21 ms for float64; solve takes 4.83–5.96 versus
 11.52–11.67 ms. These are precision tradeoffs, not equal-accuracy speedups.
 Payload/workspace real storage halves; tiny timings remain noisy. NumPy's
 float32 solve widens internally, while Frumpy uses SGESV, as documented.
+
+
+## Float32 dot and outer — 2026-10-27
+
+[The products report](performance/float32-products-2026-10-27/README.md) covers
+native, C ABI and Python execution, a bounded pairwise float32 accumulation
+policy, and cancellation examples where NumPy is both more and less accurate.
+Payload size halves, but contiguous dot is broadly comparable to float64 and
+NumPy remains substantially faster on large vector/matrix dot cases. Generic
+outer traversal also leaves a performance gap. Full timings and limitations
+are retained; this is added functionality, not a universal speed improvement.

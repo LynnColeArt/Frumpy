@@ -276,6 +276,9 @@ def asarray(values, dtype=None, order="K"):
 
 
 def binary(op, lhs, rhs):
+    # Native arrays already have resolved dtype/order; each handle is checked below.
+    if isinstance(lhs, ndarray) and isinstance(rhs, ndarray):
+        return ndarray(_ffi.make("binary", op, lhs._handle, rhs._handle))
     # Python scalar strength is resolved before array-pair native promotion.
     if isinstance(lhs, ndarray) and type(rhs) in (bool, int, float):
         rhs = asarray(rhs, dtype=np.result_type(lhs.dtype, rhs))

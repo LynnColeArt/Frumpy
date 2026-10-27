@@ -324,3 +324,26 @@ def test_matmul_output_layout(shape, layout):
         assert actual.flags.c_contiguous
     np.testing.assert_array_equal(fa.numpy(), a)
     np.testing.assert_array_equal(fb.numpy(), b)
+
+
+@pytest.mark.parametrize('closed_side', ['left', 'right'])
+def test_binary_array_pair_rejects_closed_handle(closed_side):
+    left, right = fp.ones(3), fp.ones(3)
+    (left if closed_side == 'left' else right).close()
+    try:
+        with pytest.raises(ReferenceError):
+            left + right
+    finally:
+        left.close()
+        right.close()
+
+
+def test_binary_array_pair_preserves_view_metadata():
+    with fp.asarray(np.arange(12.).reshape(3, 4)) as owner:
+        with owner[:, ::-1] as left, owner.T as right:
+            with fp.ones((1, 4)) as ones, left + ones as result:
+                np.testing.assert_array_equal(result.numpy(), np.arange(12.).reshape(3, 4)[:, ::-1] + 1)
+            with right + right as result:
+                np.testing.assert_array_equal(result.numpy(), np.arange(12.).reshape(3, 4).T * 2)
+            assert left.strides == (32, -8)
+            assert right.flags.f_contiguous

@@ -49,13 +49,13 @@ algorithms, and searchsorted's `sorter` argument are not exposed. `searchsorted`
 expects an already sorted source, just as the corresponding NumPy call does;
 it does not scan for sortedness before each binary search.
 
-Sorting uses stable bottom-up merge sort with insertion runs of at most 16
+Sorting uses stable bottom-up merge sort with insertion runs of at most 32
 values. Worst-case work per axis slice is O(n log n); already ordered adjacent
 runs skip merging. Both sort and argsort share the ordering rule: NaNs last,
 left element first on ties, preserving signed zeros and NaN payload order.
 Two merge buffers (float64 values and int64 indices) add 16 bytes per axis
-element for slices longer than 16. They are allocated once per operation and
-reused across slices, in addition to the existing 16-byte-per-element gather
+element when a slice actually requires merging. They are allocated lazily once per
+operation and reused across slices, in addition to the existing 16-byte-per-element gather
 buffers and the result. Allocation failures remain recoverable through status.
 Non-float64 selection kernels remain separate work. Full-shape bool extraction
 and basic-view assignment are documented in [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). Float64 results,

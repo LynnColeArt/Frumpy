@@ -19,7 +19,7 @@ module frumpy_sorting_r64
   public :: sort_r64
   public :: argsort_r64
 
-  integer(int64), parameter :: SORT_RUN_LENGTH = 16_int64
+  integer(int64), parameter :: SORT_RUN_LENGTH = 32_int64
 
 contains
 
@@ -196,7 +196,6 @@ contains
     integer(int64), allocatable :: slice_indices(:)
     real(real64), allocatable :: slice_values(:), work_values(:)
     integer(int64), allocatable :: work_indices(:)
-    integer(int64) :: work_size
     integer(int64) :: axis_extent
     integer(int64) :: item1
     integer :: alloc_stat
@@ -207,11 +206,8 @@ contains
     end if
 
     axis_extent = source%shape(axis_dim1)
-    work_size = 0_int64
-    if (axis_extent > SORT_RUN_LENGTH) work_size = axis_extent
     allocate(outer_index0(source%rank), outer_shape(source%rank), &
-      slice_indices(axis_extent), slice_values(axis_extent), &
-      work_indices(work_size), work_values(work_size), stat=alloc_stat)
+      slice_indices(axis_extent), slice_values(axis_extent), stat=alloc_stat)
     if (alloc_stat /= 0) then
       call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "sort_r64 work allocation failed")
@@ -225,7 +221,8 @@ contains
     do
       call gather_sorted_slice(source, outer_index0, axis_dim1, slice_values, &
         slice_indices)
-      call sort_slice_pairs(slice_values, slice_indices, work_values, work_indices)
+      call sort_slice_pairs(slice_values, slice_indices, work_values, work_indices, status)
+      if (status%is_failure()) return
 
       do item1 = 1_int64, axis_extent
         outer_index0(axis_dim1) = item1 - 1_int64
@@ -250,7 +247,6 @@ contains
     integer(int64), allocatable :: slice_indices(:)
     real(real64), allocatable :: slice_values(:), work_values(:)
     integer(int64), allocatable :: work_indices(:)
-    integer(int64) :: work_size
     integer(int64) :: axis_extent
     integer(int64) :: item1
     integer :: alloc_stat
@@ -261,11 +257,8 @@ contains
     end if
 
     axis_extent = source%shape(axis_dim1)
-    work_size = 0_int64
-    if (axis_extent > SORT_RUN_LENGTH) work_size = axis_extent
     allocate(outer_index0(source%rank), outer_shape(source%rank), &
-      slice_indices(axis_extent), slice_values(axis_extent), &
-      work_indices(work_size), work_values(work_size), stat=alloc_stat)
+      slice_indices(axis_extent), slice_values(axis_extent), stat=alloc_stat)
     if (alloc_stat /= 0) then
       call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
         "argsort_r64 work allocation failed")
@@ -279,7 +272,8 @@ contains
     do
       call gather_sorted_slice(source, outer_index0, axis_dim1, slice_values, &
         slice_indices)
-      call sort_slice_pairs(slice_values, slice_indices, work_values, work_indices)
+      call sort_slice_pairs(slice_values, slice_indices, work_values, work_indices, status)
+      if (status%is_failure()) return
 
       do item1 = 1_int64, axis_extent
         outer_index0(axis_dim1) = item1 - 1_int64
@@ -311,13 +305,16 @@ contains
     end do
   end subroutine gather_sorted_slice
 
-  subroutine sort_slice_pairs(values, indices, work_values, work_indices)
+  subroutine sort_slice_pairs(values, indices, work_values, work_indices, status)
     real(real64), intent(inout) :: values(:)
     integer(int64), intent(inout) :: indices(:)
-    real(real64), intent(inout) :: work_values(:)
-    integer(int64), intent(inout) :: work_indices(:)
+    real(real64), allocatable, intent(inout) :: work_values(:)
+    integer(int64), allocatable, intent(inout) :: work_indices(:)
+    type(frumpy_status), intent(out) :: status
+    integer(int32) :: alloc_stat
     integer(int64) :: count, first, middle, last, width, left, right, output
 
+    call set_status(status, FRUMPY_STATUS_OK)
     count = size(values, kind=int64)
     first = 1_int64
     do while (first <= count)
@@ -334,6 +331,14 @@ contains
         last = middle + min(width, count - middle)
         ! Already ordered adjacent runs need neither merging nor copying.
         if (.not. precedes(values(middle), values(middle + 1_int64))) then
+          ! Small or already ordered slices never need merge-buffer allocations.
+          if (.not. allocated(work_values)) then
+            allocate(work_values(count), work_indices(count), stat=alloc_stat)
+            if (alloc_stat /= 0) then
+              call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, "sort merge allocation failed")
+              return
+            end if
+          end if
           left = first
           right = middle + 1_int64
           do output = first, last

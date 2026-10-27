@@ -84,3 +84,17 @@ views, metadata and invalid pointers/handles. `python/tests/test_c_boundary.py`
 uses ctypes directly (without the package wrapper) to compare all dtype pairs,
 views, reductions, numerical and selection dispatch against NumPy and exercise
 empty buffers, stale handles and repeated failures.
+
+
+Handle lookup uses a growing bucket index. IDs remain monotonically assigned and
+are never reused; retaining, releasing and view lifetimes keep the same contract.
+Growth relinks registry entries without moving their descriptor/storage objects.
+If optional index growth cannot allocate, the existing index remains valid and
+lookup may be slower. Initial index allocation can return allocation-failed with
+an output handle of zero. Index capacity is released when the last handle closes.
+The C boundary still requires serialized calls; Python supplies that lock.
+
+On Linux/glibc, `make registry-allocation-test` injects allocation failures into
+initial index creation and growth. Run it separately from ASan interposition.
+The ordinary C caller also checks growth, retained handles and complete cleanup
+under the existing memory test target.

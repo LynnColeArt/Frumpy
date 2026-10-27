@@ -69,3 +69,5 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y gfortran-14 libopenblas-pthread-dev
       - name: Validate LP64 OpenBLAS, including empty-RHS singular solves
         run: make validate FC=gfortran-14 FFLAGS='-std=f2018 -O3 -fimplicit-none'
+      - name: Registry allocation-failure recovery
+        run: make registry-allocation-test FC=gfortran-14 FFLAGS='-std=f2018 -O3 -fimplicit-none'

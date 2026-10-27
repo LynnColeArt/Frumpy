@@ -79,11 +79,19 @@ before payload access. Failed calls return no storage.
   including a zero-length vector dot product, whose scalar result is zero.
 
 The kernel traverses C/F-order arrays, transposes, reversed/stepped views, and
-zero strides through their metadata. Each batch is packed into column-major
-work arrays for BLAS `DGEMM`; the same work arrays are reused across batches.
-Packing is part of this arithmetic API and does not alter the input descriptors.
-The completed batch is copied into the result's C-order payload. This first
-adapter also packs contiguous inputs; no zero-copy backend fast path is claimed.
+zero strides through their metadata. When both rank-two inputs are C-contiguous,
+`DGEMM` computes the transposed product directly into the C-order result, without
+packing inputs or allocating an output work buffer. When both are F-contiguous,
+inputs are also read directly, but an output work buffer is copied into C order.
+Actual shape/strides determine eligibility; offsets and singleton dimensions are
+honored, and finite-input checks remain in place.
+
+Mixed layouts, vectors, irregular views and batches use reusable column-major
+input and output work arrays. Packing does not alter the input descriptors.
+The normal (NN) backend call is retained for these paths: an experiment using
+transposed DGEMM calls to remove the output buffer substantially regressed
+reference BLAS. Numerical results remain governed by the backend tolerance
+contract, rather than a bitwise accumulation-order promise.
 
 ## Linear solve
 
@@ -102,6 +110,8 @@ work arrays. Frumpy therefore packs both inputs into separate work arrays and
 copies the solution into owned C-order storage. A zero-order system returns an
 empty result. When A has positive order and B has zero columns, factorization
 still runs: singularity is reported even though X is empty, matching NumPy 2.4.6.
+A dummy zero-filled workspace column forces factorization even on backends that
+return early for zero RHS columns; the public output still has zero columns.
 A detected singular matrix returns `FRUMPY_STATUS_SINGULAR_MATRIX` (code 7).
 Singularity follows the backend's zero-pivot test; no condition estimator is run.
 
@@ -181,3 +191,9 @@ omitted. Explicit allocations have status paths, subject to the existing
 
 Mixed-dtype linear algebra, other factorizations and Python/C bindings remain
 outside this numerical slice. [Random generation](RANDOM.md) has a separate contract.
+
+
+OpenBLAS 0.3.26 LP64 pthread was additionally validated on this Linux host with
+GNU 14 release and one thread. The full differential suite includes singular
+empty-RHS solves. CI now includes a separate LP64 OpenBLAS job. Backend choice
+remains a build/runtime configuration; this does not change Frumpy's defaults.

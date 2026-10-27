@@ -37,6 +37,20 @@ int main(void) {
   assert(frumpy_export(transposed,NULL,6)==FRUMPY_INVALID_SHAPE);
   ok(frumpy_release(transposed));
   ok(frumpy_release(scalar));
+  /* Rehashing and registry reset must preserve retains and release all storage. */
+  frumpy_handle many[2048];
+  for (int i=0;i<2048;i++)
+    ok(frumpy_import(FRUMPY_R64,0,NULL,FRUMPY_C,&two,1,&many[i]));
+  ok(frumpy_retain(many[0]));
+  for (int i=0;i<2048;i+=2) ok(frumpy_release(many[i]));
+  for (int i=1;i<2048;i+=2) ok(frumpy_release(many[i]));
+  ok(frumpy_export(many[0],result,1));
+  assert(result[0]==two);
+  ok(frumpy_release(many[0]));
+  assert(frumpy_release(many[0])==FRUMPY_INVALID_HANDLE);
+  ok(frumpy_import(FRUMPY_R64,0,NULL,FRUMPY_C,&two,1,&scalar));
+  assert(scalar>many[2047]);
+  ok(frumpy_release(scalar));
   puts("C ABI ownership and argument checks passed");
   return 0;
 }

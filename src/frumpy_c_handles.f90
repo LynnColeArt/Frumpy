@@ -19,7 +19,11 @@ module frumpy_c_handles
     type(random_generator) :: generator
     type(handle_slot), pointer :: next => null()
   end type handle_slot
-  type(handle_slot), pointer, save :: head => null()
+  type :: handle_bucket
+    type(handle_slot), pointer :: first => null()
+  end type handle_bucket
+  type(handle_bucket), allocatable, save :: buckets(:)
+  integer(int64), save :: live_handles = 0_int64
   integer(int64), save :: next_id = 1_int64
 contains
   subroutine output_pointer(address, output, status)
@@ -128,7 +132,12 @@ contains
     type(frumpy_status), intent(out) :: status
     type(handle_slot), pointer :: slot
 
-    slot => head
+    if (.not. allocated(buckets)) then
+      nullify(slot)
+      call set_status(status, FRUMPY_STATUS_INVALID_HANDLE, "invalid or released handle")
+      return
+    end if
+    slot => buckets(bucket_index(id))%first
     do while (associated(slot))
       if (slot%id == id) then
         if (kind == 0_int32 .or. slot%kind == kind) then
@@ -153,14 +162,20 @@ contains
       call discard(slot)
       return
     end if
+    call reserve_handles(status)
+    if (status%is_failure()) then
+      call discard(slot)
+      return
+    end if
     slot%id = next_id
     if (next_id == huge(1_int64)) then
       next_id = 0_int64
     else
       next_id = next_id + 1_int64
     end if
-    slot%next => head
-    head => slot
+    slot%next => buckets(bucket_index(slot%id))%first
+    buckets(bucket_index(slot%id))%first => slot
+    live_handles = live_handles + 1_int64
     output = slot%id
     nullify(slot)
   end subroutine publish
@@ -193,15 +208,17 @@ contains
     integer(int64), intent(in) :: id
     type(frumpy_status), intent(out) :: status
     type(handle_slot), pointer :: slot, previous
+    integer :: bucket1
 
     slot => lookup(id, 0_int32, status)
     if (status%is_failure()) return
     slot%references = slot%references - 1_int64
     if (slot%references > 0_int64) return
-    if (associated(head, slot)) then
-      head => slot%next
+    bucket1 = bucket_index(id)
+    if (associated(buckets(bucket1)%first, slot)) then
+      buckets(bucket1)%first => slot%next
     else
-      previous => head
+      previous => buckets(bucket1)%first
       do while (associated(previous))
         if (associated(previous%next, slot)) exit
         previous => previous%next
@@ -209,5 +226,46 @@ contains
       previous%next => slot%next
     end if
     call discard(slot)
+    live_handles = live_handles - 1_int64
+    if (live_handles == 0_int64) deallocate(buckets)
   end subroutine release_handle
+
+  integer function bucket_index(id) result(index1)
+    integer(int64), intent(in) :: id
+
+    index1 = int(modulo(id, int(size(buckets), int64))) + 1
+  end function bucket_index
+
+  subroutine reserve_handles(status)
+    type(frumpy_status), intent(out) :: status
+    type(handle_bucket), allocatable :: expanded(:)
+    type(handle_slot), pointer :: slot, following
+    integer :: bucket1, index1, count, alloc_stat
+
+    call set_status(status, FRUMPY_STATUS_OK)
+    if (.not. allocated(buckets)) then
+      allocate(buckets(64), stat=alloc_stat)
+      if (alloc_stat /= 0) call set_status(status, FRUMPY_STATUS_ALLOCATION_FAILED, &
+        "handle index allocation failed")
+      return
+    end if
+    count = size(buckets)
+    if (live_handles < 2_int64 * int(count, int64)) return
+    if (count > shiftr(huge(count), 1)) return
+    allocate(expanded(2 * count), stat=alloc_stat)
+    ! Growth is optional: allocation failure keeps the correct, slower old table.
+    if (alloc_stat /= 0) return
+    do bucket1 = 1, count
+      slot => buckets(bucket1)%first
+      do while (associated(slot))
+        following => slot%next
+        index1 = int(modulo(slot%id, int(size(expanded), int64))) + 1
+        slot%next => expanded(index1)%first
+        expanded(index1)%first => slot
+        slot => following
+      end do
+      nullify(buckets(bucket1)%first)
+    end do
+    call move_alloc(expanded, buckets)
+  end subroutine reserve_handles
 end module frumpy_c_handles

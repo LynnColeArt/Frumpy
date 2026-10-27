@@ -21,7 +21,7 @@ def abi(tmp_path_factory):
         library = str(build / "libfrumpy.so")
     lib = C.CDLL(library)
     signatures = {
-        "import": [I, I, P, I, P, H, P], "export": [H, P, H], "release": [H],
+        "import": [I, I, P, I, P, H, P], "export": [H, P, H], "release": [H], "retain": [H],
         "view": [I, H, P, I, P], "binary": [I, H, H, P], "cast": [H, I, I, P],
         "reduce": [I, H, I, I, I, P], "unary": [I, H, P],
         "info": [H, P, P, P, P, I, P, P],
@@ -259,3 +259,30 @@ def test_failures_and_empty_buffers(handles):
     # IDs cannot accidentally name an unrelated newly allocated object.
     handles.put(np.array([9.]))
     handles.make("binary", 1, released, x, status=8)
+
+
+def test_handle_registry_growth_and_churn(abi):
+    # Retained aliases survive rehashing; stale IDs never alias newly created arrays.
+    handles = Handles(abi)
+    ids = [handles.put(np.array([i], dtype=np.int64)) for i in range(2048)]
+    keep = ids[0]
+    assert abi.frumpy_retain(keep) == 0
+    for handle in ids[::2]:
+        assert abi.frumpy_release(handle) == 0
+    for i in (0, 1, 127, 1023, 2047):
+        np.testing.assert_array_equal(handles.get(ids[i]), [i])
+    replacements = [handles.put(np.array([-i], dtype=np.int64)) for i in range(1024)]
+    for handle in ids[2::2]:
+        assert abi.frumpy_retain(handle) == 8
+        assert abi.frumpy_release(handle) == 8
+    assert len(set(ids + replacements)) == len(ids + replacements)
+    for handle in ids[1::2] + replacements + [keep]:
+        assert abi.frumpy_release(handle) == 0
+    assert abi.frumpy_release(keep) == 8
+    for invalid in (0, -1, -(2**63), 2**63-1):
+        assert abi.frumpy_retain(invalid) == 8
+        assert abi.frumpy_release(invalid) == 8
+    # Exercise registry reuse after all of this test's handles are released.
+    fresh = handles.put(np.array([42.]))
+    np.testing.assert_array_equal(handles.get(fresh), [42.])
+    assert abi.frumpy_release(fresh) == 0

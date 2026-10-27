@@ -301,3 +301,14 @@ c-memory-test: $(PY_DEPS_STAMP)
 	LD_PRELOAD="$$($(FC) -print-file-name=libasan.so)" ASAN_OPTIONS=detect_leaks=0 \
 		FRUMPY_LIBRARY="$(abspath $(BUILD_DIR)/c-memory/libfrumpy.so)" \
 		$(VENV_PY) -m pytest -q python/tests/test_c_boundary.py python/tests/test_package.py
+
+# Linux/glibc only; run separately from ASan's own malloc interposition.
+.PHONY: registry-allocation-test
+registry-allocation-test: shared
+	$(CC) -std=c11 -Wall -Wextra -Werror -shared -fPIC c_tests/registry_alloc_probe.c \
+		-o "$(BUILD_DIR)/libfrumpy_registry_alloc_probe.so"
+	$(CC) -std=c11 -Wall -Wextra -Werror -Iinclude c_tests/test_registry_allocation.c \
+		-L"$(BUILD_DIR)" -lfrumpy -lfrumpy_registry_alloc_probe \
+		-Wl,-rpath,"$(abspath $(BUILD_DIR))" -o "$(BUILD_DIR)/test_registry_allocation"
+	LD_PRELOAD="$(abspath $(BUILD_DIR)/libfrumpy_registry_alloc_probe.so)" \
+		"$(BUILD_DIR)/test_registry_allocation"

@@ -224,3 +224,15 @@ OpenBLAS 128×128 matmul takes 322–332 µs versus 103–110 µs. Outer convers
 is a smaller share of its quadratic output work. Repeated stable inputs benefit
 from reusable casts; contiguous `astype` is a focused future optimization target.
 Raw timing ranges, backend distinctions, memory costs and noise remain explicit.
+
+## Contiguous casts — 2026-10-27
+
+[The matched before/after report](performance/contiguous-casting-2026-10-27/README.md)
+covers direct loops for C-contiguous casts to float32/float64. Python's mixed
+int32/float32 dot at 65,536 elements falls from 656–710 µs to 168–170 µs;
+OpenBLAS 128×128 matmul falls from 332–343 µs to 153–178 µs. Native and C
+measurements also improve. Outer gains are smaller and noisier; allocation
+payload is unchanged. Slower stepped/tiny cases were rechecked and retained:
+an isolated stepped bool/float32 dot still measured 6–10% slower through Python.
+This is not a universal speedup or a claim that every fallback path is unchanged
+in performance. Full controls, raw samples and limitations are linked above.

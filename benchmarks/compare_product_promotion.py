@@ -4,6 +4,7 @@ import ctypes as C
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 from compare_queue import timed
@@ -17,6 +18,7 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--reverse',action='store_true')
     parser.add_argument('--source-commit',help='Commit that produced the supplied library')
+    parser.add_argument('--case-filter',help='Regex on left/right/operation/n/layout')
     args=parser.parse_args()
     os.sched_setaffinity(0,{min(os.sched_getaffinity(0))})
     library=Path(os.environ['FRUMPY_LIBRARY'])
@@ -25,7 +27,7 @@ def main():
                 linkage=subprocess.check_output(['ldd',str(library)],text=True),
                 numpy=np.__version__,numpy_build=np.show_config(mode='dicts'),
                 compiler_flags='GNU 14 -std=f2018 -O3 -fimplicit-none',
-                affinity=sorted(os.sched_getaffinity(0)),threads=1,rows=[])
+                affinity=sorted(os.sched_getaffinity(0)),threads=1,case_filter=args.case_filter,rows=[])
     lib=_ffi.library()
     pairs=[(np.bool_,np.float32),(np.int32,np.float32),(np.float32,np.float64)]
     cases=[('dot',16),('dot',65536),('outer',256),('matmul',16),('matmul',128)]
@@ -36,6 +38,9 @@ def main():
         for operation,n in cases:
             shape=(n,n) if operation=='matmul' else (n,)
             for layout in ['C','step']:
+                key=f'{np.dtype(left).name}/{np.dtype(right).name}/{operation}/{n}/{layout}'
+                if args.case_filter and not re.search(args.case_filter,key):
+                    continue
                 owners=[]
                 arrays=[]
                 values=[]

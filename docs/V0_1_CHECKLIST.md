@@ -254,3 +254,13 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   isolated-install tests pass. See `validation/product-promotion-2026-10-27.json`
   and `performance/product-promotion-2026-10-27/README.md` for conversion-cost
   benchmarks and limitations. No merge, release tag or publication performed.
+
+- 2026-10-27: contiguous floating-destination casts optimized at `4d2cabb`, with
+  source dtype dispatch outside direct loops and validated stride-derived
+  contiguity. Six compiler profiles and one-thread OpenBLAS pass 4,359 Python
+  tests; native/C checks, memory/overflow gates, 1,688 combined ASan/UBSan tests
+  under each sanitizer, fpm and 365 isolated-install tests pass. See
+  `validation/contiguous-casting-2026-10-27.json` and
+  `performance/contiguous-casting-2026-10-27/README.md` for matched native/C/Python
+  before/after timings, remaining allocation costs and slower-case rechecks.
+  No merge, release tag or publication performed.

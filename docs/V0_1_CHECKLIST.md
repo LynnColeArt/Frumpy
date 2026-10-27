@@ -60,15 +60,15 @@ Additional dtypes for linear algebra and general factorizations are post-v0.1.
   dtypes; retain float64 arange/linspace as the v0.1 sequence constructors.
 - [x] C2: reshape/ravel/flatten/transpose/swapaxes/squeeze/expand_dims/basic
   slicing for all five dtypes, with the same copy/view contract as float64.
-- [ ] C3: array `astype` across the five dtypes, explicit casting mode and tested
+- [x] C3: array `astype` across the five dtypes, explicit casting mode and tested
   conversion semantics; resolve the stricter existing scalar-cast contract
   explicitly rather than silently applying it to NumPy-style array casts.
-- [ ] C4: equal/not_equal/less/less_equal/greater/greater_equal with broadcasting
+- [x] C4: equal/not_equal/less/less_equal/greater/greater_equal with broadcasting
   and mixed numeric dtype handling; boolean logical_and/or/xor/not.
-- [ ] C5: boolean all/any; integer sum/prod/min/max/mean with documented NumPy
+- [x] C5: boolean all/any; integer sum/prod/min/max/mean with documented NumPy
   accumulator/result dtypes and overflow behavior. Support all-axis and one-axis
   reductions with keepdims, matching the float subset.
-- [ ] C6: float64 boolean mask extraction and assignment through basic slices;
+- [x] C6: float64 boolean mask extraction and assignment through basic slices;
   define broadcasting, source/destination aliasing and failure behavior in tests.
   Retain existing float64 take/where/concat/stack/sort/search contracts.
 
@@ -148,3 +148,10 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   30 Fortran programs, 2,331 Python tests; memory: 2,303 compiled comparisons;
   overflow: 1,819 cases. See CONSTRUCTORS_AND_VIEWS.md for bounded deviations.
   Next: C3 array casting, then comparisons/logical operations.
+
+- 2026-10-26: completed C3–C6: transactional array astype, mixed comparisons,
+  boolean logic, integer/boolean reductions, full-shape mask extraction and
+  staged assignment through float64 views. GNU 14 ordinary: 34 Fortran programs,
+  2,671 Python tests; memory: 2,643 compiled comparisons; overflow: 2,159 cases.
+  ARRAY_OPERATIONS.md records float-to-integer and accumulation-order departures.
+  Next: D1–D5 C ABI and installable Python integration.

@@ -16,6 +16,12 @@ program differential_driver
   use frumpy, only: owned_descriptor_i64, view_descriptor_i64, &
     add_i64, subtract_i64, multiply_i64, divide_i64
   use frumpy, only: add, subtract, multiply, divide, binary_result_dtype
+  use frumpy, only: equal, not_equal, less, less_equal, greater, greater_equal, &
+    logical_and_bool, logical_or_bool, logical_xor_bool, logical_not_bool
+  use frumpy, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
+    sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
+  use frumpy, only: mask_select_r64, assign_r64
+  use frumpy, only: astype
   use frumpy, only: random_generator, uniform_r64, normal_r64
   use frumpy, only: vector_norm_r64, matrix_norm_r64
   use frumpy, only: matmul_r64, solve_r64, outer_r64, dot_r64
@@ -61,6 +67,18 @@ contains
 
     read (*, *) operation, axis0, side
     integer_output = .false.
+    if (index(operation, 'reduce_') == 1) then
+      call run_reduce(operation(8:), axis0, side)
+      return
+    end if
+    if (index(operation, 'compare_') == 1) then
+      call run_compare(operation(9:), axis0, side)
+      return
+    end if
+    if (operation == 'cast_array') then
+      call run_cast(axis0, side)
+      return
+    end if
     if (index(operation, 'view_') == 1) then
       call run_views(operation(6:), axis0)
       return
@@ -72,6 +90,21 @@ contains
     select case (trim(operation))
     case ('mixed_add', 'mixed_subtract', 'mixed_multiply', 'mixed_divide')
       call run_mixed(operation(7:), axis0, side)
+      return
+    case ('mask_select_r64')
+      call read_r64(lhs)
+      call read_bool(condition)
+      output = mask_select_r64(lhs, condition, status)
+    case ('assign_r64')
+      call read_r64(lhs)
+      call read_r64(rhs)
+      call assign_r64(lhs, rhs, status)
+      write (*, '(i0)') status%code
+      if (status%is_ok()) then
+        call emit_metadata(lhs%shape, lhs%strides, lhs%offset, &
+          lhs%is_c_contiguous, lhs%is_f_contiguous, lhs%owns_data)
+        write (*, '(*(es26.17e3,1x))') lhs%data
+      end if
       return
     case ('uniform_r64', 'normal_r64')
       call read_r64(lhs)
@@ -561,6 +594,142 @@ contains
       if (status%is_ok()) call emit_mixed(result_r64)
     end select
   end subroutine run_views
+
+  subroutine run_cast(source_dtype, target_dtype)
+    integer(int32), intent(in) :: source_dtype, target_dtype
+    class(*), allocatable :: source, result
+    type(frumpy_status) :: status
+    integer(int32) :: count, mode
+
+    call allocate_mixed(source, source_dtype)
+    call allocate_mixed(result, target_dtype)
+    call read_mixed(source)
+    read (*, *) count
+    read (*, *) mode
+    call astype(source, result, mode, status)
+    write (*, '(i0)') status%code
+    if (status%is_ok()) call emit_mixed(result)
+  end subroutine run_cast
+
+  subroutine run_compare(operation, left_dtype, right_dtype)
+    character(len=*), intent(in) :: operation
+    integer(int32), intent(in) :: left_dtype, right_dtype
+    class(*), allocatable :: left, right
+    type(ndarray_bool) :: result
+    type(frumpy_status) :: status
+
+    call allocate_mixed(left, left_dtype)
+    call allocate_mixed(right, right_dtype)
+    call read_mixed(left)
+    call read_mixed(right)
+    select case (operation)
+    case ('equal')
+      result = equal(left, right, status)
+    case ('not_equal')
+      result = not_equal(left, right, status)
+    case ('less')
+      result = less(left, right, status)
+    case ('less_equal')
+      result = less_equal(left, right, status)
+    case ('greater')
+      result = greater(left, right, status)
+    case ('greater_equal')
+      result = greater_equal(left, right, status)
+    case ('logical_and')
+      result = logical_and_bool(left, right, status)
+    case ('logical_or')
+      result = logical_or_bool(left, right, status)
+    case ('logical_xor')
+      result = logical_xor_bool(left, right, status)
+    case ('logical_not')
+      result = logical_not_bool(left, status)
+    end select
+    write (*, '(i0)') status%code
+    if (status%is_ok()) call emit_mixed(result)
+  end subroutine run_compare
+
+  subroutine run_reduce(operation, dtype, selected_axis)
+    character(len=*), intent(in) :: operation
+    integer(int32), intent(in) :: dtype, selected_axis
+    integer(int32), allocatable :: axis0
+    integer(int32) :: count, keep
+    type(frumpy_status) :: status
+    type(ndarray_bool) :: source_bool, result_bool
+    type(ndarray_i32) :: source_i32, result_i32
+    type(ndarray_i64) :: source_i64, result_i64
+    type(ndarray_r64) :: result_r64
+
+    if (selected_axis /= 99) axis0 = selected_axis
+    select case (dtype)
+    case (1)
+      call read_bool(source_bool)
+    case (2)
+      call read_i32(source_i32)
+    case (3)
+      call read_i64(source_i64)
+    end select
+    read (*, *) count
+    read (*, *) keep
+    select case (dtype)
+    case (1)
+      select case (operation)
+      case ('all')
+        result_bool = all_bool(source_bool, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_bool)
+      case ('any')
+        result_bool = any_bool(source_bool, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_bool)
+      end select
+    case (2)
+      select case (operation)
+      case ('sum')
+        result_i64 = sum_i32(source_i32, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_i64)
+      case ('prod')
+        result_i64 = prod_i32(source_i32, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_i64)
+      case ('min')
+        result_i32 = min_i32(source_i32, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_i32)
+      case ('max')
+        result_i32 = max_i32(source_i32, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_i32)
+      case ('mean')
+        result_r64 = mean_i32(source_i32, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_r64)
+      end select
+    case (3)
+      select case (operation)
+      case ('sum')
+        result_i64 = sum_i64(source_i64, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_i64)
+      case ('prod')
+        result_i64 = prod_i64(source_i64, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_i64)
+      case ('min')
+        result_i64 = min_i64(source_i64, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_i64)
+      case ('max')
+        result_i64 = max_i64(source_i64, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_i64)
+      case ('mean')
+        result_r64 = mean_i64(source_i64, axis0, keep == 1, status)
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(result_r64)
+      end select
+    end select
+  end subroutine run_reduce
 
   subroutine allocate_mixed(array, dtype_id)
     class(*), allocatable, intent(out) :: array

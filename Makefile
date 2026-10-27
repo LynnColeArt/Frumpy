@@ -45,12 +45,18 @@ SOURCES := \
 	src/frumpy_elementwise_r32.f90 \
 	src/frumpy_elementwise_r64.f90 \
 	src/frumpy_promotion.f90 \
+	src/frumpy_operands.f90 \
+	src/frumpy_array_casting.f90 \
+	src/frumpy_comparisons.f90 \
 	src/frumpy_arithmetic.f90 \
 	src/frumpy_access_r64.f90 \
+	src/frumpy_indexing_r64.f90 \
 	src/frumpy_products_r64.f90 \
 	src/frumpy_norms_r64.f90 \
 	src/frumpy_linalg_backend.f90 \
 	src/frumpy_linalg_r64.f90 \
+	src/frumpy_reduction_plans.f90 \
+	src/frumpy_reductions_discrete.f90 \
 	src/frumpy_reductions_r32.f90 \
 	src/frumpy_reductions_r64.f90 \
 	src/frumpy_slices.f90 \
@@ -70,6 +76,8 @@ FORTRAN_TESTS := \
 	test/test_dtypes.f90 \
 	test/test_dtype_promotion.f90 \
 	test/test_casting.f90 \
+	test/test_array_casting.f90 \
+	test/test_comparisons.f90 \
 	test/test_shape.f90 \
 	test/test_strides.f90 \
 	test/test_ndarray_bool.f90 \
@@ -90,7 +98,9 @@ FORTRAN_TESTS := \
 	test/test_elementwise_r64.f90 \
 	test/test_reductions_r32.f90 \
 	test/test_reductions_r64.f90 \
+	test/test_reductions_discrete.f90 \
 	test/test_selection_r64.f90 \
+	test/test_indexing_r64.f90 \
 	test/test_selection_validation.f90 \
 	test/test_searching_r64.f90 \
 	test/test_sorting_r64.f90 \
@@ -141,6 +151,10 @@ memory-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_linalg_r64" \
 		"$(BUILD_DIR)/memory/bin/test_random" \
+		"$(BUILD_DIR)/memory/bin/test_array_casting" \
+		"$(BUILD_DIR)/memory/bin/test_comparisons" \
+		"$(BUILD_DIR)/memory/bin/test_reductions_discrete" \
+		"$(BUILD_DIR)/memory/bin/test_indexing_r64" \
 		"$(BUILD_DIR)/memory/bin/test_constructors_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_views_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_views_r64" \
@@ -154,6 +168,10 @@ memory-test: $(PY_DEPS_STAMP)
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_storage_lifetime_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_linalg_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_random"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_array_casting"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_comparisons"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_reductions_discrete"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_indexing_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_constructors_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_views_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_views_r64"
@@ -172,6 +190,10 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 		FFLAGS="$(FFLAGS) -ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_random" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_array_casting" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_comparisons" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_reductions_discrete" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_indexing_r64" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_constructors_dtypes" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_views_dtypes" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_views_r64" \
@@ -180,13 +202,17 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/integer-overflow/bin/differential_driver"
 	"$(BUILD_DIR)/integer-overflow/bin/test_linalg_r64"
 	"$(BUILD_DIR)/integer-overflow/bin/test_random"
+	"$(BUILD_DIR)/integer-overflow/bin/test_array_casting"
+	"$(BUILD_DIR)/integer-overflow/bin/test_comparisons"
+	"$(BUILD_DIR)/integer-overflow/bin/test_reductions_discrete"
+	"$(BUILD_DIR)/integer-overflow/bin/test_indexing_r64"
 	"$(BUILD_DIR)/integer-overflow/bin/test_constructors_dtypes"
 	"$(BUILD_DIR)/integer-overflow/bin/test_views_dtypes"
 	"$(BUILD_DIR)/integer-overflow/bin/test_views_r64"
 	"$(BUILD_DIR)/integer-overflow/bin/test_arithmetic"
 	"$(BUILD_DIR)/integer-overflow/bin/test_elementwise_integer"
 	FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/integer-overflow/bin/differential_driver)" \
-		$(VENV_PY) -m pytest -q python/tests/test_frumpy_differential.py -k "numpy_integer or numpy_mixed or matmul or solve or outer or dot or norm or random or dtype_constructors or dtype_views or linalg_nonfinite"
+		$(VENV_PY) -m pytest -q python/tests/test_frumpy_differential.py -k "numpy_integer or numpy_mixed or matmul or solve or outer or dot or norm or random or dtype_constructors or dtype_views or astype or comparisons or logical_bool or discrete_reductions or bool_reductions or integer_mean or mask_select or numpy_assign or linalg_nonfinite"
 
 portability-test:
 	bash scripts/validate_compilers.sh "$(BUILD_DIR)/portability" $(COMPILERS)

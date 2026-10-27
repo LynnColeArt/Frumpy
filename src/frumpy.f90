@@ -16,6 +16,12 @@ module frumpy
     swapaxes_i64, squeeze_i64, expand_dims_i64, slice_i64
   use frumpy_views_r32, only: reshape_r32, ravel_r32, flatten_r32, transpose_r32, &
     swapaxes_r32, squeeze_r32, expand_dims_r32, slice_r32
+  use frumpy_comparisons, only: equal, not_equal, less, less_equal, greater, greater_equal, &
+    logical_and_bool, logical_or_bool, logical_xor_bool, logical_not_bool
+  use frumpy_reductions_discrete, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
+    sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
+  use frumpy_indexing_r64, only: mask_select_r64, assign_r64
+  use frumpy_array_casting, only: astype
   use frumpy_random, only: random_generator, uniform_r64, normal_r64
   use frumpy_norms_r64, only: vector_norm_r64, matrix_norm_r64
   use frumpy_arithmetic, only: add, subtract, multiply, divide
@@ -92,6 +98,12 @@ module frumpy
   public :: swapaxes_i64, squeeze_i64, expand_dims_i64, slice_i64
   public :: reshape_r32, ravel_r32, flatten_r32, transpose_r32
   public :: swapaxes_r32, squeeze_r32, expand_dims_r32, slice_r32
+  public :: equal, not_equal, less, less_equal, greater, greater_equal
+  public :: logical_and_bool, logical_or_bool, logical_xor_bool, logical_not_bool
+  public :: sum_i32, prod_i32, min_i32, max_i32, mean_i32
+  public :: sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
+  public :: mask_select_r64, assign_r64
+  public :: astype
   public :: random_generator, uniform_r64, normal_r64
   public :: vector_norm_r64, matrix_norm_r64
   public :: add, subtract, multiply, divide, binary_result_dtype

@@ -20,7 +20,7 @@ boundary, not as a roadmap wish list.
 
 | Dtype | ID | Bytes | Level | Current behavior |
 | --- | --- | ---: | --- | --- |
-| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; boolean addition/multiplication, true division and mixed arithmetic; no boolean reductions yet. |
+| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; boolean addition/multiplication, true division and mixed arithmetic; all/any reductions and boolean logical operations. |
 | `i32` | `FRUMPY_DTYPE_I32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Int32 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
 | `i64` | `FRUMPY_DTYPE_I64` | 8 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; int64 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
 | `r32` | `FRUMPY_DTYPE_R32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Float32 add, subtract, multiply, and divide with broadcasting and signed strides; negation, absolute value, square root, exp, log, sine and cosine; sum, product, mean, minimum and maximum reductions. |
@@ -73,7 +73,8 @@ return independent integer arrays with NumPy-style modular payload overflow.
 All support broadcasting, scalar/empty inputs and signed/zero-stride views.
 See [INTEGER_ARITHMETIC.md](INTEGER_ARITHMETIC.md) for numerical semantics,
 status paths, compiler assumptions and the 128 compiled NumPy cases. Integer
-reductions and unary functions remain unimplemented. Mixed arithmetic uses the
+reductions now follow [the array-operation contract](ARRAY_OPERATIONS.md); integer
+unary functions remain unimplemented. Mixed arithmetic uses the
 separate subroutine API above.
 
 ## Float32 Binary Arithmetic
@@ -239,3 +240,7 @@ or Python packaging. Frumpy remains scoped to NumPy-compatible ndarray behavior.
 
 Float64 [uniform and standard normal generation](RANDOM.md) uses explicit seeded
 state and owned C-order results; it does not match NumPy random streams.
+
+All five dtypes support [array astype and mixed comparisons](ARRAY_OPERATIONS.md).
+Integer/boolean reductions and float64 full-shape mask extraction and staged
+assignment through basic views are documented there as well.

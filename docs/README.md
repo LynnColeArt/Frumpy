@@ -12,6 +12,7 @@
 - [Linear algebra](LINEAR_ALGEBRA.md)
 - [Random generation](RANDOM.md)
 - [Mixed arithmetic](MIXED_ARITHMETIC.md)
+- [Array casting, comparisons, discrete reductions and assignment](ARRAY_OPERATIONS.md)
 - [Integer arithmetic](INTEGER_ARITHMETIC.md)
 - [Float32 reductions](FLOAT32_REDUCTIONS.md)
 - [Dtype metadata](DTYPE_METADATA.md)

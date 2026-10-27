@@ -1,6 +1,7 @@
 # Float64 linear algebra
 
-`matmul_r64(lhs, rhs, status)` and `solve_r64(lhs, rhs, status)` accept
+`outer_r64(lhs, rhs, status)`, `matmul_r64(lhs, rhs, status)` and
+`solve_r64(lhs, rhs, status)` accept
 `ndarray_r64` descriptors and return independent, managed, C-order float64
 results. `status` is optional. Inputs retain their values and metadata.
 
@@ -8,6 +9,24 @@ results. `status` is optional. Inputs retain their values and metadata.
 product = matmul_r64(a, b, status)
 solution = solve_r64(a, rhs, status)
 ```
+
+## Outer product
+
+`outer_r64` follows NumPy `outer`: flatten both operands in C logical order,
+then return shape `[lhs.size(), rhs.size()]`. Scalars have one element; an empty
+operand produces an empty rank-two result. C/F layouts, transposes, stepped,
+negative and zero strides are read directly. Inputs are not flattened into
+work buffers; only the independent result payload is allocated.
+
+This native float64 multiplication kernel accepts NaNs and infinities, follows
+IEEE arithmetic (including signed zeros), and has no BLAS int32 dimension limit.
+Element and byte counts are checked for int64 overflow before output allocation.
+An empty result returns without traversing either operand. Floating-point traps
+and fast-math are outside the tested contract; there is no NumPy warning channel.
+The 51 `test_numpy_outer_r64` / `test_numpy_outer_extremes` cases check values,
+shapes, layouts, nonfinite values, overflow/underflow and signed zeros against
+NumPy. Fortran invariants additionally check lifetime and malformed inputs,
+plus element/byte overflow and huge empty shapes without huge allocations.
 
 ## Matrix multiplication
 
@@ -49,7 +68,7 @@ contracts. They are isolated in `frumpy_linalg_backend`.
 
 ## Supported numerical and ABI contract
 
-Both functions currently require finite values in every input block they read.
+Matmul and solve currently require finite values in every input block they read.
 NumPy permits non-finite operands and may return NaN/infinity; Frumpy explicitly
 reports `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR` for those inputs. This bounded
 contract avoids depending on backend-specific NaN handling and pivot selection.
@@ -63,7 +82,7 @@ choices can change rounding. The finite comparison corpus uses `rtol=2e-13` and
 `atol=2e-13`; this is a regression tolerance, not a global error bound or a
 bitwise guarantee. Signed-zero output bits are not specified for these kernels.
 
-The interface requires conventional LP64 Fortran BLAS/LAPACK: signed int32
+The matmul/solve backend interface requires conventional LP64 Fortran BLAS/LAPACK: signed int32
 dimensions and pivots, real64 double precision, and compatible Fortran symbol
 and character calling conventions. ILP64 backends are unsupported. Core dimensions
 are limited to int32 range, even for empty operations. Work-array and result
@@ -109,12 +128,12 @@ omitted. Explicit allocations have status paths, subject to the existing
 
 | Failure | Status |
 | --- | --- |
-| Missing source storage, non-finite values, or batched solve | `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR` |
+| Missing source storage, non-finite matmul/solve values, or batched solve | `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR` |
 | Invalid rank/shape/strides/offset, unreachable storage, or incompatible dimensions | `FRUMPY_STATUS_INVALID_SHAPE` |
 | Forged input dtype metadata | `FRUMPY_STATUS_UNSUPPORTED_DTYPE` |
 | LP64 dimension or byte-count overflow | `FRUMPY_STATUS_OVERFLOW` |
 | Explicit allocation failure | `FRUMPY_STATUS_ALLOCATION_FAILED` |
 | Singular coefficient matrix | `FRUMPY_STATUS_SINGULAR_MATRIX` |
 
-This slice does not add mixed-dtype linear algebra, standalone `dot`/`outer`,
+This slice does not add mixed-dtype linear algebra, standalone `dot`,
 other factorizations, norms, random generation, or Python/C bindings.

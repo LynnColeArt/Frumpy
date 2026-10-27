@@ -154,7 +154,7 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 	"$(BUILD_DIR)/integer-overflow/bin/test_arithmetic"
 	"$(BUILD_DIR)/integer-overflow/bin/test_elementwise_integer"
 	FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/integer-overflow/bin/differential_driver)" \
-		$(VENV_PY) -m pytest -q python/tests/test_frumpy_differential.py -k "numpy_integer or numpy_mixed or matmul or solve or linalg_nonfinite"
+		$(VENV_PY) -m pytest -q python/tests/test_frumpy_differential.py -k "numpy_integer or numpy_mixed or matmul or solve or outer or linalg_nonfinite"
 
 portability-test:
 	bash scripts/validate_compilers.sh "$(BUILD_DIR)/portability" $(COMPILERS)

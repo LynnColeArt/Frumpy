@@ -1,7 +1,7 @@
 !> Public umbrella module for the current Frumpy core surface.
 module frumpy
   use frumpy_arithmetic, only: add, subtract, multiply, divide
-  use frumpy_linalg_r64, only: matmul_r64, solve_r64
+  use frumpy_linalg_r64, only: matmul_r64, solve_r64, outer_r64
   use frumpy_constants, only: FRUMPY_ORDER_A, FRUMPY_ORDER_C, FRUMPY_ORDER_F, &
     FRUMPY_ORDER_K
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_r64
@@ -57,7 +57,7 @@ module frumpy
 
   private
 
-  public :: matmul_r64, solve_r64, FRUMPY_STATUS_SINGULAR_MATRIX
+  public :: matmul_r64, solve_r64, outer_r64, FRUMPY_STATUS_SINGULAR_MATRIX
   public :: add, subtract, multiply, divide, binary_result_dtype
   public :: share_descriptors_bool
   public :: share_descriptors_i32

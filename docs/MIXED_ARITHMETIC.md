@@ -116,5 +116,5 @@ flags, platforms or floating-point environments.
 result replacement and preservation, lifetime, boolean normalization, optional
 status, and dtype queries. The normal compiler matrix and GNU memory gates
 include it. `make integer-overflow-test` now runs integer/mixed and linear algebra
-invariant programs and 1,454 comparisons under signed-overflow traps and
-undefined-behavior sanitization (1,328 integer/mixed plus 126 linear algebra).
+invariant programs and 1,505 comparisons under signed-overflow traps and
+undefined-behavior sanitization (1,328 integer/mixed plus 177 linear algebra).

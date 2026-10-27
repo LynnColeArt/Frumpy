@@ -652,3 +652,32 @@ def test_numpy_solve_stepped(frumpy_driver, zero_stride):
     status, actual = execute(frumpy_driver, "solve_r64", lhs, rhs)
     assert status == 0
     np.testing.assert_allclose(actual, np.linalg.solve(lhs, rhs), rtol=2e-13, atol=2e-13)
+
+
+@pytest.mark.parametrize("lhs", layouts() + [np.array(-0.), np.array(3.),
+                                            np.arange(24.).reshape(2, 3, 4)])
+@pytest.mark.parametrize("rhs", [np.array(2.), np.array([-0., 0., -2., 3.]),
+                                np.arange(6.).reshape(2, 3).T, np.empty((0, 2))])
+def test_numpy_outer_r64(frumpy_driver, lhs, rhs):
+    with np.errstate(invalid="ignore", over="ignore"):
+        expected = np.outer(lhs, rhs)
+    status, actual = execute(frumpy_driver, "outer_r64", lhs, rhs)
+    assert status == 0
+    assert actual.shape == (lhs.size, rhs.size)
+    np.testing.assert_array_equal(actual, expected)
+    zeros = expected == 0
+    np.testing.assert_array_equal(np.signbit(actual[zeros]), np.signbit(expected[zeros]))
+
+
+@pytest.mark.parametrize("lhs,rhs", [
+    (np.array([np.finfo(float).max, np.finfo(float).tiny]), np.array([2., .5])),
+    (np.arange(10.)[::-2], np.broadcast_to(np.array(-2.), (2, 3))),
+    (np.empty((2, 0)), np.array([np.inf, np.nan])),
+])
+def test_numpy_outer_extremes(frumpy_driver, lhs, rhs):
+    with np.errstate(invalid="ignore", over="ignore"):
+        expected = np.outer(lhs, rhs)
+    status, actual = execute(frumpy_driver, "outer_r64", lhs, rhs)
+    assert status == 0
+    assert actual.shape == expected.shape
+    np.testing.assert_array_equal(actual, expected)

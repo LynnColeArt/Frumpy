@@ -573,14 +573,15 @@ At every phase boundary, ask:
 
 ## Immediate Next Steps
 
-1. Preserve the compiler validation matrix and bounded storage-copy contract.
-2. Expand linear algebra beyond finite float64 matmul and unbatched solve:
-   additional dtypes, batched solves, dot/outer, norms, and factorizations. Integer
-   binary, float32 binary/unary/reduction, and mixed arithmetic are implemented.
-3. Expand remaining dtype constructors, view helpers, and reductions.
-4. Design the C ABI and Python package around explicit ownership.
-5. Extend direct NumPy differential coverage alongside each supported operation,
-   and use the recorded contiguous/strided baseline to guide optimization.
+The [v0.1 release checklist](docs/V0_1_CHECKLIST.md) now governs the active
+release scope and execution order. Start with float64 outer/dot/norms and batched
+solve, then reproducible random generation, the specified five-dtype gaps,
+C/Python interoperability and release validation. Preserve the current compiler
+matrix and storage contract throughout.
+
+The [post-v0.1 plan](docs/POST_V0_1_PLAN.md) sequences measured performance work,
+broader dtype/indexing/numerical coverage, distribution and later FFT/IO work.
+The phases above remain the long-term map, not additional v0.1 release gates.
 
 
 ## Spec Kitty Handoff Model

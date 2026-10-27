@@ -93,6 +93,6 @@ checks for division; NaN payload bits are not specified.
 input preservation, result lifetime, optional status, missing storage, and invalid
 metadata. It is included in the normal and GNU memory gates. The GNU-only
 `make integer-overflow-test` gate runs integer and mixed invariant programs and
-1,454 integer/mixed/linear algebra comparisons with `-ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined`.
+1,505 integer/mixed/linear algebra comparisons with `-ftrapv -fsanitize=undefined -fno-sanitize-recover=undefined`.
 Select a compiler with `FC=gfortran-13` or `FC=gfortran-14`; the gate isolates its
 build products under `build/integer-overflow`.

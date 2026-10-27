@@ -174,10 +174,10 @@ uses `-fstack-arrays` to move compiler finalizer scratch off the injected heap.
 The lifetime programs and differential driver use the ordinary compiler flags
 plus sanitizer instrumentation. This gate needs a C compiler and GNU linker.
 
-Observed on 2026-10-25: `make validate` passed 27 standalone Fortran programs,
-the example, and 1,966 Python tests. `make memory-test` passed both lifetime
+Observed on 2026-10-26: `make validate` passed 27 standalone Fortran programs,
+the example, and 2,017 Python tests. `make memory-test` passed both lifetime
 programs, integer, float32, mixed and linear algebra invariants, allocation-failure sweeps, and all
-1,938 compiled differential cases with no reported leaks or memory errors.
+1,989 compiled differential cases with no reported leaks or memory errors.
 Two expected NumPy warnings remained in the standard gate's
 existing empty-mean reference test. These checks cover the exercised paths;
 they do not establish safety for the unsupported intrinsic copying forms above.

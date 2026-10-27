@@ -1,5 +1,7 @@
 # Frumpy Documentation
 
+- [v0.1 release checklist](V0_1_CHECKLIST.md)
+- [Post-v0.1 plan](POST_V0_1_PLAN.md)
 - [Building and validation](BUILDING.md)
 - [Compiler portability](COMPILER_PORTABILITY.md)
 - [Performance comparisons](PERFORMANCE.md)

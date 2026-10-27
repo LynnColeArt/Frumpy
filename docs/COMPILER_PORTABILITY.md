@@ -44,10 +44,10 @@ and the compiled differential driver with AddressSanitizer/leak detection. It
 also injects selected allocation failures. Compiler-temporary limitations are
 described in [STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).
 The separate integer overflow gate checks integer/mixed and linear algebra
-invariant programs and 1,454 NumPy comparisons with `-ftrapv`, `-fsanitize=undefined`, and
+invariant programs and 1,505 NumPy comparisons with `-ftrapv`, `-fsanitize=undefined`, and
 `-fno-sanitize-recover=undefined`; it does not enable floating-point traps.
 
-## Observed results on 2026-10-25
+## Observed results on 2026-10-26
 
 | Compiler | Debug suite | Optimized suite | GNU memory gate | Integer overflow gate |
 | --- | --- | --- | --- | --- |
@@ -66,8 +66,8 @@ existing empty-mean NumPy reference fixture.
 
 ## Scope of the evidence
 
-The matrix covers 27 Fortran test programs, one example, and 1,966 Python tests
-(1,938 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
+The matrix covers 27 Fortran test programs, one example, and 2,017 Python tests
+(1,989 compiled Frumpy/NumPy comparisons plus 28 NumPy oracle fixtures). The
 float32 cases include exact results, signed zeros, NaNs/infinities, scalar and
 empty broadcasting, signed/zero strides, reduction axes, keepdims, empty-axis
 identities, pairwise summation, and seven unary functions. Unary comparisons
@@ -84,7 +84,9 @@ strides, boolean semantics and invalid shapes. Typed-result replacement and
 failure preservation are checked in Fortran; see
 [mixed arithmetic](MIXED_ARITHMETIC.md). Linear algebra adds 126 comparisons
 covering finite float64 matmul ranks/batches and unbatched solves, residuals,
-empty and singular cases, and explicit unsupported behavior. Fortran invariants
+empty and singular cases, and explicit unsupported behavior. Another 51 outer
+product cases cover C-logical flattening, scalar/empty inputs, signed and zero
+strides, nonfinite values, signed zeros and floating-point extremes. Fortran invariants
 exercise input preservation and LP64/workspace/output overflow guards.
 
 These are executable compatibility checks, not a general certification of

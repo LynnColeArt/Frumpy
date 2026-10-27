@@ -110,6 +110,9 @@ The short version:
 
 ## Status
 
+The [v0.1 checklist](docs/V0_1_CHECKLIST.md) defines the next release gate.
+The [post-v0.1 plan](docs/POST_V0_1_PLAN.md) sequences performance work and broader coverage.
+
 Frumpy has a working float64 array core: descriptors, constructors, broadcasting,
 elementwise arithmetic, reductions, views, and slicing. Boolean, int32, int64,
 and float32 descriptors plus dtype promotion and scalar casting policies are
@@ -134,7 +137,8 @@ reference fixtures and direct Frumpy-versus-NumPy comparisons, and check patch
 whitespace. See [building](docs/BUILDING.md), [compiler portability](docs/COMPILER_PORTABILITY.md),
 and [performance measurements](docs/PERFORMANCE.md).
 
-Float64 `matmul_r64` supports vectors, matrices and broadcast batches;
+Float64 `outer_r64` multiplies operands flattened in C logical order.
+`matmul_r64` supports vectors, matrices and broadcast batches;
 `solve_r64` solves square systems with vector or matrix right-hand sides. See
 [linear algebra](docs/LINEAR_ALGEBRA.md) for the finite-input contract, LP64
 BLAS/LAPACK dependency and supported limits. Broader linear algebra, random

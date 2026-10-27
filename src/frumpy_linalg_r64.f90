@@ -1,4 +1,4 @@
-!> Float64 matmul and unbatched solve, with explicit column-major backend work arrays.
+!> Float64 outer, matmul and solve; backend calls use explicit column-major work arrays.
 module frumpy_linalg_r64
   use iso_fortran_env, only: int32, int64, real64
   use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
@@ -14,9 +14,61 @@ module frumpy_linalg_r64
     FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_SINGULAR_MATRIX
   implicit none
   private
-  public :: matmul_r64, solve_r64
+  public :: matmul_r64, solve_r64, outer_r64
 
 contains
+
+  !> Flatten inputs in C logical order without copies; allocate only the rank-two result.
+  function outer_r64(lhs, rhs, status) result(array)
+    type(ndarray_r64), intent(in) :: lhs, rhs
+    type(frumpy_status), intent(out), optional :: status
+    type(ndarray_r64) :: array
+    type(frumpy_status) :: local_status
+    integer(int64) :: m, n, count, row0, column0, left_position, right_position
+
+    call validate_source(lhs, local_status)
+    if (local_status%is_ok()) call validate_source(rhs, local_status)
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    m = lhs%size()
+    n = rhs%size()
+    count = element_count([m, n], local_status)
+    if (local_status%is_ok()) then
+      if (count > shiftr(huge(1_int64), 3)) &
+        call set_status(local_status, FRUMPY_STATUS_OVERFLOW, "outer output byte count overflows")
+    end if
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    array = owned_descriptor_r64([m, n], status=local_status)
+    if (present(status)) status = local_status
+    if (local_status%is_failure() .or. count == 0_int64) return
+    do row0 = 0_int64, m - 1_int64
+      left_position = c_flat_position(lhs, row0)
+      do column0 = 0_int64, n - 1_int64
+        right_position = c_flat_position(rhs, column0)
+        array%data(row0 * n + column0 + 1_int64) = &
+          lhs%data(left_position) * rhs%data(right_position)
+      end do
+    end do
+  end function outer_r64
+
+  integer(int64) function c_flat_position(source, flat_index0) result(position)
+    type(ndarray_r64), intent(in) :: source
+    integer(int64), intent(in) :: flat_index0
+    integer(int64) :: remainder
+    integer(int32) :: dim1
+
+    position = source%offset
+    remainder = flat_index0
+    do dim1 = source%rank, 1_int32, -1_int32
+      position = position + modulo(remainder, source%shape(dim1)) * source%strides(dim1)
+      remainder = remainder / source%shape(dim1)
+    end do
+  end function c_flat_position
 
   !> NumPy vector promotion and broadcasting of leading matrix-stack dimensions.
   function matmul_r64(lhs, rhs, status) result(array)

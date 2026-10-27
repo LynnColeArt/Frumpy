@@ -1,0 +1,10 @@
+{
+  "C ABI matmul/release": {
+    "calls_per_operation": 35.0,
+    "requested_bytes_per_operation": 8850.0
+  },
+  "Python matmul/close": {
+    "calls_per_operation": 37.0,
+    "requested_bytes_per_operation": 8882.0
+  }
+}

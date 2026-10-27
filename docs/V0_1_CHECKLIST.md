@@ -208,3 +208,12 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   2,999 Python tests and the C caller; GNU 14 sanitizer gates and fpm pass.
   `performance/strides-2026-10-27/README.md` records stride-2/reverse improvements,
   small-call measurements and explicit glibc allocation counts.
+
+- 2026-10-27: remaining optimization queue completed at `f1b9e05`: nonuniform
+  float rows, indexed handles, initialized FFI dispatch and rank-two matrix
+  packing. All six compiler configurations pass 3,078 Python tests, 35 native
+  programs, two examples and the C caller; one-thread OpenBLAS also passes.
+  GNU 14 sanitizer gates, 407 ABI/package ASan/UBSan cases, registry allocation
+  recovery and fpm pass. See `validation/queue-2026-10-27.json` and
+  `performance/queue-2026-10-27/README.md` for evidence and deferred boundaries.
+  Candidate is ready for review; no merge, tag or package publication performed.

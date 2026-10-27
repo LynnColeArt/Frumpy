@@ -24,13 +24,14 @@ sets the first experiment queue:
    Follow-up completed: uniform signed-step arithmetic resolves the stride-2
    regression for those layouts; general nonuniform traversal remains separate.
    See [the follow-up evidence](performance/strides-2026-10-27/README.md).
-3. Initial small-call profiling completed: local ctypes metadata buffers reduce
-   wrapper overhead, and lazy index allocation removes one native heap request.
-   Follow up on the remaining descriptor/registry allocations and repeated
-   metadata/FFI work before choosing reuse or caching APIs.
-4. Compare matched BLAS implementations/thread settings, then investigate
-   matrix packing/copies. Consider OpenMP only after evidence identifies a
-   workload where it improves the supported semantics.
+3. Completed 2026-10-27: handle indexing and initialized-FFI dispatch, with
+   repeated measurements from zero to 8,192 other live arrays, growth failure
+   recovery, and explicit small-call/memory tradeoffs.
+4. Completed 2026-10-27: nonuniform floating row traversal and matched reference
+   BLAS/OpenBLAS packing experiments. C/F rank-two inputs avoid packing; portable
+   NN kernels remain after rejecting a reference-backend regression. See the
+   [queue report](performance/queue-2026-10-27/README.md) for measurements,
+   validation and explicitly deferred work. Backend defaults remain unchanged.
 
 Each optimization needs a before/after benchmark, unchanged differential and
 lifetime results, and evidence on strided as well as contiguous cases. Keep a

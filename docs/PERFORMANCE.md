@@ -170,3 +170,14 @@ allocation request (30 to 29 per C-ABI small add). Full raw timings, layer
 measurements, allocator counts, profiling evidence and noisy/slower cases are
 retained in the report. Next: inspect remaining descriptor/registry allocations
 and repeated metadata/FFI work; general nonuniform traversal remains separate.
+
+
+## Remaining measured queue — 2026-10-27
+
+The [consolidated queue report](performance/queue-2026-10-27/README.md) closes
+nonuniform floating arithmetic, handle/FFI overhead and matched BLAS packing
+work. It retains repeated wall/CPU measurements, many-live-handle scaling,
+allocation counts, a rejected backend experiment and explicit deferred cases.
+Both reference LP64 BLAS and one-thread OpenBLAS pass correctness validation.
+The bounded initial optimization queue is complete; broader dtype coverage,
+distribution and any further API/threading changes follow the post-v0.1 plan.

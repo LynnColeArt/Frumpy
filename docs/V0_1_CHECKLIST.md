@@ -56,9 +56,9 @@ Additional dtypes for linear algebra and general factorizations are post-v0.1.
 
 ## C. Complete the everyday five-dtype path
 
-- [ ] C1: empty/zeros/ones/full, asarray/copy/ascontiguousarray for all five
+- [x] C1: empty/zeros/ones/full, asarray/copy/ascontiguousarray for all five
   dtypes; retain float64 arange/linspace as the v0.1 sequence constructors.
-- [ ] C2: reshape/ravel/flatten/transpose/swapaxes/squeeze/expand_dims/basic
+- [x] C2: reshape/ravel/flatten/transpose/swapaxes/squeeze/expand_dims/basic
   slicing for all five dtypes, with the same copy/view contract as float64.
 - [ ] C3: array `astype` across the five dtypes, explicit casting mode and tested
   conversion semantics; resolve the stricter existing scalar-cast contract
@@ -141,3 +141,10 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   GNU 14 ordinary validation: 28 Fortran programs and 2,195 Python tests.
   GNU 14 memory gate: 2,167 compiled comparisons; overflow gate: 1,683 cases.
   Full release compiler/platform acceptance remains open under E2. Next: C1.
+
+- 2026-10-26: completed C1–C2 with concrete constructors and typed views for
+  all five dtypes, plus a shared metadata-only view planner. Fixed empty-slice
+  offset arithmetic and extreme slice-step length overflow. GNU 14 ordinary:
+  30 Fortran programs, 2,331 Python tests; memory: 2,303 compiled comparisons;
+  overflow: 1,819 cases. See CONSTRUCTORS_AND_VIEWS.md for bounded deviations.
+  Next: C3 array casting, then comparisons/logical operations.

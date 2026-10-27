@@ -127,6 +127,9 @@ Mixed-dtype `add`, `subtract`, `multiply`, and `divide` now connect all five
 registered descriptors; see [mixed arithmetic](docs/MIXED_ARITHMETIC.md) for
 result-type selection and the boolean subtraction exception.
 
+All five dtypes now have concrete convenience constructors and view helpers; see
+[constructors and views](docs/CONSTRUCTORS_AND_VIEWS.md) for the bounded copy/view contract.
+
 The selection subset adds `where`, `take`, `concatenate`, `stack`, stable sorting,
 `argsort`, `searchsorted`, and flat nonzero indices. See
 [selection support](docs/SELECTION_SUPPORT.md) for the exact contract and limits,

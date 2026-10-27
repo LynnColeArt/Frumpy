@@ -17,9 +17,25 @@ module frumpy_strides
   public :: is_c_contiguous
   public :: is_f_contiguous
   public :: has_negative_stride
+  public :: flat_offset
   public :: storage_bounds_are_valid
 
 contains
+
+  !> Caller validates reachable storage and only visits nonempty shapes.
+  integer(int64) function flat_offset(shape, strides, offset, flat_index0) result(position)
+    integer(int64), intent(in) :: shape(:), strides(:), offset, flat_index0
+    integer(int64) :: remainder
+    integer(int32) :: dim1
+
+    position = offset
+    remainder = flat_index0
+    do dim1 = int(size(shape), int32), 1_int32, -1_int32
+      position = position + modulo(remainder, shape(dim1)) * strides(dim1)
+      remainder = remainder / shape(dim1)
+    end do
+  end function flat_offset
+
 
   !> Check reachable storage without overflowing on malformed signed strides.
   logical function storage_bounds_are_valid(shape, strides, offset, storage_count) result(valid)

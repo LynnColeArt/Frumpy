@@ -19,6 +19,25 @@ program differential_driver
   use frumpy, only: random_generator, uniform_r64, normal_r64
   use frumpy, only: vector_norm_r64, matrix_norm_r64
   use frumpy, only: matmul_r64, solve_r64, outer_r64, dot_r64
+  use frumpy, only: copy_bool, asarray_bool, ascontiguousarray_bool, &
+    zeros_bool, ones_bool, full_bool
+  use frumpy, only: copy_i32, asarray_i32, ascontiguousarray_i32, &
+    zeros_i32, ones_i32, full_i32
+  use frumpy, only: copy_i64, asarray_i64, ascontiguousarray_i64, &
+    zeros_i64, ones_i64, full_i64
+  use frumpy, only: copy_r32, asarray_r32, ascontiguousarray_r32, &
+    zeros_r32, ones_r32, full_r32
+  use frumpy, only: reshape_bool, ravel_bool, flatten_bool, transpose_bool, &
+    swapaxes_bool, squeeze_bool, expand_dims_bool, slice_bool
+  use frumpy, only: reshape_i32, ravel_i32, flatten_i32, transpose_i32, &
+    swapaxes_i32, squeeze_i32, expand_dims_i32, slice_i32
+  use frumpy, only: reshape_i64, ravel_i64, flatten_i64, transpose_i64, &
+    swapaxes_i64, squeeze_i64, expand_dims_i64, slice_i64
+  use frumpy, only: reshape_r32, ravel_r32, flatten_r32, transpose_r32, &
+    swapaxes_r32, squeeze_r32, expand_dims_r32, slice_r32
+  use frumpy, only: reshape_r64, ravel_r64, flatten_r64, transpose_r64, &
+    swapaxes_r64, squeeze_r64, expand_dims_r64, slice_r64
+  use frumpy, only: slice_spec, slice_all, slice_range
   implicit none
 
   call run_case()
@@ -42,6 +61,14 @@ contains
 
     read (*, *) operation, axis0, side
     integer_output = .false.
+    if (index(operation, 'view_') == 1) then
+      call run_views(operation(6:), axis0)
+      return
+    end if
+    if (index(operation, 'construct_') == 1) then
+      call run_constructors(operation(11:), axis0, side)
+      return
+    end if
     select case (trim(operation))
     case ('mixed_add', 'mixed_subtract', 'mixed_multiply', 'mixed_divide')
       call run_mixed(operation(7:), axis0, side)
@@ -263,6 +290,11 @@ contains
       write (*, '(a)') trim(status%message)
       return
     end if
+    call emit_mixed(output)
+  end subroutine run_mixed
+
+  subroutine emit_mixed(output)
+    class(*), intent(in) :: output
     select type (output)
     type is (ndarray_bool)
       write (*, '(i0)') 1
@@ -290,7 +322,245 @@ contains
         output%is_c_contiguous, output%is_f_contiguous, output%owns_data)
       write (*, '(*(es26.17e3,1x))') output%data
     end select
-  end subroutine run_mixed
+  end subroutine emit_mixed
+
+  subroutine run_constructors(operation, dtype, order)
+    character(len=*), intent(in) :: operation
+    integer(int32), intent(in) :: dtype, order
+    type(frumpy_status) :: status
+    type(ndarray_bool) :: source_bool, result_bool, flat_bool
+    type(ndarray_i32) :: source_i32, result_i32, flat_i32
+    type(ndarray_i64) :: source_i64, result_i64, flat_i64
+    type(ndarray_r32) :: source_r32, result_r32, flat_r32
+
+    select case (dtype)
+    case (1)
+      call read_bool(source_bool)
+      select case (operation)
+      case ('copy')
+        result_bool = copy_bool(source_bool, order, status)
+      case ('ascontiguousarray')
+        result_bool = ascontiguousarray_bool(source_bool, status)
+      case ('asarray')
+        flat_bool = copy_bool(source_bool)
+        result_bool = asarray_bool(flat_bool%data /= 0_int8, &
+          source_bool%shape, order, status)
+      case ('zeros')
+        result_bool = zeros_bool(source_bool%shape, order, status)
+      case ('ones')
+        result_bool = ones_bool(source_bool%shape, order, status)
+      case ('full')
+        result_bool = full_bool(source_bool%shape, .true., order, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_bool)
+    case (2)
+      call read_i32(source_i32)
+      select case (operation)
+      case ('copy')
+        result_i32 = copy_i32(source_i32, order, status)
+      case ('ascontiguousarray')
+        result_i32 = ascontiguousarray_i32(source_i32, status)
+      case ('asarray')
+        flat_i32 = copy_i32(source_i32)
+        result_i32 = asarray_i32(flat_i32%data, &
+          source_i32%shape, order, status)
+      case ('zeros')
+        result_i32 = zeros_i32(source_i32%shape, order, status)
+      case ('ones')
+        result_i32 = ones_i32(source_i32%shape, order, status)
+      case ('full')
+        result_i32 = full_i32(source_i32%shape, 7_int32, order, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_i32)
+    case (3)
+      call read_i64(source_i64)
+      select case (operation)
+      case ('copy')
+        result_i64 = copy_i64(source_i64, order, status)
+      case ('ascontiguousarray')
+        result_i64 = ascontiguousarray_i64(source_i64, status)
+      case ('asarray')
+        flat_i64 = copy_i64(source_i64)
+        result_i64 = asarray_i64(flat_i64%data, &
+          source_i64%shape, order, status)
+      case ('zeros')
+        result_i64 = zeros_i64(source_i64%shape, order, status)
+      case ('ones')
+        result_i64 = ones_i64(source_i64%shape, order, status)
+      case ('full')
+        result_i64 = full_i64(source_i64%shape, 7_int64, order, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_i64)
+    case (4)
+      call read_r32(source_r32)
+      select case (operation)
+      case ('copy')
+        result_r32 = copy_r32(source_r32, order, status)
+      case ('ascontiguousarray')
+        result_r32 = ascontiguousarray_r32(source_r32, status)
+      case ('asarray')
+        flat_r32 = copy_r32(source_r32)
+        result_r32 = asarray_r32(flat_r32%data, &
+          source_r32%shape, order, status)
+      case ('zeros')
+        result_r32 = zeros_r32(source_r32%shape, order, status)
+      case ('ones')
+        result_r32 = ones_r32(source_r32%shape, order, status)
+      case ('full')
+        result_r32 = full_r32(source_r32%shape, 7.0_real32, order, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_r32)
+    end select
+  end subroutine run_constructors
+
+  subroutine run_views(operation, dtype)
+    character(len=*), intent(in) :: operation
+    integer(int32), intent(in) :: dtype
+    type(frumpy_status) :: status
+    type(slice_spec), allocatable :: specs(:)
+    type(ndarray_bool) :: source_bool, result_bool
+    type(ndarray_i32) :: source_i32, result_i32
+    type(ndarray_i64) :: source_i64, result_i64
+    type(ndarray_r32) :: source_r32, result_r32
+    type(ndarray_r64) :: source_r64, result_r64
+
+    select case (dtype)
+    case (1)
+      call read_bool(source_bool)
+      select case (operation)
+      case ('reshape')
+        result_bool = reshape_bool(source_bool, [source_bool%size()], status)
+      case ('ravel')
+        result_bool = ravel_bool(source_bool, status)
+      case ('flatten')
+        result_bool = flatten_bool(source_bool, status)
+      case ('transpose')
+        result_bool = transpose_bool(source_bool, status)
+      case ('swapaxes')
+        result_bool = swapaxes_bool(source_bool, 0_int32, max(0_int32, source_bool%rank-1), status)
+      case ('squeeze')
+        result_bool = squeeze_bool(source_bool, status=status)
+      case ('expand_dims')
+        result_bool = expand_dims_bool(source_bool, 0_int32, status)
+      case ('slice')
+        allocate(specs(source_bool%rank))
+        specs = slice_all()
+        if (source_bool%rank > 0) specs(source_bool%rank) = &
+          slice_range(source_bool%shape(source_bool%rank)-1_int64, -1_int64, -1_int64)
+        result_bool = slice_bool(source_bool, specs, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_bool)
+    case (2)
+      call read_i32(source_i32)
+      select case (operation)
+      case ('reshape')
+        result_i32 = reshape_i32(source_i32, [source_i32%size()], status)
+      case ('ravel')
+        result_i32 = ravel_i32(source_i32, status)
+      case ('flatten')
+        result_i32 = flatten_i32(source_i32, status)
+      case ('transpose')
+        result_i32 = transpose_i32(source_i32, status)
+      case ('swapaxes')
+        result_i32 = swapaxes_i32(source_i32, 0_int32, max(0_int32, source_i32%rank-1), status)
+      case ('squeeze')
+        result_i32 = squeeze_i32(source_i32, status=status)
+      case ('expand_dims')
+        result_i32 = expand_dims_i32(source_i32, 0_int32, status)
+      case ('slice')
+        allocate(specs(source_i32%rank))
+        specs = slice_all()
+        if (source_i32%rank > 0) specs(source_i32%rank) = &
+          slice_range(source_i32%shape(source_i32%rank)-1_int64, -1_int64, -1_int64)
+        result_i32 = slice_i32(source_i32, specs, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_i32)
+    case (3)
+      call read_i64(source_i64)
+      select case (operation)
+      case ('reshape')
+        result_i64 = reshape_i64(source_i64, [source_i64%size()], status)
+      case ('ravel')
+        result_i64 = ravel_i64(source_i64, status)
+      case ('flatten')
+        result_i64 = flatten_i64(source_i64, status)
+      case ('transpose')
+        result_i64 = transpose_i64(source_i64, status)
+      case ('swapaxes')
+        result_i64 = swapaxes_i64(source_i64, 0_int32, max(0_int32, source_i64%rank-1), status)
+      case ('squeeze')
+        result_i64 = squeeze_i64(source_i64, status=status)
+      case ('expand_dims')
+        result_i64 = expand_dims_i64(source_i64, 0_int32, status)
+      case ('slice')
+        allocate(specs(source_i64%rank))
+        specs = slice_all()
+        if (source_i64%rank > 0) specs(source_i64%rank) = &
+          slice_range(source_i64%shape(source_i64%rank)-1_int64, -1_int64, -1_int64)
+        result_i64 = slice_i64(source_i64, specs, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_i64)
+    case (4)
+      call read_r32(source_r32)
+      select case (operation)
+      case ('reshape')
+        result_r32 = reshape_r32(source_r32, [source_r32%size()], status)
+      case ('ravel')
+        result_r32 = ravel_r32(source_r32, status)
+      case ('flatten')
+        result_r32 = flatten_r32(source_r32, status)
+      case ('transpose')
+        result_r32 = transpose_r32(source_r32, status)
+      case ('swapaxes')
+        result_r32 = swapaxes_r32(source_r32, 0_int32, max(0_int32, source_r32%rank-1), status)
+      case ('squeeze')
+        result_r32 = squeeze_r32(source_r32, status=status)
+      case ('expand_dims')
+        result_r32 = expand_dims_r32(source_r32, 0_int32, status)
+      case ('slice')
+        allocate(specs(source_r32%rank))
+        specs = slice_all()
+        if (source_r32%rank > 0) specs(source_r32%rank) = &
+          slice_range(source_r32%shape(source_r32%rank)-1_int64, -1_int64, -1_int64)
+        result_r32 = slice_r32(source_r32, specs, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_r32)
+    case (5)
+      call read_r64(source_r64)
+      select case (operation)
+      case ('reshape')
+        result_r64 = reshape_r64(source_r64, [source_r64%size()], status)
+      case ('ravel')
+        result_r64 = ravel_r64(source_r64, status)
+      case ('flatten')
+        result_r64 = flatten_r64(source_r64, status)
+      case ('transpose')
+        result_r64 = transpose_r64(source_r64, status)
+      case ('swapaxes')
+        result_r64 = swapaxes_r64(source_r64, 0_int32, max(0_int32, source_r64%rank-1), status)
+      case ('squeeze')
+        result_r64 = squeeze_r64(source_r64, status=status)
+      case ('expand_dims')
+        result_r64 = expand_dims_r64(source_r64, 0_int32, status)
+      case ('slice')
+        allocate(specs(source_r64%rank))
+        specs = slice_all()
+        if (source_r64%rank > 0) specs(source_r64%rank) = &
+          slice_range(source_r64%shape(source_r64%rank)-1_int64, -1_int64, -1_int64)
+        result_r64 = slice_r64(source_r64, specs, status)
+      end select
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_r64)
+    end select
+  end subroutine run_views
 
   subroutine allocate_mixed(array, dtype_id)
     class(*), allocatable, intent(out) :: array

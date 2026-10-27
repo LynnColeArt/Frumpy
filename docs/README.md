@@ -8,6 +8,7 @@
 - [Storage lifetime for registered numeric dtypes](STORAGE_LIFETIME.md)
 - [Selection, sorting, and searching support](SELECTION_SUPPORT.md)
 - [Dtype support](DTYPE_SUPPORT.md)
+- [Constructors and views](CONSTRUCTORS_AND_VIEWS.md)
 - [Linear algebra](LINEAR_ALGEBRA.md)
 - [Random generation](RANDOM.md)
 - [Mixed arithmetic](MIXED_ARITHMETIC.md)

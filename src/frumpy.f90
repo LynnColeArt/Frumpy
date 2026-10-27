@@ -1,5 +1,21 @@
 !> Public umbrella module for the current Frumpy core surface.
 module frumpy
+  use frumpy_constructors_bool, only: empty_bool, zeros_bool, ones_bool, full_bool, &
+    asarray_bool, copy_bool, ascontiguousarray_bool
+  use frumpy_constructors_i32, only: empty_i32, zeros_i32, ones_i32, full_i32, &
+    asarray_i32, copy_i32, ascontiguousarray_i32
+  use frumpy_constructors_i64, only: empty_i64, zeros_i64, ones_i64, full_i64, &
+    asarray_i64, copy_i64, ascontiguousarray_i64
+  use frumpy_constructors_r32, only: empty_r32, zeros_r32, ones_r32, full_r32, &
+    asarray_r32, copy_r32, ascontiguousarray_r32
+  use frumpy_views_bool, only: reshape_bool, ravel_bool, flatten_bool, transpose_bool, &
+    swapaxes_bool, squeeze_bool, expand_dims_bool, slice_bool
+  use frumpy_views_i32, only: reshape_i32, ravel_i32, flatten_i32, transpose_i32, &
+    swapaxes_i32, squeeze_i32, expand_dims_i32, slice_i32
+  use frumpy_views_i64, only: reshape_i64, ravel_i64, flatten_i64, transpose_i64, &
+    swapaxes_i64, squeeze_i64, expand_dims_i64, slice_i64
+  use frumpy_views_r32, only: reshape_r32, ravel_r32, flatten_r32, transpose_r32, &
+    swapaxes_r32, squeeze_r32, expand_dims_r32, slice_r32
   use frumpy_random, only: random_generator, uniform_r64, normal_r64
   use frumpy_norms_r64, only: vector_norm_r64, matrix_norm_r64
   use frumpy_arithmetic, only: add, subtract, multiply, divide
@@ -60,6 +76,22 @@ module frumpy
   private
 
   public :: matmul_r64, solve_r64, outer_r64, dot_r64, FRUMPY_STATUS_SINGULAR_MATRIX
+  public :: empty_bool, zeros_bool, ones_bool, full_bool
+  public :: asarray_bool, copy_bool, ascontiguousarray_bool
+  public :: empty_i32, zeros_i32, ones_i32, full_i32
+  public :: asarray_i32, copy_i32, ascontiguousarray_i32
+  public :: empty_i64, zeros_i64, ones_i64, full_i64
+  public :: asarray_i64, copy_i64, ascontiguousarray_i64
+  public :: empty_r32, zeros_r32, ones_r32, full_r32
+  public :: asarray_r32, copy_r32, ascontiguousarray_r32
+  public :: reshape_bool, ravel_bool, flatten_bool, transpose_bool
+  public :: swapaxes_bool, squeeze_bool, expand_dims_bool, slice_bool
+  public :: reshape_i32, ravel_i32, flatten_i32, transpose_i32
+  public :: swapaxes_i32, squeeze_i32, expand_dims_i32, slice_i32
+  public :: reshape_i64, ravel_i64, flatten_i64, transpose_i64
+  public :: swapaxes_i64, squeeze_i64, expand_dims_i64, slice_i64
+  public :: reshape_r32, ravel_r32, flatten_r32, transpose_r32
+  public :: swapaxes_r32, squeeze_r32, expand_dims_r32, slice_r32
   public :: random_generator, uniform_r64, normal_r64
   public :: vector_norm_r64, matrix_norm_r64
   public :: add, subtract, multiply, divide, binary_result_dtype

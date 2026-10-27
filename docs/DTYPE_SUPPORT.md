@@ -96,7 +96,8 @@ Malformed metadata, inaccessible offsets/strides and incompatible shapes return
 `FRUMPY_STATUS_INVALID_SHAPE`. Explicit allocation errors have status paths,
 subject to the compiler temporary-allocation limits in the lifetime contract.
 
-There are no float32 selection routines or convenience constructors yet.
+Float32 selection routines remain absent. Float32 convenience constructors and
+views follow the [five-dtype contract](CONSTRUCTORS_AND_VIEWS.md).
 Mixed arithmetic uses the separate subroutine API above. The 48 compiled NumPy cases in
 `test_frumpy_differential.py` check all four operations, including exact float32
 results and signed zeros. `test/test_elementwise_r32.f90` checks ownership,
@@ -172,8 +173,8 @@ Each descriptor preserves the same metadata invariants as `ndarray_r64`:
 - Fortran-contiguity.
 - Copy-vs-view storage sharing.
 
-These descriptor APIs do not themselves add NumPy convenience constructors or
-view helpers. Mixed arithmetic is the separate execution surface above. Integer binary arithmetic, float32
+Concrete convenience constructors and view helpers now cover all five dtypes;
+see [constructors and views](CONSTRUCTORS_AND_VIEWS.md) for API and limitations. Mixed arithmetic is the separate execution surface above. Integer binary arithmetic, float32
 binary/unary arithmetic and float32 reductions are the separate bounded kernel
 surfaces described above. The selection subset consumes
 boolean conditions and produces int64 indices without adding general dtype

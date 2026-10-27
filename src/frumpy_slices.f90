@@ -105,14 +105,18 @@ contains
         length = 0_int64
       else
         distance = stop0 - start0
-        length = (distance + spec%step - 1_int64) / spec%step
+        length = 1_int64 + (distance - 1_int64) / spec%step
       end if
     else
       if (stop0 >= start0) then
         length = 0_int64
       else
         distance = start0 - stop0
-        length = (distance + abs(spec%step) - 1_int64) / abs(spec%step)
+        if (spec%step < -huge(1_int64)) then
+          length = 1_int64
+        else
+          length = 1_int64 + (distance - 1_int64) / (-spec%step)
+        end if
       end if
     end if
 

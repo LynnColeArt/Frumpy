@@ -21,7 +21,7 @@ def encode_array(array):
     ]) + "\n"
 
 
-def execute(driver, operation, *arrays, axis=-1, side=0, indices=None):
+def execute(driver, operation, *arrays, axis=-1, side=0, indices=None, owns=True):
     payload = f"{operation} {axis} {side}\n" + "".join(encode_array(a) for a in arrays)
     if indices is not None:
         payload += f"{len(indices)}\n" + " ".join(map(str, indices)) + "\n"
@@ -32,16 +32,16 @@ def execute(driver, operation, *arrays, axis=-1, side=0, indices=None):
     if status:
         return status, None
     emitted_dtype = None
-    if operation.startswith("mixed_"):
+    if operation.startswith(("mixed_", "construct_", "view_")):
         emitted_dtype = {1: np.bool_, 2: np.int32, 3: np.int64,
                          4: np.float32, 5: np.float64}[int(lines[1])]
         lines.pop(1)
     rank = int(lines[1])
     shape = tuple(map(int, lines[2].split()))
     strides = tuple(map(int, lines[3].split()))
-    offset, c_flag, f_flag, owns = lines[4].split()
+    offset, c_flag, f_flag, owns_flag = lines[4].split()
     assert len(shape) == rank == len(strides)
-    assert owns == "T", f"{operation} must own its result"
+    assert (owns_flag == "T") == owns, f"{operation} ownership differs"
     dtype = np.int64 if operation in ("argsort", "searchsorted", "nonzero") else np.float64
     if operation.endswith("_r32"):
         dtype = np.float32
@@ -863,3 +863,55 @@ def test_numpy_matrix_norm_axes(frumpy_driver, axes, keepdims):
     assert status == 0
     assert actual.shape == expected.shape
     np.testing.assert_allclose(actual, expected, rtol=2e-15, atol=1e-15)
+
+
+@pytest.mark.parametrize("dtype_id,dtype", [(1, np.bool_), (2, np.int32),
+                                           (3, np.int64), (4, np.float32)])
+@pytest.mark.parametrize("order", [0, 1, 2, 3])
+@pytest.mark.parametrize("operation", ["copy", "ascontiguousarray", "asarray", "zeros", "ones", "full"])
+def test_numpy_dtype_constructors(frumpy_driver, dtype_id, dtype, order, operation):
+    source = np.arange(6).reshape(2, 3).astype(dtype)
+    for values in [source, source.T, source[::-1, ::-1], np.array(1, dtype=dtype),
+                   np.empty((2, 0), dtype=dtype), np.broadcast_to(source[:1], (3, 3))]:
+        status, actual = execute(frumpy_driver, "construct_" + operation, values,
+                                 axis=dtype_id, side=order)
+        if operation not in ("copy", "ascontiguousarray") and order > 1:
+            assert status == 6
+            continue
+        assert status == 0
+        if operation in ("copy", "asarray", "ascontiguousarray"):
+            expected = values
+        else:
+            expected = np.full(values.shape, {"zeros": 0, "ones": 1, "full": 7}[operation], dtype=dtype)
+        assert actual.shape == expected.shape
+        assert actual.dtype == expected.dtype
+        np.testing.assert_array_equal(actual, expected)
+
+
+@pytest.mark.parametrize("dtype_id,dtype", [(1,np.bool_), (2,np.int32), (3,np.int64),
+                                           (4,np.float32), (5,np.float64)])
+@pytest.mark.parametrize("operation", ["reshape", "ravel", "flatten", "transpose", "swapaxes",
+                                      "squeeze", "expand_dims", "slice"])
+def test_numpy_dtype_views(frumpy_driver, dtype_id, dtype, operation):
+    base = np.arange(6).reshape(2,3).astype(dtype)
+    for source in [base, base.T, base[::-1, ::-1], base[:, :1], np.array(1,dtype=dtype),
+                   np.empty((2,0),dtype=dtype), np.broadcast_to(base[:1],(3,3)), base[None]]:
+        if operation == "reshape" and not source.flags.c_contiguous:
+            assert execute(frumpy_driver, "view_"+operation, source, axis=dtype_id)[0] == 6
+            continue
+        if operation == "swapaxes" and source.ndim == 0:
+            assert execute(frumpy_driver, "view_"+operation, source, axis=dtype_id)[0] == 2
+            continue
+        expected = {
+            "reshape": lambda: source.reshape(-1), "ravel": lambda: source.ravel(),
+            "flatten": lambda: source.flatten(), "transpose": lambda: source.T,
+            "swapaxes": lambda: source.swapaxes(0,-1), "squeeze": lambda: source.squeeze(),
+            "expand_dims": lambda: np.expand_dims(source,0),
+            "slice": lambda: source[..., ::-1] if source.ndim else source,
+        }[operation]()
+        owns = operation == "flatten" or (operation == "ravel" and not source.flags.c_contiguous)
+        status, actual = execute(frumpy_driver, "view_"+operation, source, axis=dtype_id, owns=owns)
+        assert status == 0
+        assert actual.shape == expected.shape
+        assert actual.dtype == expected.dtype
+        np.testing.assert_array_equal(actual, expected)

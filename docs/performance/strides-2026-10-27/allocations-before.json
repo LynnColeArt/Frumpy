@@ -1,0 +1,10 @@
+{
+  "C ABI add/release": {
+    "calls_per_operation": 30.0,
+    "requested_bytes_per_operation": 697.0
+  },
+  "Python add/close": {
+    "calls_per_operation": 32.0,
+    "requested_bytes_per_operation": 713.0
+  }
+}

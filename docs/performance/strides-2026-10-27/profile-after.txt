@@ -1,0 +1,30 @@
+         1060002 function calls in 0.525 seconds
+
+   Ordered by: cumulative time
+   List reduced from 28 to 22 due to restriction <22>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.012    0.012    0.525    0.525 profile_small.py:3(calls)
+    20000    0.006    0.000    0.436    0.000 _array.py:296(<lambda>)
+    20000    0.044    0.000    0.431    0.000 _array.py:278(binary)
+    20000    0.102    0.000    0.222    0.000 _array.py:55(__init__)
+    60000    0.144    0.000    0.192    0.000 _ffi.py:50(call)
+    20000    0.018    0.000    0.107    0.000 _ffi.py:58(make)
+    20000    0.010    0.000    0.077    0.000 _ffi.py:79(close)
+    20000    0.014    0.000    0.067    0.000 weakref.py:585(__call__)
+    20000    0.006    0.000    0.050    0.000 _ffi.py:64(_release)
+    40000    0.020    0.000    0.043    0.000 _array.py:259(asarray)
+    20000    0.010    0.000    0.031    0.000 _ffi.py:69(__init__)
+    80000    0.018    0.000    0.026    0.000 _ffi.py:73(_handle)
+    60000    0.018    0.000    0.026    0.000 _ffi.py:35(library)
+    20000    0.018    0.000    0.020    0.000 weakref.py:568(__init__)
+   120000    0.015    0.000    0.015    0.000 {method '__exit__' of '_thread.RLock' objects}
+    60000    0.014    0.000    0.014    0.000 {built-in method builtins.getattr}
+   100000    0.012    0.000    0.012    0.000 {built-in method _ctypes.byref}
+    20000    0.005    0.000    0.008    0.000 <string>:1(<lambda>)
+    80000    0.008    0.000    0.008    0.000 weakref.py:608(alive)
+    80000    0.006    0.000    0.006    0.000 {built-in method builtins.isinstance}
+    40000    0.005    0.000    0.005    0.000 {method 'upper' of 'str' objects}
+    40000    0.005    0.000    0.005    0.000 _array.py:68(<genexpr>)
+
+

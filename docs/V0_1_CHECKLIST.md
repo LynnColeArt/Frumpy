@@ -202,3 +202,9 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   GNU 14 memory/overflow gates, 268 ABI/package ASan/UBSan tests and fpm pass.
   `performance/contiguous-2026-10-27/README.md` records repeated before/after
   measurements, strong contiguous gains and the observed stride-2 slowdown.
+
+- 2026-10-27: uniform signed-stride arithmetic and small-call metadata follow-up
+  at `f8882d5`. Six compiler configurations pass 35 native programs, two examples,
+  2,999 Python tests and the C caller; GNU 14 sanitizer gates and fpm pass.
+  `performance/strides-2026-10-27/README.md` records stride-2/reverse improvements,
+  small-call measurements and explicit glibc allocation counts.

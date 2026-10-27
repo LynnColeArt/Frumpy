@@ -154,3 +154,19 @@ larger penalties in the main runs. Full samples and these limitations are retain
 
 Next: investigate strided dispatch/code generation and quantify small-call
 metadata/allocation costs before choosing reuse or caching APIs.
+
+
+## Uniform strides and small-call overhead — 2026-10-27
+
+The [follow-up comparison](performance/strides-2026-10-27/README.md) resolves the
+stride-2 regression for uniformly strided floating arithmetic. At 1,048,576
+elements, float64 addition improves conservatively 11× natively and 16× through
+Python relative to the previous contiguous optimization; reversed inputs improve
+15× and 25× respectively. The contiguous gains remain intact at large sizes.
+
+Local ctypes metadata buffers and simpler conversion reduce a 16-element Python
+float64 add from roughly 17 to 13 µs. Lazy index allocation removes one glibc
+allocation request (30 to 29 per C-ABI small add). Full raw timings, layer
+measurements, allocator counts, profiling evidence and noisy/slower cases are
+retained in the report. Next: inspect remaining descriptor/registry allocations
+and repeated metadata/FFI work; general nonuniform traversal remains separate.

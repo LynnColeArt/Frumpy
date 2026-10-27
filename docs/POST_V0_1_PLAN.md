@@ -21,10 +21,13 @@ sets the first experiment queue:
 2. Completed 2026-10-27: same-dtype floating contiguous arithmetic and selected
    contiguous reductions, preserving accumulation order. See the
    [before/after evidence](performance/contiguous-2026-10-27/README.md).
-   Follow up on the measured stride-2 addition slowdown and general strided
-   dispatch/code generation; this change does not claim faster fallback layouts.
-3. Separate small-call Python dispatch/metadata and native allocation costs;
-   measure heap allocations explicitly before choosing reuse or caching APIs.
+   Follow-up completed: uniform signed-step arithmetic resolves the stride-2
+   regression for those layouts; general nonuniform traversal remains separate.
+   See [the follow-up evidence](performance/strides-2026-10-27/README.md).
+3. Initial small-call profiling completed: local ctypes metadata buffers reduce
+   wrapper overhead, and lazy index allocation removes one native heap request.
+   Follow up on the remaining descriptor/registry allocations and repeated
+   metadata/FFI work before choosing reuse or caching APIs.
 4. Compare matched BLAS implementations/thread settings, then investigate
    matrix packing/copies. Consider OpenMP only after evidence identifies a
    workload where it improves the supported semantics.

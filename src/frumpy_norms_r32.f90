@@ -136,7 +136,7 @@ contains
     end do
   end function norm_axes
 
-  ! Finite real32 squares lie in [2**-298, 2**256); even <2**63 terms sum below
+  ! Nonzero finite real32 squares lie in [2**-298, 2**256); even <2**63 terms sum below
   ! 2**319. Thus widening BEFORE multiplication makes scaling unnecessary.
   ! Leaves use at most 64 sequential additions; larger reductions split in half.
   ! IEEE square/add naturally makes NaN dominate infinity without early exits.

@@ -1,0 +1,109 @@
+{
+  "status": "passed",
+  "source_commit": "5757b61",
+  "baseline_commit": "1e6bc5a",
+  "numpy": "2.4.6",
+  "python_tests": 4656,
+  "native_programs": 38,
+  "new_accuracy_tests": 176,
+  "logs": {
+    "flang-new-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norm-opt-matrix/flang-new-debug.log",
+      "sha256": "19e9f8c2fe6eb755f90d2987f2791d203c79156aa94acc9c4d0b80feda1849ee",
+      "python_passed": 4656,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "flang-new-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norm-opt-matrix/flang-new-release.log",
+      "sha256": "55373e52831abcf06b18d2e679bacc975719a935eedd6427167ef4deaad67d1e",
+      "python_passed": 4656,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norm-opt-matrix/gfortran-13-debug.log",
+      "sha256": "a605c943a5525c40b6a9e4e22485a9c927e9a1a9ff0559723c4ed8188572364a",
+      "python_passed": 4656,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norm-opt-matrix/gfortran-13-release.log",
+      "sha256": "947fc9bb91a89b9b8b92beccb5122ee66cdad514d1cfe805cf85a1166dc14207",
+      "python_passed": 4656,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norm-opt-matrix/gfortran-14-debug.log",
+      "sha256": "e37df07ca661494674271aecfe2fada8120bac095215918e7d754ab550a96f17",
+      "python_passed": 4656,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norm-opt-matrix/gfortran-14-release.log",
+      "sha256": "1073dbff22f3740405913465b17af4966be1104f8efa0cd7b86c25c9947063e0",
+      "python_passed": 4656,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gates": {
+      "path": "/tmp/norm-opt-gates.log",
+      "sha256": "3a9abccb0e03c9bc52b12255317787e22e2640559595a9e1003c1d2c77a1b3c9",
+      "pytest_summaries": [
+        "2643 passed, 4 warnings in 56.31s",
+        "2159 passed, 484 deselected, 4 warnings in 18.26s",
+        "1985 passed, 6 warnings in 15.33s"
+      ]
+    },
+    "ubsan": {
+      "path": "/tmp/norm-opt-ubsan.log",
+      "sha256": "ad2e948a3b762eb5a3607e814ddbfda61988668095b21f2ff4da40d861d875a3",
+      "pytest_summaries": [
+        "1985 passed, 6 warnings in 7.57s"
+      ]
+    },
+    "fpm": {
+      "path": "/tmp/norm-opt-fpm.log",
+      "sha256": "1629f6e13e0282799dd3ae6342e6ea3c787c085c7ec2389e8e47c0e524c8a9fa",
+      "pytest_summaries": []
+    },
+    "install": {
+      "path": "/tmp/norm-opt-install.log",
+      "sha256": "f5078e92e45942711251ab84e875126d8715f2bd01476a2c8f0b0e6cd95ed9b8",
+      "pytest_summaries": [
+        "366 passed in 0.46s"
+      ]
+    },
+    "openblas-validation": {
+      "path": "/tmp/norm-opt-openblas-validation.log",
+      "sha256": "9a4c37b078f4c64d202269b0d2b191fa488d957930ce6ea8e7e27c981adbedce",
+      "pytest_summaries": [
+        "4656 passed, 12 warnings in 32.01s"
+      ]
+    },
+    "baseline-tests": {
+      "path": "/tmp/norm-opt-baseline-tests.log",
+      "sha256": "65a5ca8beae6c92850203d00e953a1fd156f8c19581638e2755de58c20d0fcfb",
+      "pytest_summaries": [
+        "176 passed in 2.04s"
+      ]
+    }
+  },
+  "notes": [
+    "GNU13/GNU14/Flang19 debug/release each passed all 4656 Python tests, 38 native programs, two examples and C caller; OpenBLAS GNU14 release passed all 4656 tests.",
+    "The 176 new accuracy/layout cases also passed on the original scaled baseline. References use math.fsum of exactly representable float32 squares widened before multiplication.",
+    "Both original and revised implementations produce identical outputs for the ten recorded accuracy diagnostics; no general bitwise-equivalence or correct-rounding claim is made.",
+    "Native memory/overflow gates passed. ASan differential: 2643; integer-overflow differential: 2159 with 484 deselected; combined boundary/package/numerical suites passed 1985 under each ASan/UBSan.",
+    "Native/C ASan leak checks enabled; Python ASan leak detection disabled. Backend libraries are not sanitized.",
+    "fpm passed 38 native programs; source-distribution isolated installation passed 366 package tests. Hosted CI was not run."
+  ]
+}

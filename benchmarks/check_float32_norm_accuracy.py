@@ -1,4 +1,4 @@
-"""Precision diagnostics: result stays float32, scaled accumulator is float64."""
+"""Precision diagnostics: result stays float32, accumulator is float64."""
 import json
 import numpy as np
 import frumpy as fp

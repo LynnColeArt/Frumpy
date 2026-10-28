@@ -247,3 +247,15 @@ norm takes 480–485 µs versus NumPy float32's 20 µs. The latter uses a differ
 numerical policy and can overflow/underflow on inputs handled by Frumpy.
 This is completed dtype coverage with explicit robustness/throughput tradeoffs,
 not a speed optimization. Raw timings and precision diagnostics are retained.
+
+## Focused float32 norm optimization — 2026-10-27
+
+[The matched norm optimization report](performance/norm-optimization-2026-10-27/README.md)
+compares scaled accumulation with pairwise sums of squares widened before
+multiplication, plus constant-stride traversal. Python's contiguous 65,536-element
+norm falls from 490–504 µs to 50–56 µs; 128×128 Frobenius falls from 154–161 µs
+to 22–23 µs. Native/C measurements improve substantially too. The range argument
+preserves the overflow/underflow robustness goals without scaling for float32;
+float64 norms remain scaled. Existing accuracy diagnostics are unchanged, with
+176 additional high-accuracy/layout tests. Irregular layouts improve much less;
+NumPy retains a smaller throughput lead. No full-size scratch buffer is added.

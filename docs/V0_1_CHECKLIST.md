@@ -274,3 +274,14 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   `validation/float32-norms-2026-10-27.json` and
   `performance/float32-norms-2026-10-27/README.md` for precision differences and
   native/C/Python benchmarks. No merge, release tag or publication performed.
+
+- 2026-10-27: focused float32 norm optimization at `5757b61`: pairwise real64
+  widened squares, direct constant-stride traversal and a general-stride fallback
+  using the same accumulation tree. Float32 result, IEEE and lifetime contracts
+  remain; float64 norms are unchanged. Six compiler profiles and one-thread
+  OpenBLAS pass 4,656 Python tests, plus 38 native programs and the C caller.
+  Memory/overflow gates, 1,985 combined tests under each ASan/UBSan, fpm and 366
+  isolated-install tests pass. See `validation/norm-optimization-2026-10-27.json`
+  and `performance/norm-optimization-2026-10-27/README.md` for range justification,
+  accuracy checks and matched native/C/Python timings including varied layouts.
+  No merge, release tag or publication performed.

@@ -236,3 +236,14 @@ payload is unchanged. Slower stepped/tiny cases were rechecked and retained:
 an isolated stepped bool/float32 dot still measured 6–10% slower through Python.
 This is not a universal speedup or a claim that every fallback path is unchanged
 in performance. Full controls, raw samples and limitations are linked above.
+
+## Float32 Euclidean/Frobenius norms — 2026-10-27
+
+[The float32 norms report](performance/float32-norms-2026-10-27/README.md) records
+native/C/Python timings and the chosen float32-result, scaled-float64-accumulator
+policy. Storage halves without a full-size widening buffer. Runtime is broadly
+similar to float64, often slightly slower; Python's contiguous 65,536-element
+norm takes 480–485 µs versus NumPy float32's 20 µs. The latter uses a different
+numerical policy and can overflow/underflow on inputs handled by Frumpy.
+This is completed dtype coverage with explicit robustness/throughput tradeoffs,
+not a speed optimization. Raw timings and precision diagnostics are retained.

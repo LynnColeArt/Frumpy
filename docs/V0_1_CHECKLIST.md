@@ -264,3 +264,13 @@ See [post-v0.1 plan](POST_V0_1_PLAN.md) for performance and broader coverage.
   `performance/contiguous-casting-2026-10-27/README.md` for matched native/C/Python
   before/after timings, remaining allocation costs and slower-case rechecks.
   No merge, release tag or publication performed.
+
+- 2026-10-27: float32 Euclidean/Frobenius norms implemented at `bc5e0b7` across
+  native, C and Python. Scaled real64 accumulation returns float32 with one final
+  rounding and no widened input buffer. Six compiler profiles and one-thread
+  OpenBLAS pass 4,480 Python tests; 38 native programs, C caller, memory/overflow
+  gates, 1,806 combined tests plus three final rejection tests under each of
+  ASan/UBSan, fpm and 366 isolated-install tests pass. See
+  `validation/float32-norms-2026-10-27.json` and
+  `performance/float32-norms-2026-10-27/README.md` for precision differences and
+  native/C/Python benchmarks. No merge, release tag or publication performed.

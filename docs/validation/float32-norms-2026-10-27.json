@@ -1,0 +1,116 @@
+{
+  "status": "passed",
+  "source_commit": "bc5e0b7",
+  "numpy": "2.4.6",
+  "python_tests": 4480,
+  "native_programs": 38,
+  "norm_tests": 120,
+  "logs": {
+    "flang-new-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norms-matrix/flang-new-debug.log",
+      "sha256": "127bdaea1ddd7c4907a3fba740cbaac7f30fbcdf28c04513ef97f596dbab189e",
+      "python_passed": 4480,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "flang-new-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norms-matrix/flang-new-release.log",
+      "sha256": "cd4c554907629727f736fa88c760f7463236ce6c9ac6652952ba2e8f094e8212",
+      "python_passed": 4480,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norms-matrix/gfortran-13-debug.log",
+      "sha256": "5d158efc9c19dc1564016eee82d678aed2d2195c42c0c5f3405b14df1cb77c09",
+      "python_passed": 4480,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norms-matrix/gfortran-13-release.log",
+      "sha256": "1f1a4170c50aa0f95cd9b683878bf39beae20c6313ab413f1e4ad79c7452146c",
+      "python_passed": 4480,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norms-matrix/gfortran-14-debug.log",
+      "sha256": "f702be0ce142ccb6a29877438df5186788c307cc4b23cfe1fe74de91bf448264",
+      "python_passed": 4480,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/norms-matrix/gfortran-14-release.log",
+      "sha256": "1d83ce329f95091d8579c772b7f7ba17d5c716c10f8881f757c412c7ca89c652",
+      "python_passed": 4480,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gates": {
+      "path": "/tmp/norms-gates.log",
+      "sha256": "509884f6db4ee5d53121c675ec39beb1c407a301a94301ff0e6a32ffb359b1ad",
+      "pytest_summaries": [
+        "2643 passed, 4 warnings in 56.99s",
+        "2159 passed, 484 deselected, 4 warnings in 16.85s",
+        "1806 passed, 6 warnings in 10.10s"
+      ]
+    },
+    "ubsan": {
+      "path": "/tmp/norms-ubsan.log",
+      "sha256": "6ca43543ec1c9d684babf9cc001041dec24a0d35a7e76ad7efb6ff7d2f76d67f",
+      "pytest_summaries": [
+        "1806 passed, 6 warnings in 6.13s"
+      ]
+    },
+    "final-asan": {
+      "path": "/tmp/norms-final-asan.log",
+      "sha256": "92f0a3cfd6962e6db4ecbda00d6d22087846179e770eb19347d0bbde5f441e0d",
+      "pytest_summaries": [
+        "3 passed, 117 deselected in 0.15s"
+      ]
+    },
+    "final-ubsan": {
+      "path": "/tmp/norms-final-ubsan.log",
+      "sha256": "fd3a6c901d50a81e56bead544085d4ddcb545f036578b314f04b9d033da5c6e3",
+      "pytest_summaries": [
+        "3 passed, 117 deselected in 0.09s"
+      ]
+    },
+    "install": {
+      "path": "/tmp/norms-install.log",
+      "sha256": "0f5757c2ed013ad584a7a3858a7b64ff6c3a538937c953ba404c64dad94e8ef1",
+      "pytest_summaries": [
+        "366 passed in 0.49s"
+      ]
+    },
+    "fpm": {
+      "path": "/tmp/norms-fpm.log",
+      "sha256": "c60aa8d1175367a2cd23d246139f55863ed209dcc314b1492b16fb387ad60928",
+      "pytest_summaries": []
+    },
+    "openblas-validation": {
+      "path": "/tmp/norms-openblas-validation.log",
+      "sha256": "d9fc400882042f53d0ba38c1deb6f634c0ace93da4e5d6c6888a772ce700d596",
+      "pytest_summaries": [
+        "4480 passed, 12 warnings in 32.22s"
+      ]
+    }
+  },
+  "notes": [
+    "Six compiler profiles: GNU13/GNU14/Flang19 debug/release; each passes all 4480 Python tests, 38 native programs, two examples and the C caller.",
+    "OpenBLAS GNU14 release passes all 4480 tests. No BLAS routine is used by Frumpy norms.",
+    "ASan and UBSan combined boundary/package/numerical tests each passed 1806 tests; the last three integral-rejection tests passed separately under each sanitizer.",
+    "Native ASan differential: 2643; integer-overflow differential: 2159 with 484 deselected. Updated native float32 linalg program includes norms under both gates.",
+    "Native/C ASan leak checks enabled; Python ASan leak detection disabled; backend libraries not sanitized.",
+    "fpm completed all 38 native programs. Isolated source-distribution installation passed all 366 package tests.",
+    "Hosted CI was not run."
+  ]
+}

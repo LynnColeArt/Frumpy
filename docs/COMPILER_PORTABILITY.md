@@ -89,6 +89,37 @@ clean source installation; a hosted CI execution is not claimed by local results
 
 ## Scope of the evidence
 
+### Independent macOS review, 2026-10-28
+
+[Issue #1](https://github.com/LynnColeArt/Frumpy/issues/1#issuecomment-6469008558)
+records review of baseline `efc298fd36953d6bf96aa7993290e861dd8142ef` on macOS
+26.5.1 arm64, GNU Fortran 14.4.0, Python 3.14.7 and NumPy 2.4.6. The backend was
+Apple legacy Accelerate/vecLib LP64, checked with SGESV/DGESV pivot-buffer sentinel
+probes. All 41 native programs and two examples passed debug and optimized builds.
+Six Python failures were portable-oracle issues: narrow `longdouble` exponent
+range and host-dependent signed-zero ties. The integrated tests use `math.hypot`
+with explicit NaN precedence and check Frumpy's documented later-tie extrema
+policy independently. The Darwin shared-library install-name fix addresses the
+review's C-client failure outside the checkout.
+
+The reviewer separately tested a patch including those fixes and experimental
+Darwin installer enablement: 7,349 Python tests, native/C checks and 386 installed
+public API tests passed. Installer enablement is not included here; source
+installation remains Linux-only. The experimental wheel depends on Homebrew
+compiler runtimes and is not a portable distribution claim.
+
+GNU Fortran 16.1.0 on that Mac failed strict compilation and, with warnings made
+nonfatal, three native programs failed or crashed in managed-descriptor paths.
+GNU 14 passed on the same machine/backend. The underlying cause remains
+unisolated; this is not evidence of a Linux GCC 16 failure. Select GNU 14 for
+Mac checkout experiments pending investigation.
+
+Mac fpm was unavailable. ASan/UBSan runtime libraries were unavailable; all 41
+native programs passed the separate `-ftrapv` run, but sanitizer/leak parity is
+not claimed. The review covers one Mac configuration, not general macOS support.
+
+### Linux matrix scope
+
 These checks include managed lifetime and views for all five dtypes, modular
 integer arithmetic, every mixed arithmetic dtype pair, casts/comparisons,
 integer/bool/float reductions, selection/indexing, float64 dot/norms/batched

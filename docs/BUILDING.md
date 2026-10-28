@@ -33,6 +33,32 @@ The fpm manifest declares `lapack` and `blas` as link dependencies. See
 
 ## Make Targets
 
+### Experimental macOS checkout builds
+
+The [macOS review](https://github.com/LynnColeArt/Frumpy/issues/1#issuecomment-6469008558)
+tested GNU Fortran 14.4.0 on macOS 26.5.1 arm64 with Apple's legacy LP64
+Accelerate/vecLib interfaces. Select the compiler explicitly:
+
+```sh
+brew install gcc@14
+make validate FC=/opt/homebrew/bin/gfortran-14 BUILD_DIR=build/mac-gcc14
+```
+
+That compiler path is specific to the reviewed Homebrew installation. Use your
+installed GNU 14 path and a fresh build directory. The default `-llapack -lblas`
+resolved to the compatible Apple libraries in that review; verify the backend
+and integer ABI for other configurations. The shared-library link sets a Darwin
+`@rpath/libfrumpy.so` install name so C clients can resolve it via their rpath
+outside the build working directory.
+
+GNU Fortran 16.1.0 failed managed-descriptor tests on the reviewed Mac, including
+runtime crashes with warnings disabled. Use the tested GNU 14 compiler; removing
+`-Werror` is not a workaround. See [compiler portability](COMPILER_PORTABILITY.md)
+for evidence and remaining gaps. Source-package installation remains Linux-only;
+this checkout procedure does not establish supported macOS packaging.
+
+### Target reference
+
 | Target | Purpose |
 | --- | --- |
 | `make build` | Compile the current Frumpy modules in explicit dependency order. |

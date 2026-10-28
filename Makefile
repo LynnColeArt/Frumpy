@@ -15,6 +15,11 @@ PY_DEPS_STAMP := $(VENV)/.frumpy-python-deps
 
 LINALG_LIBS ?= -llapack -lblas
 
+SHARED_LDFLAGS ?=
+ifeq ($(shell uname -s),Darwin)
+SHARED_LDFLAGS += -Wl,-install_name,@rpath/libfrumpy.so
+endif
+
 FFLAGS ?= -std=f2018 -Wall -Wextra -Werror -fimplicit-none -fcheck=all -fbacktrace
 
 # Each executable build writes the same Fortran module files.
@@ -320,7 +325,7 @@ C_SOURCES := src/frumpy_c_handles.f90 src/frumpy_c_core.f90 \
 shared: $(BUILD_DIR)/libfrumpy.so
 
 $(BUILD_DIR)/libfrumpy.so: $(OBJ_DIR)/core.stamp $(C_SOURCES) | $(MOD_DIR)
-	$(FC) $(FFLAGS) -fPIC -shared -J$(MOD_DIR) -I$(MOD_DIR) \
+	$(FC) $(FFLAGS) -fPIC -shared $(SHARED_LDFLAGS) -J$(MOD_DIR) -I$(MOD_DIR) \
 		$(C_SOURCES) $(CORE_OBJECTS) $(LINALG_LIBS) -o $@
 
 c-test: shared

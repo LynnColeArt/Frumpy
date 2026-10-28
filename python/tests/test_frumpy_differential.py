@@ -298,8 +298,26 @@ def test_float32_reductions(frumpy_driver, operation, source, keepdims):
             np.testing.assert_array_equal(actual, expected)
         else:
             np.testing.assert_allclose(actual, expected, rtol=3e-6, atol=1e-7, equal_nan=True)
-        zeros = np.asarray(expected) == 0
-        np.testing.assert_array_equal(np.signbit(actual[zeros]), np.signbit(np.asarray(expected)[zeros]))
+        if operation not in ('min', 'max'):
+            zeros = np.asarray(expected) == 0
+            np.testing.assert_array_equal(np.signbit(actual[zeros]), np.signbit(np.asarray(expected)[zeros]))
+
+
+@pytest.mark.parametrize('operation', ['min', 'max'])
+@pytest.mark.parametrize('values', [[0., -0.], [-0., 0.]])
+def test_float32_extrema_zero_ties(frumpy_driver, operation, values):
+    source = np.array(values, dtype=np.float32)
+    for keepdims in (False, True):
+        for axis in (None, -1, 0):
+            status, actual = execute(frumpy_driver, operation + '_r32', source,
+                                     axis=0 if axis is None else axis,
+                                     side=int(keepdims) + (2 if axis is None else 0))
+            assert status == 0
+            assert actual.shape == ((1,) if keepdims else ())
+            assert actual.dtype == np.dtype('float32')
+            np.testing.assert_array_equal(actual, np.zeros(actual.shape, dtype=np.float32))
+            # The documented Frumpy contract selects the later logical tie.
+            np.testing.assert_array_equal(np.signbit(actual), np.full(actual.shape, np.signbit(source[-1])))
 
 
 @pytest.mark.parametrize('operation', ['sum', 'prod', 'mean', 'min', 'max'])
@@ -737,8 +755,11 @@ def test_numpy_matrix_norm(frumpy_driver, source, keepdims):
 @pytest.mark.parametrize("values", [[3e300, 4e300], [3e-300, 4e-300],
                                   [np.inf, np.nan], [np.inf, 2.], [-0., 0.]])
 def test_norm_scaled_extremes(frumpy_driver, values):
+    import math
+
     source = np.array(values)
-    expected = np.sqrt(np.sum(source.astype(np.longdouble) ** 2)).astype(float)
+    # longdouble need not have a wider exponent range than float64 (Apple ARM).
+    expected = np.nan if np.isnan(source).any() else math.hypot(*source)
     status, actual = execute(frumpy_driver, "vector_norm_r64", source, axis=99)
     assert status == 0
     np.testing.assert_allclose(actual, expected, rtol=2e-15, atol=0, equal_nan=True)

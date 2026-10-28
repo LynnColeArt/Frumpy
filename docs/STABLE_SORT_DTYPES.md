@@ -26,8 +26,9 @@ return recoverable status; Python maps these to exceptions.
 
 Both functions allocate independent results and leave inputs unchanged. Sort
 uses F order for exclusively F-contiguous inputs, C order otherwise; argsort
-uses C order. Signed, zero and irregular strides are supported. Source dtype,
-shape/rank, storage and bounds are validated before reading keys.
+uses C order. Signed, zero and irregular strides are supported. The new dtype paths validate dtype metadata,
+shape/rank, storage and bounds before reading keys; float64 retains its existing
+descriptor validation.
 
 The existing float64 stable merge kernel is retained. The other dtypes use a
 shared index merge sort with insertion runs of 32, stable left-first comparisons,

@@ -16,6 +16,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--source-commit')
+    parser.add_argument('--review-cases',action='store_true')
     parser.add_argument('--reverse',action='store_true')
     parser.add_argument('--only-float64',action='store_true')
     args=parser.parse_args()
@@ -30,6 +31,9 @@ def main():
            ((64,128),'F','random'),((64,128),'reverse','duplicates')]
     dtypes=[np.float64] if args.only_float64 else [np.bool_,np.int32,np.int64,np.float32,np.float64]
     jobs=[(dtype,op,*case) for dtype in dtypes for op in ['sort','argsort'] for case in cases]
+    if args.review_cases:
+        jobs=[j for j in jobs if j[1]=='argsort' and j[3:] == ('C','random') and
+              ((j[0]==np.bool_ and j[2]==(8192,)) or (j[0]==np.float64 and j[2]==(32,)))]
     if args.reverse:jobs.reverse()
     lib=_ffi.library()
     for dtype,op,shape,layout,distribution in jobs:

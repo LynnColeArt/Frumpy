@@ -287,3 +287,19 @@ isolated paired rechecks. The noisy float64 F-order axis regression does not
 reproduce. Raw samples, all distributions and slower cases remain in the report.
 This completes the bounded scan pass; broader wrapper/SIMD work can wait while
 functionality resumes.
+
+## Stable sorting across five dtypes — 2026-10-28
+
+[The sorting dtype report](performance/sort-dtypes-2026-10-28/README.md) records
+bool/int32/int64/float32 additions and float64 controls across native/C/Python.
+The new shared index merge path preserves exact integer ordering and floating
+NaN/signed-zero stability, but float32 random-pattern sort at 8,192 elements
+takes 813–871 µs through Python versus 215–222 µs for the existing float64 kernel
+and 120–134 µs for NumPy float32. Sort holds an 8N-byte index temporary; argsort
+uses its output plus bounded per-axis workspaces. Sorted/duplicate/layout cases
+and raw allocation-payload formulas are retained in the report.
+The float64 core object is unchanged. Removing duplicate validation reduces
+avoidable overhead, but tiny float64 argsort still adds about 0.5–1.1 µs through
+Python in paired rechecks. A noisy bool argsort outlier did not reproduce.
+This is completed functionality with documented performance costs, not a
+universal speed improvement.

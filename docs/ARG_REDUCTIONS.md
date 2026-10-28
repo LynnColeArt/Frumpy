@@ -27,7 +27,12 @@ have no storage; failed C calls clear their output handle.
 Signed, zero and irregular strides are supported. Inputs are validated before
 access. Results own independent storage and survive releasing the input. No
 flattened or cast input temporary is allocated. Constant-step reduction paths
-use linear addressing; other layouts use logical C-order offset traversal.
+use linear addressing; other layouts increment coordinates and signed offsets
+in logical C order. Scans read concrete typed arrays, without per-element dtype
+dispatch. Bool argmin stops at the first False and argmax at the first True;
+absent matches return zero after scanning the whole reduction. Floating scans
+stop at the first NaN, but never at infinity. No arithmetic or widening is
+needed for same-dtype floating comparisons.
 
 This slice supports one integer axis or no axis, plus `keepdims`. It does not
 provide `out`, tuple axes, complex inputs, masks or NaN-skipping variants.

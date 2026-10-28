@@ -9,7 +9,7 @@ program benchmark_arg_reductions
   integer, parameter :: sizes(2)=[16,65536]
   do operation=8,9
     do k=1,2
-      do layout=1,3
+      do layout=1,4
         call bench_bool(sizes(k),layout,operation)
         call bench_i32(sizes(k),layout,operation)
         call bench_i64(sizes(k),layout,operation)
@@ -25,14 +25,20 @@ contains
     type(ndarray_i64) :: result
     type(frumpy_status) :: status
     integer(int64) :: i,step,offset,expected
-    integer :: sample1,j,repeats
+    integer :: sample1,j,repeats,side
     real(real64) :: start,finish
 
     step=1_int64
     if (layout==2) step=2_int64
     owner=owned_descriptor_bool([int(n,int64)*step])
+    side=int(sqrt(real(n,real64)))
     do i=1_int64,size(owner%data,kind=int64)
-      owner%data(i)=int(modulo(i,2_int64),int8)
+      if (layout==4) then
+        owner%data(1_int64+(i-1_int64)/side+modulo(i-1_int64,int(side,int64))*side) = &
+          int(modulo(i,2_int64),int8)
+      else
+        owner%data(i)=int(modulo(i,2_int64),int8)
+      end if
     end do
     offset=1_int64
     if (layout==3) then
@@ -40,10 +46,19 @@ contains
       offset=int(n,int64)
     end if
     a=view_descriptor_bool(owner,[int(n,int64)],[step],offset)
+    if (layout==4) a=view_descriptor_bool(owner,[int(side,int64),int(side,int64)], &
+      [1_int64,int(side,int64)],1_int64)
     if (operation==8) then
       expected=int(minloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
     else
       expected=int(maxloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
+    end if
+    if (layout==4) then
+      if (operation==8) then
+        expected=int(minloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      else
+        expected=int(maxloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      end if
     end if
     repeats=100
     if (n==16) repeats=10000
@@ -69,14 +84,20 @@ contains
     type(ndarray_i64) :: result
     type(frumpy_status) :: status
     integer(int64) :: i,step,offset,expected
-    integer :: sample1,j,repeats
+    integer :: sample1,j,repeats,side
     real(real64) :: start,finish
 
     step=1_int64
     if (layout==2) step=2_int64
     owner=owned_descriptor_i32([int(n,int64)*step])
+    side=int(sqrt(real(n,real64)))
     do i=1_int64,size(owner%data,kind=int64)
-      owner%data(i)=int(modulo(i*37_int64,257_int64)-128_int64,int32)
+      if (layout==4) then
+        owner%data(1_int64+(i-1_int64)/side+modulo(i-1_int64,int(side,int64))*side) = &
+          int(modulo(i*37_int64,257_int64)-128_int64,int32)
+      else
+        owner%data(i)=int(modulo(i*37_int64,257_int64)-128_int64,int32)
+      end if
     end do
     offset=1_int64
     if (layout==3) then
@@ -84,10 +105,19 @@ contains
       offset=int(n,int64)
     end if
     a=view_descriptor_i32(owner,[int(n,int64)],[step],offset)
+    if (layout==4) a=view_descriptor_i32(owner,[int(side,int64),int(side,int64)], &
+      [1_int64,int(side,int64)],1_int64)
     if (operation==8) then
       expected=int(minloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
     else
       expected=int(maxloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
+    end if
+    if (layout==4) then
+      if (operation==8) then
+        expected=int(minloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      else
+        expected=int(maxloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      end if
     end if
     repeats=100
     if (n==16) repeats=10000
@@ -113,14 +143,20 @@ contains
     type(ndarray_i64) :: result
     type(frumpy_status) :: status
     integer(int64) :: i,step,offset,expected
-    integer :: sample1,j,repeats
+    integer :: sample1,j,repeats,side
     real(real64) :: start,finish
 
     step=1_int64
     if (layout==2) step=2_int64
     owner=owned_descriptor_i64([int(n,int64)*step])
+    side=int(sqrt(real(n,real64)))
     do i=1_int64,size(owner%data,kind=int64)
-      owner%data(i)=int(modulo(i*37_int64,257_int64)-128_int64,int64)
+      if (layout==4) then
+        owner%data(1_int64+(i-1_int64)/side+modulo(i-1_int64,int(side,int64))*side) = &
+          int(modulo(i*37_int64,257_int64)-128_int64,int64)
+      else
+        owner%data(i)=int(modulo(i*37_int64,257_int64)-128_int64,int64)
+      end if
     end do
     offset=1_int64
     if (layout==3) then
@@ -128,10 +164,19 @@ contains
       offset=int(n,int64)
     end if
     a=view_descriptor_i64(owner,[int(n,int64)],[step],offset)
+    if (layout==4) a=view_descriptor_i64(owner,[int(side,int64),int(side,int64)], &
+      [1_int64,int(side,int64)],1_int64)
     if (operation==8) then
       expected=int(minloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
     else
       expected=int(maxloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
+    end if
+    if (layout==4) then
+      if (operation==8) then
+        expected=int(minloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      else
+        expected=int(maxloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      end if
     end if
     repeats=100
     if (n==16) repeats=10000
@@ -157,14 +202,20 @@ contains
     type(ndarray_i64) :: result
     type(frumpy_status) :: status
     integer(int64) :: i,step,offset,expected
-    integer :: sample1,j,repeats
+    integer :: sample1,j,repeats,side
     real(real64) :: start,finish
 
     step=1_int64
     if (layout==2) step=2_int64
     owner=owned_descriptor_r32([int(n,int64)*step])
+    side=int(sqrt(real(n,real64)))
     do i=1_int64,size(owner%data,kind=int64)
-      owner%data(i)=real(modulo(i*37_int64,257_int64)-128_int64,real32)
+      if (layout==4) then
+        owner%data(1_int64+(i-1_int64)/side+modulo(i-1_int64,int(side,int64))*side) = &
+          real(modulo(i*37_int64,257_int64)-128_int64,real32)
+      else
+        owner%data(i)=real(modulo(i*37_int64,257_int64)-128_int64,real32)
+      end if
     end do
     offset=1_int64
     if (layout==3) then
@@ -172,10 +223,19 @@ contains
       offset=int(n,int64)
     end if
     a=view_descriptor_r32(owner,[int(n,int64)],[step],offset)
+    if (layout==4) a=view_descriptor_r32(owner,[int(side,int64),int(side,int64)], &
+      [1_int64,int(side,int64)],1_int64)
     if (operation==8) then
       expected=int(minloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
     else
       expected=int(maxloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
+    end if
+    if (layout==4) then
+      if (operation==8) then
+        expected=int(minloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      else
+        expected=int(maxloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      end if
     end if
     repeats=100
     if (n==16) repeats=10000
@@ -201,14 +261,20 @@ contains
     type(ndarray_i64) :: result
     type(frumpy_status) :: status
     integer(int64) :: i,step,offset,expected
-    integer :: sample1,j,repeats
+    integer :: sample1,j,repeats,side
     real(real64) :: start,finish
 
     step=1_int64
     if (layout==2) step=2_int64
     owner=owned_descriptor_r64([int(n,int64)*step])
+    side=int(sqrt(real(n,real64)))
     do i=1_int64,size(owner%data,kind=int64)
-      owner%data(i)=real(modulo(i*37_int64,257_int64)-128_int64,real64)
+      if (layout==4) then
+        owner%data(1_int64+(i-1_int64)/side+modulo(i-1_int64,int(side,int64))*side) = &
+          real(modulo(i*37_int64,257_int64)-128_int64,real64)
+      else
+        owner%data(i)=real(modulo(i*37_int64,257_int64)-128_int64,real64)
+      end if
     end do
     offset=1_int64
     if (layout==3) then
@@ -216,10 +282,19 @@ contains
       offset=int(n,int64)
     end if
     a=view_descriptor_r64(owner,[int(n,int64)],[step],offset)
+    if (layout==4) a=view_descriptor_r64(owner,[int(side,int64),int(side,int64)], &
+      [1_int64,int(side,int64)],1_int64)
     if (operation==8) then
       expected=int(minloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
     else
       expected=int(maxloc(owner%data(offset:offset+(n-1)*step:step),dim=1),int64)-1_int64
+    end if
+    if (layout==4) then
+      if (operation==8) then
+        expected=int(minloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      else
+        expected=int(maxloc(owner%data([(1+j/side+modulo(j,side)*side,j=0,n-1)]),dim=1),int64)-1
+      end if
     end if
     repeats=100
     if (n==16) repeats=10000

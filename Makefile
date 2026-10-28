@@ -330,7 +330,7 @@ c-memory-test: $(PY_DEPS_STAMP)
 		FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/c-memory/bin/differential_driver)" \
 		$(VENV_PY) -m pytest -q python/tests/test_c_boundary.py python/tests/test_package.py \
 		python/tests/test_float32_linalg.py python/tests/test_float32_products.py \
-		python/tests/test_promoted_products.py python/tests/test_contiguous_casting.py python/tests/test_float32_norms.py python/tests/test_norm_accumulation.py python/tests/test_arg_reductions.py
+		python/tests/test_promoted_products.py python/tests/test_contiguous_casting.py python/tests/test_float32_norms.py python/tests/test_norm_accumulation.py python/tests/test_arg_reductions.py python/tests/test_arg_scan_contracts.py
 
 # Linux/glibc only; run separately from ASan's own malloc interposition.
 .PHONY: registry-allocation-test

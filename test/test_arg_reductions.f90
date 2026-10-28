@@ -1,17 +1,27 @@
 program test_arg_reductions
-  use iso_fortran_env, only: int32, int64, real32
+  use iso_fortran_env, only: int8, int32, int64, real32
   use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan
-  use frumpy, only: ndarray_r32, ndarray_i64, owned_descriptor_r32, owned_descriptor_i64, &
+  use frumpy, only: ndarray_bool, owned_descriptor_bool, ndarray_r32, ndarray_i64, owned_descriptor_r32, owned_descriptor_i64, &
     view_descriptor_r32, argmin, argmax, frumpy_status, FRUMPY_STATUS_INVALID_AXIS, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OVERFLOW
   implicit none
   call exercise()
 contains
   subroutine exercise()
+    type(ndarray_bool) :: bits
     type(ndarray_r32) :: source, view, invalid
     type(ndarray_i64) :: wide, result
     type(frumpy_status) :: status
 
+    bits = owned_descriptor_bool([4_int64])
+    bits%data = [-2_int8, 0_int8, 3_int8, 0_int8]
+    result = argmax(bits, status=status)
+    call require(status%is_ok() .and. result%data(1)==0_int64, 'noncanonical first true')
+    result = argmin(bits, status=status)
+    call require(status%is_ok() .and. result%data(1)==1_int64, 'first false')
+    bits%data = -2_int8
+    result = argmin(bits, status=status)
+    call require(status%is_ok() .and. result%data(1)==0_int64, 'absent false first tie')
     wide = owned_descriptor_i64([3_int64])
     wide%data = [huge(1_int64), huge(1_int64)-1_int64, huge(1_int64)-1_int64]
     result = argmin(wide, status=status)

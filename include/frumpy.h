@@ -51,7 +51,8 @@ int32_t frumpy_view(int32_t op, frumpy_handle source, const int64_t *parameters,
 /* OUTER/DOT/MATMUL promote to R32/R64; integral-only pairs are unsupported.
  * SOLVE requires same-dtype R32 or R64 inputs. ABI version remains 1. */
 int32_t frumpy_linalg(int32_t op, frumpy_handle lhs, frumpy_handle rhs, frumpy_handle *out);
-/* Euclidean/Frobenius: R32/R64 input and matching output dtype; scaled R64 accumulation. */
+/* Euclidean/Frobenius: matching output dtype. R32: pairwise R64 widened squares;
+ * R64: scaled R64 accumulation. */
 int32_t frumpy_norm(int32_t matrix, frumpy_handle source, const int64_t *axes,
                     int32_t count, int32_t keepdims, frumpy_handle *out);
 int32_t frumpy_mask_select(frumpy_handle source, frumpy_handle mask, frumpy_handle *out);

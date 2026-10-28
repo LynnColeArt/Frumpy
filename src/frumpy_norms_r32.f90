@@ -1,13 +1,12 @@
-!> Float32 results with scaled real64 accumulation; no widened input buffer.
+!> Float32 results with pairwise real64 squares; no widened input buffer.
 module frumpy_norms_r32
   use iso_fortran_env, only: int32, int64, real32, real64
-  use, intrinsic :: ieee_arithmetic, only: ieee_is_nan, ieee_is_finite, ieee_value, &
-    ieee_quiet_nan, ieee_positive_inf
   use frumpy_constants, only: FRUMPY_MAX_RANK
   use frumpy_ndarray_r32, only: ndarray_r32, owned_descriptor_r32
   use frumpy_constructors_r32, only: validate_r32
   use frumpy_strides, only: flat_offset
   use frumpy_shape, only: element_count
+  use frumpy_linear_arithmetic, only: linear_step
   use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_INVALID_AXIS, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_OVERFLOW
   implicit none
@@ -69,12 +68,12 @@ contains
     type(frumpy_status), intent(out), optional :: status
     type(ndarray_r32) :: array
     type(frumpy_status) :: local_status
-    logical :: reduced(FRUMPY_MAX_RANK), keep, has_nan, has_inf
+    logical :: reduced(FRUMPY_MAX_RANK), keep, linear
     integer(int64) :: shape(FRUMPY_MAX_RANK), strides(FRUMPY_MAX_RANK)
     integer(int64) :: red_shape(FRUMPY_MAX_RANK), red_strides(FRUMPY_MAX_RANK)
-    integer(int64) :: count, red_count, i0, j0, base, position
+    integer(int64) :: count, red_count, i0, base, step
     integer(int32) :: dim1, axis0, n, nr
-    real(real64) :: scale, squares, magnitude, value
+    real(real64) :: squares
 
     keep = .false.
     if (present(keepdims)) keep = keepdims
@@ -124,32 +123,59 @@ contains
     if (present(status)) status = local_status
     if (local_status%is_failure()) return
     red_count = element_count(red_shape(:nr))
+    step = linear_step(red_shape(:nr), red_strides(:nr), linear)
     do i0 = 0_int64, count - 1_int64
       base = flat_offset(shape(:n), strides(:n), source%offset, i0)
-      scale = 0.0_real64
-      squares = 1.0_real64
-      has_nan = .false.
-      has_inf = .false.
-      do j0 = 0_int64, red_count - 1_int64
-        position = flat_offset(red_shape(:nr), red_strides(:nr), base, j0)
-        magnitude = abs(real(source%data(position), real64))
-        if (ieee_is_nan(magnitude)) then
-          has_nan = .true.
-        else if (.not. ieee_is_finite(magnitude)) then
-          has_inf = .true.
-        else if (magnitude > 0.0_real64) then
-          if (scale < magnitude) then
-            squares = 1.0_real64 + squares * (scale / magnitude)**2
-            scale = magnitude
-          else
-            squares = squares + (magnitude / scale)**2
-          end if
-        end if
-      end do
-      value = scale * sqrt(squares)
-      if (has_inf) value = ieee_value(value, ieee_positive_inf)
-      if (has_nan) value = ieee_value(value, ieee_quiet_nan)
-      array%data(i0 + 1_int64) = real(value, real32)
+      if (linear) then
+        squares = linear_squares(source%data, base, step, red_count)
+      else
+        squares = strided_squares(source%data, red_shape(:nr), red_strides(:nr), &
+          base, 0_int64, red_count)
+      end if
+      array%data(i0 + 1_int64) = real(sqrt(squares), real32)
     end do
   end function norm_axes
+
+  ! Finite real32 squares lie in [2**-298, 2**256); even <2**63 terms sum below
+  ! 2**319. Thus widening BEFORE multiplication makes scaling unnecessary.
+  ! Leaves use at most 64 sequential additions; larger reductions split in half.
+  ! IEEE square/add naturally makes NaN dominate infinity without early exits.
+  recursive function linear_squares(data, first, step, count) result(total)
+    real(real32), intent(in) :: data(:)
+    integer(int64), intent(in) :: first, step, count
+    real(real64) :: total, value
+    integer(int64) :: i, half
+
+    total = 0.0_real64
+    if (count <= 64_int64) then
+      do i = 0_int64, count - 1_int64
+        value = real(data(first + i * step), real64)
+        total = total + value * value
+      end do
+    else
+      half = count / 2_int64
+      total = linear_squares(data, first, step, half) &
+        + linear_squares(data, first + half * step, step, count - half)
+    end if
+  end function linear_squares
+
+  recursive function strided_squares(data, shape, strides, first, start, count) result(total)
+    real(real32), intent(in) :: data(:)
+    integer(int64), intent(in) :: shape(:), strides(:), first, start, count
+    real(real64) :: total, value
+    integer(int64) :: i, half, position
+
+    total = 0.0_real64
+    if (count <= 64_int64) then
+      do i = start, start + count - 1_int64
+        position = flat_offset(shape, strides, first, i)
+        value = real(data(position), real64)
+        total = total + value * value
+      end do
+    else
+      half = count / 2_int64
+      total = strided_squares(data, shape, strides, first, start, half) &
+        + strided_squares(data, shape, strides, first, start + half, count - half)
+    end if
+  end function strided_squares
 end module frumpy_norms_r32

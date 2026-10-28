@@ -148,27 +148,41 @@ and return independent C-order **float32** results. C `frumpy_norm` and Python
 norms remain unsupported; no arbitrary p-norm, spectral norm or complex norm is
 added. C ABI version 1 is unchanged.
 
-Inputs are read directly with signed/zero strides. Each absolute value is widened
-to real64, and scale plus scaled sum-of-squares are accumulated sequentially in
-real64 in logical reduction order. The final square root and rescaling are real64;
-there is one conversion to float32 on output. No full-size cast buffer or product
-buffer is allocated. Input/result payloads use four bytes per element; fixed-size
-axis metadata and scalar real64 accumulator state are the only work storage.
+Inputs are read directly with signed/zero strides. Each value is widened to
+real64 **before squaring**. Reductions use a fixed pairwise tree: leaves of at
+most 64 terms add sequentially from positive zero; longer ranges split at
+`floor(count/2)` and add the two subresults. The square root is real64, followed
+by one conversion to float32. This replaces the original scaled sequential
+real64 algorithm; numerical results are not promised bitwise identical to it.
+Float64 norms keep their scaled algorithm.
 
-Scaling avoids intermediate square overflow/underflow; widening reduces the loss
-of small positive contributions in long reductions. This is not compensated
-summation or a bitwise NumPy guarantee. Norms sum magnitudes squared, so signed
-input cancellation does not occur; the relevant stress case is loss of small
-contributions next to large magnitudes. NumPy 2.4.6 returns float32 but its direct
-float32 squaring can overflow at 1e30 or underflow at 1e-30 even when the norm is
-representable. This intentional robustness difference is tested. True result
-values beyond float32 range still become infinity; tiny results undergo the
-normal final float32 rounding, including subnormal/zero outcomes.
+Scaling is unnecessary for finite float32 inputs: nonzero squares lie between
+2^-298 and 2^256, and fewer than 2^63 terms sum below 2^319. All fit safely within
+float64's normal range. Individual float32 squares are exact in float64; the
+sum and square root still round. Pairwise summation limits accumulation depth
+but is neither compensated summation nor a universal correct-rounding guarantee.
+Signed input cancellation does not occur in a sum of squared magnitudes; small
+contribution loss remains a relevant accuracy stress case.
+
+Reduction strides are classified from validated metadata, never cached flags.
+Contiguous or constant-stride reductions use direct indexing, including negative
+and zero steps. Irregular reductions retain logical C-order address calculation
+and the same pairwise accumulation policy. No widened input/product buffer is
+allocated. Recursion uses logarithmic stack depth; result payload remains four
+bytes per element, with bounded axis metadata and real64 scalar working state.
+
+NumPy 2.4.6 returns float32 but its direct float32 squaring can overflow at 1e30
+or underflow at 1e-30 even when the norm is representable. Frumpy retains the
+intentional robustness difference. True results beyond float32 range still
+become infinity; tiny results undergo final float32 rounding, including subnormal
+or zero outcomes. This range argument applies specifically to float32 inputs;
+it does not justify removing scaling from float64 norms.
 
 NaN dominates infinity, empty/all-zero reductions return positive zero, scalar
 vector norm returns magnitude, and matrix norm still requires rank at least two.
 Ordinary tests use rtol=3e-6/atol=1e-7 against NumPy; precision diagnostics compare
-with float64 arithmetic rounded to float32. No universal relative-error bound,
+with float64 arithmetic rounded to float32, including `math.fsum` references
+whose finite float32 squares are exact in float64. No universal relative-error bound,
 NumPy warning channel or support for trapping/fast-math execution is promised.
 
 ## Matrix multiplication

@@ -76,8 +76,8 @@ through native `astype`; see [conversion departures](ARRAY_OPERATIONS.md).
 Constructors, arithmetic, comparisons, boolean logical operations, views and
 reductions follow the [coverage table](DTYPE_SUPPORT.md). Float64 arange/linspace,
 selection, stable sorting and ordered search are exposed. Euclidean/Frobenius
-norms accept float32/float64 and preserve dtype; float32 uses scaled float64
-accumulation with one final rounding. Dot, outer and matmul promote registered input pairs when the result is
+norms accept float32/float64 and preserve dtype; float32 uses pairwise float64
+sums of widened squares with one final rounding. Dot, outer and matmul promote registered input pairs when the result is
 float32 or float64, converting operands before computation. Integer-only products
 remain unsupported. Batched solve requires matching float32 or float64 inputs.
 Float32 dot uses bounded pairwise accumulation. Other non-float64 selection input

@@ -22,6 +22,17 @@ contains
 
     a = owned_descriptor_r32([2_int64,2_int64])
     a%data = [1.0_real32,2.0_real32,3.0_real32,4.0_real32]
+    invalid = view_descriptor_r32(a, [4_int64], [-1_int64], 4_int64)
+    invalid%is_c_contiguous = .true.
+    result = vector_norm_r32(invalid, status=status)
+    call require(status%is_ok(), 'norm negative linear stride')
+    call require(abs(result%data(1)-sqrt(30.0_real32))<1e-6_real32, 'norm reverse value')
+    invalid = view_descriptor_r32(a, [1_int64,2_int64,1_int64], &
+      [huge(1_int64),1_int64,-huge(1_int64)], 2_int64)
+    result = vector_norm_r32(invalid, status=status)
+    call require(status%is_ok(), 'norm arbitrary singleton strides')
+    call require(abs(result%data(1)-sqrt(13.0_real32))<1e-6_real32, 'norm offset value')
+    call invalid%release()
     vector = vector_norm_r32(a, axis0=0_int32, status=status)
     call require(status%is_ok(), 'norm status')
     call require(all(abs(vector%data-sqrt([10.0_real32,20.0_real32]))<1e-6_real32), 'axis norm')

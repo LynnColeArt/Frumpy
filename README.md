@@ -147,7 +147,7 @@ and [performance measurements](docs/PERFORMANCE.md).
 Float32/float64 `outer_r32/r64` multiplies operands flattened in C logical order.
 `matmul_r32/r64` supports float32/float64 vectors, matrices and broadcast batches;
 `solve_r32/r64` solves broadcast batches of square systems with vector or matrix
-right-hand sides. Native `dot_r32/r64`, float64 scaled vector/Frobenius norms, and explicit
+right-hand sides. Native `dot_r32/r64`, float32/float64 scaled vector/Frobenius norms, and explicit
 seeded [uniform/normal generators](docs/RANDOM.md) are also implemented. See
 [linear algebra](docs/LINEAR_ALGEBRA.md) for the finite-input contract, LP64
 BLAS/LAPACK dependency and supported limits. Broader linear algebra and

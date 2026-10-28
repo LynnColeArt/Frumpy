@@ -23,6 +23,7 @@ module frumpy
   use frumpy_indexing_r64, only: mask_select_r64, assign_r64
   use frumpy_array_casting, only: astype
   use frumpy_random, only: random_generator, uniform_r64, normal_r64
+  use frumpy_norms_r32, only: vector_norm_r32, matrix_norm_r32
   use frumpy_norms_r64, only: vector_norm_r64, matrix_norm_r64
   use frumpy_product_promotion, only: dot, outer, matmul
   use frumpy_arithmetic, only: add, subtract, multiply, divide
@@ -110,6 +111,7 @@ module frumpy
   public :: FRUMPY_STATUS_INVALID_HANDLE
   public :: astype
   public :: random_generator, uniform_r64, normal_r64
+  public :: vector_norm_r32, matrix_norm_r32
   public :: vector_norm_r64, matrix_norm_r64
   public :: add, subtract, multiply, divide, binary_result_dtype
   public :: share_descriptors_bool

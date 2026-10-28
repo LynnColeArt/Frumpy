@@ -25,7 +25,7 @@ program differential_driver
   use frumpy, only: mask_select_r64, assign_r64
   use frumpy, only: astype
   use frumpy, only: random_generator, uniform_r64, normal_r64
-  use frumpy, only: vector_norm_r64, matrix_norm_r64
+  use frumpy, only: vector_norm_r64, matrix_norm_r64, vector_norm_r32, matrix_norm_r32
   use frumpy, only: matmul_r32, solve_r32, dot_r32, outer_r32
   use frumpy, only: matmul_r64, solve_r64, outer_r64, dot_r64
   use frumpy, only: copy_bool, asarray_bool, ascontiguousarray_bool, &
@@ -133,6 +133,20 @@ contains
         output = vector_norm_r64(lhs, keepdims=side == 1, status=status)
       else
         output = vector_norm_r64(lhs, axis0, side == 1, status)
+      end if
+    case ('vector_norm_r32', 'matrix_norm_r32', 'matrix_norm_axes_r32')
+      call read_r32(lhs32)
+      if (operation == 'matrix_norm_axes_r32') then
+        read (*, *) count
+        allocate(indices(count))
+        read (*, *) indices
+        output32 = matrix_norm_r32(lhs32, int(indices, int32), side == 1, status)
+      else if (operation == 'matrix_norm_r32') then
+        output32 = matrix_norm_r32(lhs32, keepdims=side == 1, status=status)
+      else if (axis0 == 99) then
+        output32 = vector_norm_r32(lhs32, keepdims=side == 1, status=status)
+      else
+        output32 = vector_norm_r32(lhs32, axis0, side == 1, status)
       end if
     case ('matmul_r32', 'solve_r32', 'dot_r32', 'outer_r32')
       call read_r32(lhs32)

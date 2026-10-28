@@ -65,7 +65,8 @@ the bounded native policy. Norm calls take zero axes for defaults, one for a
 vector axis, or two for matrix axes. Matrix norms are Frobenius; vector norms
 are Euclidean. Dot/outer/matmul promote registered pairs to float32 or float64
 and convert inputs before computation; integral-only products are unsupported.
-Solve requires matching float32 or float64 inputs. Norms still require float64.
+Solve requires matching float32 or float64 inputs. Norms accept float32 or float64 and preserve input dtype; float32 norms use scaled
+float64 accumulation with a single final rounding.
 See [promotion and conversion storage](LINEAR_ALGEBRA.md#floating-result-promotion).
 
 Where, take, joins, sorting, search, mask extraction and assignment retain the

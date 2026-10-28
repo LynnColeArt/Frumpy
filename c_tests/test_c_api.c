@@ -71,8 +71,15 @@ int main(void) {
   assert(frumpy_linalg(FRUMPY_SOLVE,integers,left32,&promoted)==FRUMPY_UNSUPPORTED_DTYPE);
   assert(promoted==0);
   ok(frumpy_release(integers));
+  frumpy_handle norm32=0;
+  ok(frumpy_norm(1,left32,NULL,0,0,&norm32));
+  ok(frumpy_info(norm32,&dtype,&rank,actual_shape,strides,2,&offset,&flags));
+  assert(dtype==FRUMPY_R32 && rank==0);
   ok(frumpy_release(left32));
   ok(frumpy_release(right32));
+  ok(frumpy_export(norm32,answer32,1));
+  assert(answer32[0]>4.47213f && answer32[0]<4.47214f);
+  ok(frumpy_release(norm32));
   ok(frumpy_export(solution32,answer32,4));
   assert(answer32[0]==1 && answer32[1]==2 && answer32[2]==2 && answer32[3]==3);
   ok(frumpy_info(product32,&dtype,&rank,actual_shape,strides,2,&offset,&flags));

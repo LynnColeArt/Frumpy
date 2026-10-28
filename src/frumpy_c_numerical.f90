@@ -8,6 +8,7 @@ module frumpy_c_numerical
     FRUMPY_STATUS_UNSUPPORTED_DTYPE, FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_INVALID_AXIS
   use frumpy_operands, only: descriptor_dtype
   use frumpy, only: ndarray_r32, solve_r32, dot, outer, matmul
+  use frumpy, only: vector_norm_r32, matrix_norm_r32
   use frumpy_promotion, only: promote_dtypes
   use frumpy, only: ndarray_r64, solve_r64, &
     vector_norm_r64, matrix_norm_r64
@@ -108,8 +109,8 @@ contains
     if (any(values > int(huge(1_int32),int64)) .or. &
         any(values < -int(huge(1_int32),int64)-1_int64)) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(input%array) /= 5) return
-    call new_array_slot(5_int32, slot, status)
+    if (descriptor_dtype(input%array) /= 5 .and. descriptor_dtype(input%array) /= 4) return
+    call new_array_slot(descriptor_dtype(input%array), slot, status)
     code = status%code
     if (status%is_failure()) return
     select type (a => input%array)
@@ -127,6 +128,23 @@ contains
             b = vector_norm_r64(a, keepdims=keepdims == 1, status=status)
           else
             b = vector_norm_r64(a, int(values(1),int32), keepdims == 1, status)
+          end if
+        end if
+      end select
+    type is (ndarray_r32)
+      select type (b => slot%array)
+      type is (ndarray_r32)
+        if (matrix == 1) then
+          if (count == 0) then
+            b = matrix_norm_r32(a, keepdims=keepdims == 1, status=status)
+          else
+            b = matrix_norm_r32(a, int(values,int32), keepdims == 1, status)
+          end if
+        else
+          if (count == 0) then
+            b = vector_norm_r32(a, keepdims=keepdims == 1, status=status)
+          else
+            b = vector_norm_r32(a, int(values(1),int32), keepdims == 1, status)
           end if
         end if
       end select

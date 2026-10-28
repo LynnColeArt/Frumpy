@@ -6,12 +6,51 @@ program test_linalg_r32
     matmul_r32, solve_r32, frumpy_status, FRUMPY_STATUS_INVALID_SHAPE, &
     FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, FRUMPY_STATUS_UNSUPPORTED_DTYPE, &
     FRUMPY_STATUS_OVERFLOW, FRUMPY_STATUS_SINGULAR_MATRIX, FRUMPY_DTYPE_I32
+  use frumpy, only: vector_norm_r32, matrix_norm_r32, FRUMPY_STATUS_INVALID_AXIS
   implicit none
 
+  call exercise_norms()
   call exercise_empty_rhs()
   call exercise()
 
 contains
+
+  subroutine exercise_norms()
+    type(ndarray_r32) :: a, vector, matrix, result, invalid
+    type(frumpy_status) :: status
+    integer(int64) :: big
+
+    a = owned_descriptor_r32([2_int64,2_int64])
+    a%data = [1.0_real32,2.0_real32,3.0_real32,4.0_real32]
+    vector = vector_norm_r32(a, axis0=0_int32, status=status)
+    call require(status%is_ok(), 'norm status')
+    call require(all(abs(vector%data-sqrt([10.0_real32,20.0_real32]))<1e-6_real32), 'axis norm')
+    call require(.not. associated(vector%data,a%data), 'norm independent')
+    matrix = matrix_norm_r32(a, axes0=[1_int32,0_int32], keepdims=.true., status=status)
+    call require(status%is_ok(), 'matrix norm status')
+    call require(all(matrix%shape==[1_int64,1_int64]), 'norm keepdims')
+    call a%release()
+    call require(abs(matrix%data(1)-sqrt(30.0_real32))<1e-6_real32, 'norm lifetime')
+    result = matrix_norm_r32(matrix, axes0=[0_int32,0_int32], status=status)
+    call require(status%code==FRUMPY_STATUS_INVALID_AXIS, 'duplicate norm axes')
+    call require(.not. result%has_storage(), 'norm failure has no storage')
+    result = vector_norm_r32(invalid, status=status)
+    call require(status%code==FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, 'norm absent storage')
+    invalid = view_descriptor_r32(vector, [2_int64], [huge(1_int64)], 1_int64)
+    result = vector_norm_r32(invalid, status=status)
+    call require(status%code==FRUMPY_STATUS_INVALID_SHAPE, 'norm invalid bounds')
+    invalid = view_descriptor_r32(vector, [2_int64], [1_int64], 1_int64)
+    invalid%dtype_id = FRUMPY_DTYPE_I32
+    result = vector_norm_r32(invalid, status=status)
+    call require(status%code==FRUMPY_STATUS_UNSUPPORTED_DTYPE, 'norm forged dtype')
+    result = vector_norm_r32(invalid)
+    call require(.not. result%has_storage(), 'norm optional failure status')
+    big = shiftr(huge(1_int64),2)+1_int64
+    a = view_descriptor_r32(vector, [big,1_int64], [0_int64,0_int64], 1_int64)
+    result = vector_norm_r32(a, axis0=1_int32, status=status)
+    call require(status%code==FRUMPY_STATUS_OVERFLOW, 'norm output bytes')
+  end subroutine exercise_norms
+
 
   subroutine exercise_empty_rhs()
     type(ndarray_r32) :: a, b, result

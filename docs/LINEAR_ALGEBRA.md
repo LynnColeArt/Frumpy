@@ -15,8 +15,7 @@ C-order float32 results with the same shape, lifetime and failure contracts.
 The C ABI uses the existing `frumpy_linalg` operations 3/4 with two R32 handles;
 Python `matmul`, `@` and `linalg.solve` preserve float32 for two float32 inputs.
 Mixed-dtype solve remains unsupported. Dot, outer and matmul support the
-floating-result promotion contract below. Float32 dot and outer are supported below; float32 norms remain separate
-future work. Existing float64 APIs and C ABI version 1 remain compatible.
+floating-result promotion contract below. Float32 dot, outer and norms are supported below. Existing float64 APIs and C ABI version 1 remain compatible.
 
 ## Floating-result promotion
 
@@ -36,7 +35,7 @@ Concrete `_r32`/`_r64` functions remain available without promotion.
 All-integer/bool pairs remain unsupported. C `frumpy_linalg` operations 1–3 and
 Python `dot`, `outer`, `matmul`/`@` use this same policy. Python scalar inputs are
 first converted with `asarray`; these products do not apply weak-scalar arithmetic
-promotion. Mixed solve remains unsupported; norms remain float64-only.
+promotion. Mixed solve remains unsupported; norms accept float32 or float64 and preserve that dtype.
 
 Each input whose dtype changes is converted to an owned C-order temporary using
 `astype` before computation. Already-matching inputs are borrowed with their
@@ -140,6 +139,37 @@ arithmetic. The ordinary regression tolerance is rtol=2e-15, atol=1e-15 (zero
 absolute tolerance for extreme values), not a universal accuracy bound. Invalid
 or repeated axes return INVALID_AXIS; malformed source metadata is rejected
 before payload access. Failed calls return no storage.
+
+### Float32 norm policy
+
+`vector_norm_r32` and `matrix_norm_r32` have the same bounded axis/shape contract
+and return independent C-order **float32** results. C `frumpy_norm` and Python
+`linalg.vector_norm` / `linalg.matrix_norm` preserve float32 inputs. Integer/bool
+norms remain unsupported; no arbitrary p-norm, spectral norm or complex norm is
+added. C ABI version 1 is unchanged.
+
+Inputs are read directly with signed/zero strides. Each absolute value is widened
+to real64, and scale plus scaled sum-of-squares are accumulated sequentially in
+real64 in logical reduction order. The final square root and rescaling are real64;
+there is one conversion to float32 on output. No full-size cast buffer or product
+buffer is allocated. Input/result payloads use four bytes per element; fixed-size
+axis metadata and scalar real64 accumulator state are the only work storage.
+
+Scaling avoids intermediate square overflow/underflow; widening reduces the loss
+of small positive contributions in long reductions. This is not compensated
+summation or a bitwise NumPy guarantee. Norms sum magnitudes squared, so signed
+input cancellation does not occur; the relevant stress case is loss of small
+contributions next to large magnitudes. NumPy 2.4.6 returns float32 but its direct
+float32 squaring can overflow at 1e30 or underflow at 1e-30 even when the norm is
+representable. This intentional robustness difference is tested. True result
+values beyond float32 range still become infinity; tiny results undergo the
+normal final float32 rounding, including subnormal/zero outcomes.
+
+NaN dominates infinity, empty/all-zero reductions return positive zero, scalar
+vector norm returns magnitude, and matrix norm still requires rank at least two.
+Ordinary tests use rtol=3e-6/atol=1e-7 against NumPy; precision diagnostics compare
+with float64 arithmetic rounded to float32. No universal relative-error bound,
+NumPy warning channel or support for trapping/fast-math execution is promised.
 
 ## Matrix multiplication
 

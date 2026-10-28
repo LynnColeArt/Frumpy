@@ -379,3 +379,11 @@ def test_promoted_products_package():
         with getattr(fp, operation)(a, b) as result:
             assert result.dtype == np.dtype('float64')
             np.testing.assert_array_equal(result.numpy(), getattr(np, operation)(a, b))
+
+
+def test_float32_norms_package():
+    a=np.array([[3,4]],dtype=np.float32)
+    for name in ('vector_norm','matrix_norm'):
+        with getattr(fp.linalg,name)(a) as result:
+            assert result.dtype==np.dtype('float32')
+            assert result.item()==5

@@ -15,8 +15,8 @@ caller. Bounds checks include signed-stride and element-count overflow cases.
 | `take_r64(source, indices, axis0)` | `np.take` with a one-dimensional Fortran int64 index vector. Omitting `axis0` indexes the logical C-order flattening. Explicit positive or negative axes select a dimension. Negative indices wrap once; out-of-bounds indices return invalid-shape status. Scalar sources accept axis 0 or -1. |
 | `concatenate_r64(arrays, axis0)` | Join one or more arrays along an existing axis, default 0. Ranks and all other dimensions must match. Positive and negative axes are supported. Scalar inputs are rejected. |
 | `stack_r64(arrays, axis0)` | Join one or more equal-shaped arrays along a new axis, default 0. Positive and negative axes and scalar sources are supported. |
-| `sort_r64(source, axis0)` | Ascending, stable sorting along an axis, default -1. NaNs follow finite values and infinities. Scalars return invalid-axis status. |
-| `argsort_r64(source, axis0)` | Stable, zero-based int64 indices along an axis, default -1. Matches `np.argsort(..., kind="stable")`. Scalar input returns `[0]` for axis -1 or 0 and rejects other axes. |
+| `sort(source, axis0)` | Ascending, stable sorting along an axis, default -1. NaNs follow finite values and infinities. Scalars return invalid-axis status. |
+| `argsort(source, axis0)` | Stable, zero-based int64 indices along an axis, default -1. Matches `np.argsort(..., kind="stable")`. Scalar input returns `[0]` for axis -1 or 0 and rejects other axes. |
 | `searchsorted_r64(source, values, side_right)` | A sorted one-dimensional float64 source and arbitrarily shaped float64 queries. Default left insertion; `side_right=.true.` selects right insertion. NaNs form the final equivalence class. Output shape matches the queries. |
 | `nonzero_bool(source)` | **Flat indices**, matching `np.flatnonzero`, in logical C order. Despite the name, this does not return NumPy `nonzero`'s tuple of coordinate arrays. Scalars produce `[0]` or an empty vector. |
 
@@ -45,7 +45,7 @@ identical output strides for every arbitrary strided input.
 
 This is a bounded subset of NumPy's indexing surface. Multidimensional index
 arrays, arbitrary advanced indexing, boolean scatter, `out`,
-`take` modes `clip`/`wrap`, join `axis=None`, sort `axis=None`, selectable sort
+`take` modes `clip`/`wrap`, join `axis=None`, native/C sort flattening, selectable sort
 algorithms, and searchsorted's `sorter` argument are not exposed. `searchsorted`
 expects an already sorted source, just as the corresponding NumPy call does;
 it does not scan for sortedness before each binary search.
@@ -54,10 +54,12 @@ Sorting uses stable bottom-up merge sort with insertion runs of at most 32
 values. Worst-case work per axis slice is O(n log n); already ordered adjacent
 runs skip merging. Both sort and argsort share the ordering rule: NaNs last,
 left element first on ties, preserving signed zeros and NaN payload order.
-Two merge buffers (float64 values and int64 indices) add 16 bytes per axis
+For float64, two merge buffers (float64 values and int64 indices) add 16 bytes per axis
 element when a slice actually requires merging. They are allocated lazily once per
 operation and reused across slices, in addition to the existing 16-byte-per-element gather
-buffers and the result. Allocation failures remain recoverable through status.
+buffers and the result. The other four dtypes use the index workspace described
+in [the five-dtype sorting contract](STABLE_SORT_DTYPES.md). Python sort/argsort
+also accept `axis=None` through their existing C-order ravel wrapper. Allocation failures remain recoverable through status.
 Non-float64 selection and searching kernels remain separate work. Full-shape bool extraction
 and basic-view assignment are documented in [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). Float64 results,
 boolean masks, and integer index results now use managed shared storage; see

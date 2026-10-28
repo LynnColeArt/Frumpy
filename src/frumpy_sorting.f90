@@ -36,16 +36,17 @@ contains
     integer(int32) :: axis
     integer :: alloc_stat
 
-    call bind_operand(source, input, local)
-    if (local%is_failure()) then
-      if (present(status)) status=local
-      return
-    end if
+    ! The existing r64 kernel validates its own descriptor; avoid doing it twice.
     select type (source)
     type is (ndarray_r64)
       array=argsort_r64(source,axis0,status)
       return
     end select
+    call bind_operand(source, input, local)
+    if (local%is_failure()) then
+      if (present(status)) status=local
+      return
+    end if
     axis=-1_int32
     if (present(axis0)) axis=axis0
     if (size(input%shape)==0) then

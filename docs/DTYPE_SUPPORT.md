@@ -98,7 +98,7 @@ Malformed metadata, inaccessible offsets/strides and incompatible shapes return
 `FRUMPY_STATUS_INVALID_SHAPE`. Explicit allocation errors have status paths,
 subject to the compiler temporary-allocation limits in the lifetime contract.
 
-Float32 selection routines remain absent. Float32 convenience constructors and
+Float32 selection routines other than stable sort/argsort remain absent. Float32 convenience constructors and
 views follow the [five-dtype contract](CONSTRUCTORS_AND_VIEWS.md).
 Mixed arithmetic uses the separate subroutine API above. The 48 compiled NumPy cases in
 `test_frumpy_differential.py` check all four operations, including exact float32

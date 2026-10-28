@@ -3,7 +3,7 @@ version = "0.1.0"
 license = "MIT"
 author = "Lynn Cole"
 maintainer = "Lynn Cole"
-copyright = "Copyright 2026"
+copyright = "Copyright 2026 Lynn Cole"
 description = "A Fortran 2018 NumPy-compatible array engine."
 
 [build]

@@ -174,3 +174,7 @@ Integer-only products and mixed-dtype solve remain unsupported.
 
 Argmin and argmax now support all five existing dtypes, with int64 indices,
 first-occurrence ties and first-NaN selection. See the [index reduction contract](docs/ARG_REDUCTIONS.md).
+
+## License
+
+Frumpy is licensed under the [MIT License](LICENSE).

@@ -259,3 +259,16 @@ preserves the overflow/underflow robustness goals without scaling for float32;
 float64 norms remain scaled. Existing accuracy diagnostics are unchanged, with
 176 additional high-accuracy/layout tests. Irregular layouts improve much less;
 NumPy retains a smaller throughput lead. No full-size scratch buffer is added.
+
+## Five-dtype argmin/argmax — 2026-10-27
+
+[The index-reduction baseline](performance/arg-reductions-2026-10-27/README.md)
+covers bool, int32, int64, float32 and float64 across native/C/Python. First ties,
+first NaNs and exact int64 comparisons are preserved without input temporaries.
+Float32 contiguous argmin at 65,536 elements takes about 162 µs native,
+168–172 µs C and 179–180 µs Python, versus NumPy's 4.5–5.0 µs.
+Stepped/reversed inputs have similar Frumpy costs; irregular flattening and
+bool searches expose further opportunities. No before/after comparison exists
+for this new feature. Noisy cases are retained and separately rechecked.
+A future focused pass should begin with concrete typed scan loops and bool
+early termination, preserving the index-selection contracts.

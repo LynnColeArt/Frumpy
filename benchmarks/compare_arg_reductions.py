@@ -16,6 +16,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--reverse',action='store_true')
+    parser.add_argument('--focus',action='store_true',help='Recheck noisy bool/int64 and F-order minima')
     args=parser.parse_args()
     os.sched_setaffinity(0,{min(os.sched_getaffinity(0))})
     library=Path(os.environ['FRUMPY_LIBRARY'])
@@ -29,6 +30,10 @@ def main():
            ((128,128),0,'C'),((128,128),1,'C'),((128,128),1,'F')]
     jobs=[(dtype,op,shape,axis,layout) for dtype in [np.bool_,np.int32,np.int64,np.float32,np.float64]
           for op in ['argmin','argmax'] for shape,axis,layout in cases]
+    if args.focus:
+        jobs=[j for j in jobs if j[1]=='argmin' and (
+            (j[0] in (np.bool_,np.int64) and j[2:]==((65536,),None,'C')) or
+            (j[0]==np.float32 and j[2:]==((128,128),None,'F')))]
     if args.reverse:jobs.reverse()
     lib=_ffi.library()
     for dtype,op,shape,axis,layout in jobs:

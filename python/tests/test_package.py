@@ -401,3 +401,18 @@ def test_arg_reductions_package(dtype,operation):
         np.testing.assert_array_equal(result.numpy(),getattr(np,operation)(data,axis=-1,keepdims=True))
     with getattr(fp,operation)(data) as scalar:
         assert scalar.shape==() and scalar.item()==getattr(np,operation)(data)
+
+
+@pytest.mark.parametrize("dtype", [np.bool_,np.int32,np.int64,np.float32,np.float64])
+def test_stable_sort_package(dtype):
+    data=np.array([[3,1,1],[2,0,2]],dtype=dtype)
+    with fp.asarray(data,order='F') as source:
+        values=fp.sort(source)
+        indices=fp.argsort(source)
+    with values,indices:
+        assert values.dtype==np.dtype(dtype) and indices.dtype==np.dtype(np.int64)
+        assert values.flags.f_contiguous and indices.flags.c_contiguous
+        np.testing.assert_array_equal(values.numpy(),np.sort(data,kind='stable'))
+        np.testing.assert_array_equal(indices.numpy(),np.argsort(data,kind='stable'))
+    with fp.argsort(np.array(1,dtype=dtype)) as scalar:
+        np.testing.assert_array_equal(scalar.numpy(),[0])

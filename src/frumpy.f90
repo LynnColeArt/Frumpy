@@ -81,9 +81,11 @@ module frumpy
   use frumpy_views_r64, only: expand_dims_r64, flatten_r64, ravel_r64, &
     reshape_r64, slice_r64, squeeze_r64, swapaxes_r64, transpose_r64
 
+  use frumpy_sorting, only: sort, argsort, sort_bool, sort_i32, sort_i64, sort_r32
   implicit none
 
   private
+  public :: sort, argsort, sort_bool, sort_i32, sort_i64, sort_r32
 
   public :: argmin, argmax
   public :: dot, outer, matmul

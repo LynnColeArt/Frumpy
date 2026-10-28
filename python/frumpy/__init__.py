@@ -144,7 +144,13 @@ def _sort(indices, source, axis):
     source = asarray(source, order="K")
     if axis is None:
         source, axis = source.ravel(), 0
-    return ndarray(_ffi.make("sort", indices, source._handle, axis_value(axis, source.ndim)))
+    if source.ndim == 0 and indices:
+        axis = operator.index(axis)
+        if axis not in (-1, 0):
+            raise IndexError("argsort axis out of range for scalar")
+    else:
+        axis = axis_value(axis, source.ndim)
+    return ndarray(_ffi.make("sort", indices, source._handle, axis))
 
 
 def sort(source, axis=-1):

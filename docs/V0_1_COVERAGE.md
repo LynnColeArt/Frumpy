@@ -22,7 +22,7 @@ use suffixes `_bool`, `_i32`, `_i64`, `_r32`, `_r64` where concrete.
 | Broadcast selection | bool condition, float64 branches | `where_r64` | `where` | `test_selection_r64`, differential selection, ABI/package |
 | Gather | float64 plus rank-one int64 indices | `take_r64` | `take` | `test_selection_r64`, differential selection, ABI/package |
 | Join | float64 | `concatenate_r64`, `stack_r64` | `concatenate`, `stack` | `test_selection_r64`, differential selection, ABI/package |
-| Stable sort/indices | float64, indices return int64 | `sort_r64`, `argsort_r64` | `sort`, `argsort` | `test_sorting_r64`, differential sort, ABI/package |
+| Stable sort/indices | All, indices return int64 | `sort`, `argsort`, concrete sort functions | `sort`, `argsort` | `test_sorting_r64`, differential sort, ABI/package |
 | Ordered search | float64, returns int64 | `searchsorted_r64` | `searchsorted` | `test_searching_r64`, differential search, ABI/package |
 | Flat nonzero | bool, returns int64 | `nonzero_bool` | `flatnonzero` | `test_selection_r64`, differential selection, ABI/package |
 | Outer/dot | registered pairs with floating result | `outer`, `dot`, concrete `_r32/r64` | `outer`, `dot` | `test_products_r32`, `test_linalg_r64`, differential/ABI/package products |

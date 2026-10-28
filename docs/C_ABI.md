@@ -105,3 +105,6 @@ under the existing memory test target.
 
 Argmin and argmax now support all five existing dtypes, with int64 indices,
 first-occurrence ties and first-NaN selection. See the [index reduction contract](ARG_REDUCTIONS.md).
+
+Stable sort and argsort support all five existing dtypes. See the
+[stable sorting contract](STABLE_SORT_DTYPES.md) for ordering, axes and memory costs.

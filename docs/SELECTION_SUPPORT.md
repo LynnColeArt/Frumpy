@@ -1,7 +1,8 @@
 # Selection, Sorting, and Searching
 
-The current surface operates on float64 (`r64`) arrays, with boolean masks and
-int64 index outputs. These functions allocate independent results; none returns
+Selection and searching operate on float64 (`r64`) arrays, with boolean masks
+and int64 index outputs. Stable sort/argsort now support all five dtypes; see
+[their contract](STABLE_SORT_DTYPES.md). These functions allocate independent results; none returns
 a view. Input shape, rank, and reachable storage bounds are validated before
 reading data. Invalid input returns `frumpy_status` rather than terminating the
 caller. Bounds checks include signed-stride and element-count overflow cases.
@@ -57,7 +58,7 @@ Two merge buffers (float64 values and int64 indices) add 16 bytes per axis
 element when a slice actually requires merging. They are allocated lazily once per
 operation and reused across slices, in addition to the existing 16-byte-per-element gather
 buffers and the result. Allocation failures remain recoverable through status.
-Non-float64 selection kernels remain separate work. Full-shape bool extraction
+Non-float64 selection and searching kernels remain separate work. Full-shape bool extraction
 and basic-view assignment are documented in [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). Float64 results,
 boolean masks, and integer index results now use managed shared storage; see
 [storage lifetime](STORAGE_LIFETIME.md) for supported assignment/release

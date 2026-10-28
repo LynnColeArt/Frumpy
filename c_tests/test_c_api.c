@@ -107,6 +107,19 @@ int main(void) {
   assert(arg_answer==1);
   ok(frumpy_release(arg_output));
   ok(frumpy_release(arg_input));
+  int64_t sort_values[4]={INT64_MAX,INT64_MAX-1,INT64_MIN,INT64_MAX};
+  int64_t sort_shape[1]={4},sort_result[4];
+  frumpy_handle sort_input=0,sort_output=0,sort_indices=0;
+  ok(frumpy_import(FRUMPY_I64,1,sort_shape,FRUMPY_C,sort_values,4,&sort_input));
+  ok(frumpy_sort(0,sort_input,-1,&sort_output));
+  ok(frumpy_sort(1,sort_input,-1,&sort_indices));
+  ok(frumpy_release(sort_input));
+  ok(frumpy_export(sort_output,sort_result,4));
+  assert(sort_result[0]==INT64_MIN && sort_result[1]==INT64_MAX-1);
+  ok(frumpy_export(sort_indices,sort_result,4));
+  assert(sort_result[0]==2 && sort_result[1]==1 && sort_result[2]==0 && sort_result[3]==3);
+  ok(frumpy_release(sort_output));
+  ok(frumpy_release(sort_indices));
   /* Rehashing and registry reset must preserve retains and release all storage. */
   frumpy_handle many[2048];
   for (int i=0;i<2048;i++)

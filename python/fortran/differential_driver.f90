@@ -23,6 +23,7 @@ program differential_driver
   use frumpy, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
     sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
   use frumpy, only: mask_select_r64, assign_r64
+  use frumpy, only: sort, argsort
   use frumpy, only: argmin, argmax
   use frumpy, only: astype
   use frumpy, only: random_generator, uniform_r64, normal_r64
@@ -71,6 +72,10 @@ contains
 
     read (*, *) operation, axis0, side
     integer_output = .false.
+    if (index(operation, 'order_') == 1) then
+      call run_order(operation(7:),axis0,side)
+      return
+    end if
     if (index(operation, 'reduce_') == 1) then
       call run_reduce(operation(8:), axis0, side)
       return
@@ -688,6 +693,53 @@ contains
     write (*, '(i0)') status%code
     if (status%is_ok()) call emit_mixed(result)
   end subroutine run_compare
+
+  subroutine run_order(operation,dtype,axis)
+    character(len=*), intent(in) :: operation
+    integer(int32), intent(in) :: dtype,axis
+    class(*), allocatable :: source,output
+    type(ndarray_i64) :: indices
+    type(frumpy_status) :: status
+
+    call allocate_mixed(source,dtype)
+    call read_mixed(source)
+    if (operation=='argsort') then
+      indices=argsort(source,axis,status)
+      write (*,'(i0)') status%code
+      if (status%is_ok()) call emit_mixed(indices)
+      return
+    end if
+    call allocate_mixed(output,dtype)
+    select type (source)
+    type is (ndarray_bool)
+      select type (output)
+      type is (ndarray_bool)
+        output=sort(source,axis,status)
+      end select
+    type is (ndarray_i32)
+      select type (output)
+      type is (ndarray_i32)
+        output=sort(source,axis,status)
+      end select
+    type is (ndarray_i64)
+      select type (output)
+      type is (ndarray_i64)
+        output=sort(source,axis,status)
+      end select
+    type is (ndarray_r32)
+      select type (output)
+      type is (ndarray_r32)
+        output=sort(source,axis,status)
+      end select
+    type is (ndarray_r64)
+      select type (output)
+      type is (ndarray_r64)
+        output=sort(source,axis,status)
+      end select
+    end select
+    write (*,'(i0)') status%code
+    if (status%is_ok()) call emit_mixed(output)
+  end subroutine run_order
 
   subroutine run_reduce(operation, dtype, selected_axis)
     character(len=*), intent(in) :: operation

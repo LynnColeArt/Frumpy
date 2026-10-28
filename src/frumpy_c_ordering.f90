@@ -6,7 +6,8 @@ module frumpy_c_ordering
   use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_UNSUPPORTED_DTYPE, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_ALLOCATION_FAILED
   use frumpy_operands, only: descriptor_dtype
-  use frumpy, only: ndarray_r64, ndarray_i64, sort_r64, argsort_r64, searchsorted_r64
+  use frumpy, only: ndarray_r64, ndarray_i64, searchsorted_r64
+  use frumpy, only: ndarray_bool, ndarray_i32, ndarray_r32, sort_native => sort, argsort
   implicit none
   private
 contains
@@ -25,21 +26,45 @@ contains
     code = status%code
     if (status%is_failure()) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(input%array) /= 5) return
     code = FRUMPY_STATUS_INVALID_SHAPE
     if (indices < 0 .or. indices > 1) return
-    call new_array_slot(merge(3_int32,5_int32,indices == 1), slot, status)
+    call new_array_slot(merge(3_int32,descriptor_dtype(input%array),indices == 1), slot, status)
     code = status%code
     if (status%is_failure()) return
-    select type (a => input%array)
-    type is (ndarray_r64)
+    if (indices == 1) then
       select type (b => slot%array)
-      type is (ndarray_r64)
-        b = sort_r64(a, axis, status)
       type is (ndarray_i64)
-        b = argsort_r64(a, axis, status)
+        b = argsort(input%array,axis,status)
       end select
-    end select
+    else
+      select type (a => input%array)
+      type is (ndarray_bool)
+        select type (b => slot%array)
+        type is (ndarray_bool)
+          b = sort_native(a,axis,status)
+        end select
+      type is (ndarray_i32)
+        select type (b => slot%array)
+        type is (ndarray_i32)
+          b = sort_native(a,axis,status)
+        end select
+      type is (ndarray_i64)
+        select type (b => slot%array)
+        type is (ndarray_i64)
+          b = sort_native(a,axis,status)
+        end select
+      type is (ndarray_r32)
+        select type (b => slot%array)
+        type is (ndarray_r32)
+          b = sort_native(a,axis,status)
+        end select
+      type is (ndarray_r64)
+        select type (b => slot%array)
+        type is (ndarray_r64)
+          b = sort_native(a,axis,status)
+        end select
+      end select
+    end if
     call publish(slot, out, status)
     code = status%code
   end function sort

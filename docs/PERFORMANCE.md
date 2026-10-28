@@ -303,3 +303,16 @@ avoidable overhead, but tiny float64 argsort still adds about 0.5–1.1 µs thro
 Python in paired rechecks. A noisy bool argsort outlier did not reproduce.
 This is completed functionality with documented performance costs, not a
 universal speed improvement.
+
+## Same-dtype searchsorted — 2026-10-28
+
+[The five-dtype search report](performance/search-dtypes-2026-10-28/README.md)
+covers native/C/Python left and right insertion, exact int64 keys, scalar and
+batched queries, and signed/F-order layouts. With 8,192 source elements and
+4,096 contiguous left queries, Python takes 137–147 µs for bool, 255–264 µs
+for int32, 256–257 µs for int64, 279–291 µs for float32 and 206–207 µs for
+float64. NumPy takes about 29–45 µs. The four additions use shared binary-search
+kernels without full-input temporary buffers; output payload is 8 bytes per query.
+Float64 retains its existing kernel/direct C path, with paired control results
+recorded. This adds functionality rather than claiming a universal speedup.
+Mixed-dtype queries and the optional sorter argument remain excluded.

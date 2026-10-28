@@ -1,0 +1,106 @@
+{
+  "status": "passed",
+  "source_commit": "6329097",
+  "numpy": "2.4.6",
+  "python_tests": 7345,
+  "native_programs": 41,
+  "new_search_tests": 1295,
+  "new_package_tests": 5,
+  "logs": {
+    "flang-new-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/search-dtypes-matrix/flang-new-debug.log",
+      "sha256": "6ac4176b3f37c4178b6ac66b869223d26f524b9f7dfe924fe0f0c14700d84931",
+      "python_passed": 7345,
+      "native_programs": 41,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "flang-new-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/search-dtypes-matrix/flang-new-release.log",
+      "sha256": "d26b429ee917f72d919e68156dcea6284f8ac43267407e068b8e44a9a707000d",
+      "python_passed": 7345,
+      "native_programs": 41,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/search-dtypes-matrix/gfortran-13-debug.log",
+      "sha256": "bd42863bfa787efa0251169205145406e6cc276ad8ea76c87ae0ef20a9434a9b",
+      "python_passed": 7345,
+      "native_programs": 41,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/search-dtypes-matrix/gfortran-13-release.log",
+      "sha256": "52bab10b92c599e033292f9d68c45a42dff3d9e987d4bb2fa9d21dd81b4fdc69",
+      "python_passed": 7345,
+      "native_programs": 41,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/search-dtypes-matrix/gfortran-14-debug.log",
+      "sha256": "a231b8bbb5c8b13862df030d2d8c0b7fbd6238e5b6ec312f73ef8b3fe1cfc3ad",
+      "python_passed": 7345,
+      "native_programs": 41,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/search-dtypes-matrix/gfortran-14-release.log",
+      "sha256": "dcea38089be8f19de14941bd0c12608c95879c6bb268dbebf9eb5cf8ded5972a",
+      "python_passed": 7345,
+      "native_programs": 41,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gates": {
+      "path": "/tmp/search-dtypes-gates.log",
+      "sha256": "137121b9a18274f061bfd22d4466c14aa561cb3d4319d1397b67ee44a23446e2",
+      "pytest_summaries": [
+        "2643 passed, 4 warnings in 71.07s (0:01:11)",
+        "2159 passed, 484 deselected, 4 warnings in 16.94s",
+        "4674 passed, 6 warnings in 57.52s"
+      ]
+    },
+    "ubsan": {
+      "path": "/tmp/search-dtypes-ubsan.log",
+      "sha256": "85eb795a26c6b2564008a67faab27f1eba0ed561b66d0c99ebdd36e1d4588f5e",
+      "pytest_summaries": [
+        "1681 passed in 4.97s"
+      ]
+    },
+    "fpm": {
+      "path": "/tmp/search-dtypes-fpm.log",
+      "sha256": "dfc0b0a54f6f622ebd22187f794e935ae1dfb57615703c48c0ae7373513bb1c0",
+      "pytest_summaries": []
+    },
+    "install": {
+      "path": "/tmp/search-dtypes-install.log",
+      "sha256": "99f313c1ec0c8aa5436923096e37f14131c9850d046c892c08ca7a33d286062c",
+      "pytest_summaries": [
+        "386 passed in 0.73s"
+      ]
+    },
+    "openblas": {
+      "path": "/tmp/search-dtypes-openblas.log",
+      "sha256": "a756d91907469c46d271cc35bd8473211d820066f7347ef3db40b82048c300fa",
+      "pytest_summaries": [
+        "7345 passed, 12 warnings in 50.44s"
+      ]
+    },
+    "baseline": {
+      "path": "/tmp/search-dtypes-baseline.log",
+      "sha256": "01d37fc3e1455f53cceb43c6381687db561a51cc3a49d51588dff0c9a48a5ab0",
+      "pytest_summaries": []
+    }
+  },
+  "notes": [
+    "New tests failed before implementation.",
+    "Initial GNU debug compare-reals warning corrected before final full matrix.",
+    "ASan native leak checks and 4674 C/Python cases; Python process-global leaks excluded.",
+    "Overflow gate and 1681 UBSan search/package cases passed.",
+    "386 isolated installed-package cases; fpm and full OpenBLAS suite passed."
+  ]
+}

@@ -23,6 +23,7 @@ program differential_driver
   use frumpy, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
     sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
   use frumpy, only: mask_select_r64, assign_r64
+  use frumpy, only: searchsorted
   use frumpy, only: sort, argsort
   use frumpy, only: argmin, argmax
   use frumpy, only: astype
@@ -72,6 +73,10 @@ contains
 
     read (*, *) operation, axis0, side
     integer_output = .false.
+    if (operation == 'search_typed') then
+      call run_search(axis0,side)
+      return
+    end if
     if (index(operation, 'order_') == 1) then
       call run_order(operation(7:),axis0,side)
       return
@@ -693,6 +698,21 @@ contains
     write (*, '(i0)') status%code
     if (status%is_ok()) call emit_mixed(result)
   end subroutine run_compare
+
+  subroutine run_search(dtype,side)
+    integer(int32), intent(in) :: dtype,side
+    class(*), allocatable :: source,queries
+    type(ndarray_i64) :: output
+    type(frumpy_status) :: status
+
+    call allocate_mixed(source,dtype)
+    call allocate_mixed(queries,dtype)
+    call read_mixed(source)
+    call read_mixed(queries)
+    output=searchsorted(source,queries,side==1,status)
+    write (*,'(i0)') status%code
+    if (status%is_ok()) call emit_mixed(output)
+  end subroutine run_search
 
   subroutine run_order(operation,dtype,axis)
     character(len=*), intent(in) :: operation

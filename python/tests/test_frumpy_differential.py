@@ -32,7 +32,7 @@ def execute(driver, operation, *arrays, axis=-1, side=0, indices=None, owns=True
     if status:
         return status, None
     emitted_dtype = None
-    if operation.startswith(("mixed_", "construct_", "view_", "cast_", "compare_", "reduce_", "order_")):
+    if operation.startswith(("mixed_", "construct_", "view_", "cast_", "compare_", "reduce_", "order_", "search_")):
         emitted_dtype = {1: np.bool_, 2: np.int32, 3: np.int64,
                          4: np.float32, 5: np.float64}[int(lines[1])]
         lines.pop(1)

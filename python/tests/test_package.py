@@ -416,3 +416,16 @@ def test_stable_sort_package(dtype):
         np.testing.assert_array_equal(indices.numpy(),np.argsort(data,kind='stable'))
     with fp.argsort(np.array(1,dtype=dtype)) as scalar:
         np.testing.assert_array_equal(scalar.numpy(),[0])
+
+
+@pytest.mark.parametrize("dtype", [np.bool_,np.int32,np.int64,np.float32,np.float64])
+def test_searchsorted_package(dtype):
+    data=np.sort(np.array([3,1,1,2,0,2],dtype=dtype))
+    query=np.array([[0,1],[2,3]],dtype=dtype)
+    for side in ['left','right']:
+        with fp.asarray(data) as source,fp.asarray(query,order='F') as values:
+            result=fp.searchsorted(source,values,side=side)
+        with result:
+            assert result.dtype==np.dtype(np.int64)
+            assert result.flags.owndata and result.flags.c_contiguous
+            np.testing.assert_array_equal(result.numpy(),np.searchsorted(data,query,side=side))

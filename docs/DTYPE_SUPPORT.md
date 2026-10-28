@@ -253,3 +253,6 @@ first-occurrence ties and first-NaN selection. See the [index reduction contract
 
 Stable sort and argsort support all five existing dtypes. See the
 [stable sorting contract](STABLE_SORT_DTYPES.md) for ordering, axes and memory costs.
+
+Same-dtype searchsorted supports all five dtypes with int64 results. See the
+[searching contract](SEARCHSORTED_DTYPES.md) for ordering, errors and exclusions.

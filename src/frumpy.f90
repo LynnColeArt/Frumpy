@@ -82,9 +82,11 @@ module frumpy
     reshape_r64, slice_r64, squeeze_r64, swapaxes_r64, transpose_r64
 
   use frumpy_sorting, only: sort, argsort, sort_bool, sort_i32, sort_i64, sort_r32
+  use frumpy_searching, only: searchsorted
   implicit none
 
   private
+  public :: searchsorted
   public :: sort, argsort, sort_bool, sort_i32, sort_i64, sort_r32
 
   public :: argmin, argmax

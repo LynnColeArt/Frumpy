@@ -8,6 +8,7 @@ module frumpy_c_ordering
   use frumpy_operands, only: descriptor_dtype
   use frumpy, only: ndarray_r64, ndarray_i64, searchsorted_r64
   use frumpy, only: ndarray_bool, ndarray_i32, ndarray_r32, sort_native => sort, argsort
+  use frumpy, only: searchsorted_native => searchsorted
   implicit none
   private
 contains
@@ -83,25 +84,27 @@ contains
     code = status%code
     if (status%is_failure()) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(input%array) /= 5) return
     queries => lookup(values, 1_int32, status)
     code = status%code
     if (status%is_failure()) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(queries%array) /= 5) return
+    if (descriptor_dtype(input%array) /= descriptor_dtype(queries%array)) return
     code = FRUMPY_STATUS_INVALID_SHAPE
     if (right < 0 .or. right > 1) return
     call new_array_slot(3_int32, slot, status)
     code = status%code
     if (status%is_failure()) return
-    select type (a => input%array)
-    type is (ndarray_r64)
-      select type (b => queries%array)
+    select type (c => slot%array)
+    type is (ndarray_i64)
+      ! Keep float64 on its existing direct ABI path.
+      select type (a => input%array)
       type is (ndarray_r64)
-        select type (c => slot%array)
-        type is (ndarray_i64)
-          c = searchsorted_r64(a, b, right == 1, status)
+        select type (b => queries%array)
+        type is (ndarray_r64)
+          c = searchsorted_r64(a,b,right == 1,status)
         end select
+      class default
+        c = searchsorted_native(input%array,queries%array,right == 1,status)
       end select
     end select
     call publish(slot, out, status)

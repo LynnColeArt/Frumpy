@@ -120,6 +120,18 @@ int main(void) {
   assert(sort_result[0]==2 && sort_result[1]==1 && sort_result[2]==0 && sort_result[3]==3);
   ok(frumpy_release(sort_output));
   ok(frumpy_release(sort_indices));
+  int64_t search_values[4]={INT64_MIN,INT64_MAX-1,INT64_MAX,INT64_MAX};
+  int64_t search_q[3]={INT64_MAX-2,INT64_MAX,INT64_MIN},search_q_shape[1]={3};
+  int64_t search_result[3];
+  frumpy_handle search_source=0,search_query=0,search_output=0;
+  ok(frumpy_import(FRUMPY_I64,1,sort_shape,FRUMPY_C,search_values,4,&search_source));
+  ok(frumpy_import(FRUMPY_I64,1,search_q_shape,FRUMPY_C,search_q,3,&search_query));
+  ok(frumpy_searchsorted(search_source,search_query,1,&search_output));
+  ok(frumpy_release(search_source));
+  ok(frumpy_release(search_query));
+  ok(frumpy_export(search_output,search_result,3));
+  assert(search_result[0]==1 && search_result[1]==4 && search_result[2]==1);
+  ok(frumpy_release(search_output));
   /* Rehashing and registry reset must preserve retains and release all storage. */
   frumpy_handle many[2048];
   for (int i=0;i<2048;i++)

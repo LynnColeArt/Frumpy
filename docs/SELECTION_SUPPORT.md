@@ -1,8 +1,8 @@
 # Selection, Sorting, and Searching
 
-Selection and searching operate on float64 (`r64`) arrays, with boolean masks
-and int64 index outputs. Stable sort/argsort now support all five dtypes; see
-[their contract](STABLE_SORT_DTYPES.md). These functions allocate independent results; none returns
+Selection operates on float64 (`r64`) arrays, with boolean masks and int64
+index outputs. Stable sort/argsort and same-dtype searchsorted support all five
+dtypes; see [sorting](STABLE_SORT_DTYPES.md) and [searching](SEARCHSORTED_DTYPES.md). These functions allocate independent results; none returns
 a view. Input shape, rank, and reachable storage bounds are validated before
 reading data. Invalid input returns `frumpy_status` rather than terminating the
 caller. Bounds checks include signed-stride and element-count overflow cases.
@@ -17,7 +17,7 @@ caller. Bounds checks include signed-stride and element-count overflow cases.
 | `stack_r64(arrays, axis0)` | Join one or more equal-shaped arrays along a new axis, default 0. Positive and negative axes and scalar sources are supported. |
 | `sort(source, axis0)` | Ascending, stable sorting along an axis, default -1. NaNs follow finite values and infinities. Scalars return invalid-axis status. |
 | `argsort(source, axis0)` | Stable, zero-based int64 indices along an axis, default -1. Matches `np.argsort(..., kind="stable")`. Scalar input returns `[0]` for axis -1 or 0 and rejects other axes. |
-| `searchsorted_r64(source, values, side_right)` | A sorted one-dimensional float64 source and arbitrarily shaped float64 queries. Default left insertion; `side_right=.true.` selects right insertion. NaNs form the final equivalence class. Output shape matches the queries. |
+| `searchsorted(source, values, side_right)` | A sorted one-dimensional source and arbitrarily shaped queries with matching dtype (all five supported). Default left insertion; `side_right=.true.` selects right insertion. NaNs form the final equivalence class. Output shape matches the queries. |
 | `nonzero_bool(source)` | **Flat indices**, matching `np.flatnonzero`, in logical C order. Despite the name, this does not return NumPy `nonzero`'s tuple of coordinate arrays. Scalars produce `[0]` or an empty vector. |
 
 All accept C-order, Fortran-order, transposed, stepped, reversed, and zero-stride
@@ -60,7 +60,7 @@ operation and reused across slices, in addition to the existing 16-byte-per-elem
 buffers and the result. The other four dtypes use the index workspace described
 in [the five-dtype sorting contract](STABLE_SORT_DTYPES.md). Python sort/argsort
 also accept `axis=None` through their existing C-order ravel wrapper. Allocation failures remain recoverable through status.
-Non-float64 selection and searching kernels remain separate work. Full-shape bool extraction
+Non-float64 selection kernels remain separate work. Full-shape bool extraction
 and basic-view assignment are documented in [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). Float64 results,
 boolean masks, and integer index results now use managed shared storage; see
 [storage lifetime](STORAGE_LIFETIME.md) for supported assignment/release

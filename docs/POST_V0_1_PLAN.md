@@ -56,8 +56,9 @@ Use the v0.1 coverage table to select small releases, not blanket parity claims:
   richer reduction options. Argmin/argmax are now implemented across all five
   dtypes and native/C/Python interfaces; see [the contract](ARG_REDUCTIONS.md).
 - Stable sort/argsort across the five existing dtypes are completed; see
-  [the sorting contract](STABLE_SORT_DTYPES.md). Remaining selection/searching
-  across dtypes, advanced integer indexing, boolean
+  [the sorting contract](STABLE_SORT_DTYPES.md). Same-dtype searchsorted is also
+  complete across all five dtypes; see [searching](SEARCHSORTED_DTYPES.md).
+  Remaining selection across dtypes, advanced integer indexing, boolean
   assignment and full nonzero tuples. Specify repeated-index assignment first.
 - Broader norms and selected factorizations (QR, Cholesky, SVD/eigen), with
   singular/ill-conditioned cases and backend variability documented.

@@ -1,0 +1,133 @@
+{
+  "status": "passed",
+  "source_commit": "cba383eaca505d1d989125e537bb923051e87f6f",
+  "baseline_kernel": "836a5a4",
+  "numpy": "2.4.6",
+  "python_tests": 5460,
+  "native_programs": 39,
+  "new_scan_tests": 74,
+  "logs": {
+    "flang-new-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/flang-new-debug.log",
+      "sha256": "e3665ed0011e4fe64a303fcd88fc0f894264e8c4b587458e41fe508dd6a4e2ef",
+      "pytest_summaries": [
+        "5460 passed, 12 warnings in 31.74s"
+      ]
+    },
+    "flang-new-debug.native.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/flang-new-debug.native.log",
+      "sha256": "aac47a036d6e1f41ab63972b663c47d2a3accd0923cfca864f9a7c2a4342008d",
+      "pytest_summaries": []
+    },
+    "flang-new-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/flang-new-release.log",
+      "sha256": "bd2a9210784325544a6693e60072d88b4613e59ae439314e9776525b3e3c417b",
+      "pytest_summaries": [
+        "5460 passed, 12 warnings in 27.46s"
+      ]
+    },
+    "flang-new-release.native.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/flang-new-release.native.log",
+      "sha256": "eeebc27afe9370791da9e5e6908071e126d6379785dfec15c937acac72af8054",
+      "pytest_summaries": []
+    },
+    "gfortran-13-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/gfortran-13-debug.log",
+      "sha256": "930d8c47e6c4fe6b8dd1132d8d101b42d333b3634a15e6cdb4be6310cd171ec4",
+      "pytest_summaries": [
+        "5460 passed, 12 warnings in 36.82s"
+      ]
+    },
+    "gfortran-13-debug.native.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/gfortran-13-debug.native.log",
+      "sha256": "96d04ff712fd39581334f77214687d11071cf08961767c1b3a85ba2c30db8281",
+      "pytest_summaries": []
+    },
+    "gfortran-13-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/gfortran-13-release.log",
+      "sha256": "7f1ea8da88750fedb247e611029b12e399d7388fe9668a746d34d778542ff7b7",
+      "pytest_summaries": [
+        "5460 passed, 12 warnings in 31.97s"
+      ]
+    },
+    "gfortran-13-release.native.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/gfortran-13-release.native.log",
+      "sha256": "dcf1a945489ed3ddbb1a562cabc1beed07b28f0abaad1d3cb65fa25c41e78172",
+      "pytest_summaries": []
+    },
+    "gfortran-14-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/gfortran-14-debug.log",
+      "sha256": "339fa3a9b1fb735a75a66bfbf9dde6f4a854c96c0a51bb953a9475e4349eb592",
+      "pytest_summaries": [
+        "5460 passed, 12 warnings in 36.63s"
+      ]
+    },
+    "gfortran-14-debug.native.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/gfortran-14-debug.native.log",
+      "sha256": "1c33039a71b9676a1c2d37102a561ad301605c09ddb842dd4e1da229e1afbd75",
+      "pytest_summaries": []
+    },
+    "gfortran-14-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/gfortran-14-release.log",
+      "sha256": "6adad9cbfa68cf6f0b8287a32066b4371d84a1de73e3965e60ab59527811fd16",
+      "pytest_summaries": [
+        "5460 passed, 12 warnings in 31.45s"
+      ]
+    },
+    "gfortran-14-release.native.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-opt-matrix/gfortran-14-release.native.log",
+      "sha256": "69b36c8f7c24da474a3b45a3c5f967a0b68b29fa746ca546daf9c03c4c67727b",
+      "pytest_summaries": []
+    },
+    "gates": {
+      "path": "/tmp/arg-opt-gates.log",
+      "sha256": "980cc11e752abc9abb3faf3b91e5443bfff1551b007cff14ab3f68d587892f58",
+      "pytest_summaries": [
+        "2643 passed, 4 warnings in 60.29s (0:01:00)",
+        "2159 passed, 484 deselected, 4 warnings in 18.31s",
+        "2789 passed, 6 warnings in 37.53s"
+      ]
+    },
+    "ubsan": {
+      "path": "/tmp/arg-opt-ubsan.log",
+      "sha256": "fdd384789926a4a3a4c4c3f2a16fd2237c1b5db1392c55c68e61628f86319ba6",
+      "pytest_summaries": [
+        "1170 passed in 11.49s"
+      ]
+    },
+    "fpm": {
+      "path": "/tmp/arg-opt-fpm.log",
+      "sha256": "8eca42caed8039fb152f661b31836a3bd048b10248e6efd0cc741f2c156a62c8",
+      "pytest_summaries": []
+    },
+    "install": {
+      "path": "/tmp/arg-opt-install.log",
+      "sha256": "9864873f544fd30617bf8f0a6160e41797edfc48a2fb60b0ccaecf43e9a34648",
+      "pytest_summaries": [
+        "376 passed in 0.56s"
+      ]
+    },
+    "openblas": {
+      "path": "/tmp/arg-opt-openblas.log",
+      "sha256": "421902b258e7c66aff795d9e263074d6bdb767b06d674bb84c22464f896d3431",
+      "pytest_summaries": [
+        "5460 passed, 12 warnings in 41.27s"
+      ]
+    },
+    "baseline-tests": {
+      "path": "/tmp/arg-opt-baseline-tests.log",
+      "sha256": "49e6064e3b7144b876a8bf54bcd9c5ac08def404a92e238e6e8aac69b5ff0f74",
+      "pytest_summaries": [
+        "74 passed in 0.59s"
+      ]
+    }
+  },
+  "notes": [
+    "74 new contract tests also passed against the preserved baseline.",
+    "Native test additions cover noncanonical bool bytes.",
+    "ASan native leak checks and 2789 C/Python cases; Python global leaks excluded.",
+    "UBSan/overflow native gate plus 1170 arg/package tests.",
+    "Isolated sdist install: 376 tests. fpm and full OpenBLAS suite passed.",
+    "Additional native matrix rerun includes final bool assertions on all six profiles."
+  ]
+}

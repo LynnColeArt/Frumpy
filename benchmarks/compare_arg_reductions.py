@@ -16,6 +16,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--source-commit')
+    parser.add_argument('--review-cases',action='store_true',help='Small calls and noisy F-order axis case')
     parser.add_argument('--bool-cases',action='store_true')
     parser.add_argument('--reverse',action='store_true')
     parser.add_argument('--focus',action='store_true',help='Recheck noisy bool/int64 and F-order minima')
@@ -42,6 +43,9 @@ def main():
               for op in ['argmin','argmax']
               for shape,layout in [((65536,),'C'),((65536,),'step'),((65536,),'reverse'),((256,256),'F')]
               for dist in ['first','middle','last','absent']]
+    if args.review_cases:
+        jobs=[j for j in jobs if (j[0] in (np.int64,np.float32) and j[2]==(16,)) or
+              (j[0]==np.float64 and j[1]=='argmax' and j[2:5]==((128,128),1,'F'))]
     if args.reverse:jobs.reverse()
     lib=_ffi.library()
     for dtype,op,shape,axis,layout,distribution in jobs:

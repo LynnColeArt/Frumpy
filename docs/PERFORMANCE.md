@@ -272,3 +272,18 @@ bool searches expose further opportunities. No before/after comparison exists
 for this new feature. Noisy cases are retained and separately rechecked.
 A future focused pass should begin with concrete typed scan loops and bool
 early termination, preserving the index-selection contracts.
+
+## Focused argmin/argmax optimization — 2026-10-28
+
+[The matched scan report](performance/arg-optimization-2026-10-28/README.md)
+covers typed scans, bool early exits and incremental irregular traversal.
+Python float32 argmin at 65,536 contiguous elements falls from 191–215 µs to
+61–65 µs; 128×128 F-order flattening falls from 166–234 µs to 46–52 µs.
+Contiguous bool argmin with a first-position match falls from 150–168 µs to
+12 µs; absent-match scans improve from 149–171 µs to 65–71 µs. Native/C
+results also improve without a full-input temporary or contract changes.
+Small calls remain mixed: tiny int64 argmin is 2–5% slower through Python in
+isolated paired rechecks. The noisy float64 F-order axis regression does not
+reproduce. Raw samples, all distributions and slower cases remain in the report.
+This completes the bounded scan pass; broader wrapper/SIMD work can wait while
+functionality resumes.

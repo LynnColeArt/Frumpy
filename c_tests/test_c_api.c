@@ -1,5 +1,6 @@
 #include "frumpy.h"
 #include <assert.h>
+#include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 static void ok(int32_t status) { assert(status == FRUMPY_OK); }
@@ -88,6 +89,24 @@ int main(void) {
   assert(answer32[0]==4 && answer32[1]==8 && answer32[2]==32 && answer32[3]==48);
   ok(frumpy_release(solution32));
   ok(frumpy_release(product32));
+  int64_t arg_values[3]={INT64_MAX,INT64_MAX-1,INT64_MAX-1}, arg_shape[1]={3};
+  int64_t arg_answer=0;
+  frumpy_handle arg_input=0,arg_output=0;
+  ok(frumpy_import(FRUMPY_I64,1,arg_shape,FRUMPY_C,arg_values,3,&arg_input));
+  ok(frumpy_reduce(FRUMPY_ARGMIN,arg_input,0,0,0,&arg_output));
+  ok(frumpy_info(arg_output,&dtype,&rank,actual_shape,strides,2,&offset,&flags));
+  assert(dtype==FRUMPY_I64 && rank==0);
+  ok(frumpy_release(arg_input));
+  ok(frumpy_export(arg_output,&arg_answer,1));
+  assert(arg_answer==1);
+  ok(frumpy_release(arg_output));
+  float arg_floats[3]={1.0f,NAN,NAN};
+  ok(frumpy_import(FRUMPY_R32,1,arg_shape,FRUMPY_C,arg_floats,3,&arg_input));
+  ok(frumpy_reduce(FRUMPY_ARGMAX,arg_input,1,-1,1,&arg_output));
+  ok(frumpy_export(arg_output,&arg_answer,1));
+  assert(arg_answer==1);
+  ok(frumpy_release(arg_output));
+  ok(frumpy_release(arg_input));
   /* Rehashing and registry reset must preserve retains and release all storage. */
   frumpy_handle many[2048];
   for (int i=0;i<2048;i++)

@@ -26,6 +26,7 @@ module frumpy
   use frumpy_norms_r32, only: vector_norm_r32, matrix_norm_r32
   use frumpy_norms_r64, only: vector_norm_r64, matrix_norm_r64
   use frumpy_product_promotion, only: dot, outer, matmul
+  use frumpy_arg_reductions, only: argmin, argmax
   use frumpy_arithmetic, only: add, subtract, multiply, divide
   use frumpy_linalg_r32, only: matmul_r32, solve_r32, dot_r32, outer_r32
   use frumpy_linalg_r64, only: matmul_r64, solve_r64, outer_r64, dot_r64
@@ -84,6 +85,7 @@ module frumpy
 
   private
 
+  public :: argmin, argmax
   public :: dot, outer, matmul
   public :: matmul_r32, solve_r32, dot_r32, outer_r32
   public :: matmul_r64, solve_r64, outer_r64, dot_r64, FRUMPY_STATUS_SINGULAR_MATRIX

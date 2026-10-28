@@ -6,6 +6,7 @@ module frumpy_c_reductions
   use frumpy_statuses, only: frumpy_status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
     FRUMPY_STATUS_INVALID_SHAPE
   use frumpy_operands, only: descriptor_dtype, operand, bind_operand
+  use frumpy, only: argmin, argmax
   use frumpy, only: ndarray_bool, all_bool, any_bool
   use frumpy, only: ndarray_i32, sum_i32, prod_i32, min_i32, max_i32, mean_i32
   use frumpy, only: ndarray_i64, sum_i64, prod_i64, min_i64, max_i64, mean_i64
@@ -36,6 +37,27 @@ contains
     code = FRUMPY_STATUS_INVALID_SHAPE
     if (has_axis < 0 .or. has_axis > 1 .or. keepdims < 0 .or. keepdims > 1) return
     nullify(optional_axis)
+    if (operation == 8 .or. operation == 9) then
+      ! Pass the original axis: native planning validates and normalizes exactly once.
+      if (has_axis == 1) then
+        normalized_axis = axis
+        optional_axis => normalized_axis
+      end if
+      call new_array_slot(3_int32, slot, status)
+      code = status%code
+      if (status%is_failure()) return
+      select type (b => slot%array)
+      type is (ndarray_i64)
+        if (operation == 8) then
+          b = argmin(input%array, optional_axis, keepdims == 1, status)
+        else
+          b = argmax(input%array, optional_axis, keepdims == 1, status)
+        end if
+      end select
+      call publish(slot, out, status)
+      code = status%code
+      return
+    end if
     if (has_axis == 1) then
       call bind_operand(input%array, borrowed, status)
       code = status%code

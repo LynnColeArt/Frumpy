@@ -61,6 +61,7 @@ SOURCES := \
 	src/frumpy_linalg_r64.f90 \
 	src/frumpy_product_promotion.f90 \
 	src/frumpy_reduction_plans.f90 \
+	src/frumpy_arg_reductions.f90 \
 	src/frumpy_reductions_discrete.f90 \
 	src/frumpy_reductions_r32.f90 \
 	src/frumpy_reductions_r64.f90 \
@@ -108,6 +109,7 @@ FORTRAN_TESTS := \
 	test/test_reductions_r32.f90 \
 	test/test_reductions_r64.f90 \
 	test/test_reductions_discrete.f90 \
+	test/test_arg_reductions.f90 \
 	test/test_selection_r64.f90 \
 	test/test_indexing_r64.f90 \
 	test/test_selection_validation.f90 \
@@ -171,6 +173,7 @@ memory-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/memory/bin/test_array_casting" \
 		"$(BUILD_DIR)/memory/bin/test_comparisons" \
 		"$(BUILD_DIR)/memory/bin/test_reductions_discrete" \
+		"$(BUILD_DIR)/memory/bin/test_arg_reductions" \
 		"$(BUILD_DIR)/memory/bin/test_indexing_r64" \
 		"$(BUILD_DIR)/memory/bin/test_constructors_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_views_dtypes" \
@@ -192,6 +195,7 @@ memory-test: $(PY_DEPS_STAMP)
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_array_casting"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_comparisons"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_reductions_discrete"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_arg_reductions"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_indexing_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_constructors_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_views_dtypes"
@@ -218,6 +222,7 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/integer-overflow/bin/test_array_casting" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_comparisons" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_reductions_discrete" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_arg_reductions" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_indexing_r64" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_constructors_dtypes" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_views_dtypes" \
@@ -234,6 +239,7 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 	"$(BUILD_DIR)/integer-overflow/bin/test_array_casting"
 	"$(BUILD_DIR)/integer-overflow/bin/test_comparisons"
 	"$(BUILD_DIR)/integer-overflow/bin/test_reductions_discrete"
+	"$(BUILD_DIR)/integer-overflow/bin/test_arg_reductions"
 	"$(BUILD_DIR)/integer-overflow/bin/test_indexing_r64"
 	"$(BUILD_DIR)/integer-overflow/bin/test_constructors_dtypes"
 	"$(BUILD_DIR)/integer-overflow/bin/test_views_dtypes"
@@ -324,7 +330,7 @@ c-memory-test: $(PY_DEPS_STAMP)
 		FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/c-memory/bin/differential_driver)" \
 		$(VENV_PY) -m pytest -q python/tests/test_c_boundary.py python/tests/test_package.py \
 		python/tests/test_float32_linalg.py python/tests/test_float32_products.py \
-		python/tests/test_promoted_products.py python/tests/test_contiguous_casting.py python/tests/test_float32_norms.py python/tests/test_norm_accumulation.py
+		python/tests/test_promoted_products.py python/tests/test_contiguous_casting.py python/tests/test_float32_norms.py python/tests/test_norm_accumulation.py python/tests/test_arg_reductions.py
 
 # Linux/glibc only; run separately from ASan's own malloc interposition.
 .PHONY: registry-allocation-test

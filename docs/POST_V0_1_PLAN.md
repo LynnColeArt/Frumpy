@@ -53,7 +53,8 @@ Use the v0.1 coverage table to select small releases, not blanket parity claims:
 - Complex64/complex128 descriptors, storage, casting, promotion, arithmetic and
   conjugation, followed by complex reductions and linear algebra.
 - Remaining constructors, integer unary operations, multi-axis reductions,
-  argmin/argmax and richer reduction options.
+  richer reduction options. Argmin/argmax are now implemented across all five
+  dtypes and native/C/Python interfaces; see [the contract](ARG_REDUCTIONS.md).
 - Selection/sorting/searching across dtypes, advanced integer indexing, boolean
   assignment and full nonzero tuples. Specify repeated-index assignment first.
 - Broader norms and selected factorizations (QR, Cholesky, SVD/eigen), with

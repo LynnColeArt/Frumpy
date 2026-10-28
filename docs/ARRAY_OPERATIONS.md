@@ -100,3 +100,6 @@ Python tests compare all casting policies/pairs, comparisons, logical operations
 integer/boolean axes and empties, and float64 masking/assignment with NumPy.
 The unsafe-cast and accumulation-order departures have explicit separate tests.
 GNU memory and integer-overflow gates include these operations.
+
+Argmin and argmax now support all five existing dtypes, with int64 indices,
+first-occurrence ties and first-NaN selection. See the [index reduction contract](ARG_REDUCTIONS.md).

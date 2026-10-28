@@ -103,3 +103,6 @@ Scalar reduction axes are validated in Python before conversion to the ABI's
 int32 axis type, so oversized Python integers cannot wrap to a valid axis.
 Only -1 and 0 reach native scalar-axis handling; operation-specific restrictions
 (such as float64 explicit scalar axes) remain unchanged.
+
+Argmin and argmax now support all five existing dtypes, with int64 indices,
+first-occurrence ties and first-NaN selection. See the [index reduction contract](ARG_REDUCTIONS.md).

@@ -23,6 +23,7 @@ program differential_driver
   use frumpy, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
     sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
   use frumpy, only: mask_select_r64, assign_r64
+  use frumpy, only: argmin, argmax
   use frumpy, only: astype
   use frumpy, only: random_generator, uniform_r64, normal_r64
   use frumpy, only: vector_norm_r64, matrix_norm_r64, vector_norm_r32, matrix_norm_r32
@@ -698,8 +699,23 @@ contains
     type(ndarray_i32) :: source_i32, result_i32
     type(ndarray_i64) :: source_i64, result_i64
     type(ndarray_r64) :: result_r64
+    class(*), allocatable :: arg_source
 
     if (selected_axis /= 99) axis0 = selected_axis
+    if (operation == 'argmin' .or. operation == 'argmax') then
+      call allocate_mixed(arg_source, dtype)
+      call read_mixed(arg_source)
+      read (*, *) count
+      read (*, *) keep
+      if (operation == 'argmin') then
+        result_i64 = argmin(arg_source, axis0, keep == 1, status)
+      else
+        result_i64 = argmax(arg_source, axis0, keep == 1, status)
+      end if
+      write (*, '(i0)') status%code
+      if (status%is_ok()) call emit_mixed(result_i64)
+      return
+    end if
     select case (dtype)
     case (1)
       call read_bool(source_bool)

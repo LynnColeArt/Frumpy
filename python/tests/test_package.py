@@ -387,3 +387,17 @@ def test_float32_norms_package():
         with getattr(fp.linalg,name)(a) as result:
             assert result.dtype==np.dtype('float32')
             assert result.item()==5
+
+
+@pytest.mark.parametrize("dtype", [np.bool_,np.int32,np.int64,np.float32,np.float64])
+@pytest.mark.parametrize("operation", ["argmin","argmax"])
+def test_arg_reductions_package(dtype,operation):
+    data=np.array([[3,1,1],[0,4,4]],dtype=dtype)
+    with fp.asarray(data) as source:
+        result=getattr(source,operation)(axis=-1,keepdims=True)
+    with result:
+        assert result.dtype==np.dtype('int64')
+        assert result.flags.owndata and result.flags.c_contiguous
+        np.testing.assert_array_equal(result.numpy(),getattr(np,operation)(data,axis=-1,keepdims=True))
+    with getattr(fp,operation)(data) as scalar:
+        assert scalar.shape==() and scalar.item()==getattr(np,operation)(data)

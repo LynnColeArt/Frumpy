@@ -102,3 +102,6 @@ On Linux/glibc, `make registry-allocation-test` injects allocation failures into
 initial index creation and growth. Run it separately from ASan interposition.
 The ordinary C caller also checks growth, retained handles and complete cleanup
 under the existing memory test target.
+
+Argmin and argmax now support all five existing dtypes, with int64 indices,
+first-occurrence ties and first-NaN selection. See the [index reduction contract](ARG_REDUCTIONS.md).

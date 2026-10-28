@@ -247,3 +247,6 @@ assignment through basic views are documented there as well.
 
 Dot, outer and matmul support [floating-result mixed-dtype promotion](LINEAR_ALGEBRA.md#floating-result-promotion).
 Integer-only products and mixed-dtype solve remain unsupported.
+
+Argmin and argmax now support all five existing dtypes, with int64 indices,
+first-occurrence ties and first-NaN selection. See the [index reduction contract](ARG_REDUCTIONS.md).

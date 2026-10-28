@@ -174,7 +174,7 @@ for _op, _name in enumerate(("add", "subtract", "multiply", "divide", "equal", "
 for _op, _name in enumerate(("negative", "absolute", "sqrt", "exp", "log", "sin", "cos",
                              "logical_not"), 1):
     globals()[_name] = lambda source, op=_op: unary(op, source)
-for _op, _name in enumerate(("sum", "prod", "min", "max", "mean", "all", "any"), 1):
+for _op, _name in enumerate(("sum", "prod", "min", "max", "mean", "all", "any", "argmin", "argmax"), 1):
     globals()[_name] = lambda source, axis=None, keepdims=False, op=_op: asarray(
         source, order="K")._reduce(op, axis, keepdims)
 
@@ -188,6 +188,6 @@ __all__ = [
     "add", "subtract", "multiply", "divide", "equal", "not_equal", "less", "less_equal",
     "greater", "greater_equal", "logical_and", "logical_or", "logical_xor", "logical_not",
     "negative", "absolute", "sqrt", "exp", "log", "sin", "cos", "sum", "prod", "min", "max",
-    "mean", "all", "any", "where", "take", "concatenate", "stack", "sort", "argsort",
+    "mean", "all", "any", "argmin", "argmax", "where", "take", "concatenate", "stack", "sort", "argsort",
     "searchsorted", "flatnonzero", "outer", "dot", "matmul", "linalg", "random",
 ]

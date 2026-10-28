@@ -301,6 +301,6 @@ for _name, _op in [("add", 1), ("sub", 2), ("mul", 3), ("truediv", 4),
         setattr(ndarray, f"__r{_name}__", lambda self, other, op=_op: binary(op, other, self))
 for _name, _op in [("neg", 1), ("abs", 2), ("invert", 8)]:
     setattr(ndarray, f"__{_name}__", lambda self, op=_op: unary(op, self))
-for _name, _op in enumerate(("sum", "prod", "min", "max", "mean", "all", "any"), 1):
+for _name, _op in enumerate(("sum", "prod", "min", "max", "mean", "all", "any", "argmin", "argmax"), 1):
     setattr(ndarray, _op, lambda self, axis=None, keepdims=False, op=_name:
             self._reduce(op, axis, keepdims))

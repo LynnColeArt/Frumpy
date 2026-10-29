@@ -50,6 +50,46 @@ source` invokes the same operation without a status argument; as with other
 status-optional APIs, use the explicit call when failure must be observed.
 Self-assignment and replacement with a view of the destination are tested.
 
+## Migrating native and ctypes adapters
+
+A legacy adapter that owns an operation result must replace raw pointer cleanup:
+
+```fortran
+! Unsafe with managed descriptors, even when output%owns_data is true:
+! if (associated(output%data)) deallocate(output%data)
+call output%release()
+```
+
+This applies to all five registered dtypes and to views as well as original
+owners. `data` is an alias of the private backing allocation. Deallocating it
+leaves the backing pointer dangling; later release/finalization can free it
+again. Nullifying the public pointer afterwards does not repair the private
+backing. Do not retarget a managed descriptor's data pointer either.
+
+For a local result, automatic procedure-exit finalization can handle cleanup.
+Explicit `release()` permits earlier cleanup and is safe before repeated release
+or finalization. Copy values to the caller's output buffer before releasing the
+last descriptor reference. If a view still retains the backing, releasing the
+original owner does not invalidate that view.
+
+A metadata-only descriptor with a caller-attached pointer is a borrow: attach
+only to an unmanaged descriptor, keep the external allocation alive for every
+borrow, and let its original owner reclaim it. Releasing or finalizing the
+borrow detaches it without freeing the caller's buffer. Do not use `owns_data`
+as permission to deallocate the public pointer.
+
+The supported C ABI uses opaque handles, not descriptor pointers. Imports and
+exports copy values; callers keep ownership of their buffers. Release each
+handle reference with `frumpy_release`. Unlike native descriptor `release()`,
+releasing an already invalid C handle returns `FRUMPY_INVALID_HANDLE` (8).
+Python's public `close()` uses its finalizer to release its handle once.
+Neither C nor Python callers should free native data pointers directly.
+
+[Issue #2](https://github.com/LynnColeArt/Frumpy/issues/2) contains the legacy
+ctypes adapter failure and one-line migration. It reproduces on Linux as well
+as the reported Mac configuration; it is not a failure of the supported handle
+ABI. See [the audit and validation record](validation/ownership-migration-2026-10-29.md).
+
 ## Vectors of descriptors
 
 An ndarray can have any supported ndarray rank. A **Fortran array containing

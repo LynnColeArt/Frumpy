@@ -10,6 +10,7 @@ program test_storage_lifetime_r64
   call exercise_array_assignment()
   call exercise_borrowed_storage()
   call exercise_allocatable_owners()
+  call exercise_adapter_cleanup()
 
 contains
 
@@ -145,6 +146,63 @@ contains
 
     array = full_r64([3_int64], 3.0_real64)
   end subroutine replace_intent_out
+
+  subroutine exercise_adapter_cleanup()
+    real(real64), target :: lhs(3), rhs(3), empty(0)
+    real(real64) :: values(3), empty_values(0)
+    integer(int32) :: iteration
+    type(frumpy_status) :: status
+
+    lhs = [1.0_real64, 2.0_real64, 3.0_real64]
+    rhs = [4.0_real64, 5.0_real64, 6.0_real64]
+    do iteration = 1_int32, 10000_int32
+      call borrowed_add(lhs, rhs, values, mod(iteration, 2_int32) == 0_int32, status)
+      call require(status%is_ok(), 'adapter addition')
+      call require(all(abs(values - ([5.0_real64, 7.0_real64, 9.0_real64])) < 1e-12_real64), 'adapter values')
+      call borrowed_add(empty, empty, empty_values, .true., status)
+      call require(status%is_ok(), 'empty adapter addition')
+      call borrowed_add(lhs, rhs(:2), values, .true., status)
+      call require(status%code == FRUMPY_STATUS_INVALID_SHAPE, 'adapter failure status')
+      call require(all(abs(values - (-99.0_real64)) < 1e-12_real64), 'failed adapter leaves no result')
+    end do
+    call require(all(abs(lhs - ([1.0_real64, 2.0_real64, 3.0_real64])) < 1e-12_real64), 'borrowed lhs survives')
+    call require(all(abs(rhs - ([4.0_real64, 5.0_real64, 6.0_real64])) < 1e-12_real64), 'borrowed rhs survives')
+  end subroutine exercise_adapter_cleanup
+
+  subroutine borrowed_add(lhs_data, rhs_data, values, explicit_release, status)
+    real(real64), target, intent(in) :: lhs_data(:), rhs_data(:)
+    real(real64), intent(out) :: values(:)
+    logical, intent(in) :: explicit_release
+    type(frumpy_status), intent(out) :: status
+    type(ndarray_r64) :: lhs, rhs, output, alias
+
+    values = -99.0_real64
+    lhs = metadata_descriptor_r64([size(lhs_data, kind=int64)], [1_int64], 1_int64, status)
+    call require(status%is_ok(), 'adapter lhs metadata')
+    rhs = metadata_descriptor_r64([size(rhs_data, kind=int64)], [1_int64], 1_int64, status)
+    call require(status%is_ok(), 'adapter rhs metadata')
+    lhs%data => lhs_data
+    rhs%data => rhs_data
+    output = add_r64(lhs, rhs, status)
+    if (status%is_failure()) then
+      call require(.not. output%has_storage(), 'failed adapter output has no storage')
+      call output%release()
+      call output%release()
+      return
+    end if
+    alias = view_descriptor_r64(output, output%shape, output%strides, output%offset, status)
+    call require(status%is_ok(), 'adapter result view')
+    if (explicit_release) then
+      ! Issue #2: raw deallocate(output%data) leaves the private backing dangling.
+      call output%release()
+      call output%release()
+      call require(.not. output%has_storage(), 'adapter explicit release clears result')
+    end if
+    values = alias%data
+    call lhs%release()
+    call lhs%release()
+    ! All descriptors finalize here, including the already released owner/borrow.
+  end subroutine borrowed_add
 
   subroutine require(condition, message)
     logical, intent(in) :: condition

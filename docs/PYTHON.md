@@ -25,6 +25,11 @@ runtime checks and IEEE semantics. Never use `-ffast-math` for the supported
 numerical contract. `FRUMPY_LIBRARY=/absolute/path/libfrumpy.so` can select a
 separately built ABI-v1 library for development/testing.
 
+Custom ctypes bridges that use native Fortran descriptors must follow the
+[managed-storage migration guide](STORAGE_LIFETIME.md#migrating-native-and-ctypes-adapters).
+A bridge must not manually free a result's `data` pointer. The supported package
+uses opaque C handles and releases them through the ABI.
+
 ## Arrays and ownership
 
 ```python

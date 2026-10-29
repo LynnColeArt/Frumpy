@@ -34,6 +34,13 @@ null pointers, counts and shapes; it cannot validate arbitrary C pointer extent
 or detect overlapping caller buffers. Do not alias output handle or metadata
 buffers with input buffers.
 
+Custom Fortran adapters called through ctypes must follow the
+[native descriptor migration rules](STORAGE_LIFETIME.md#migrating-native-and-ctypes-adapters).
+Never manually deallocate a managed descriptor's `data` pointer; use its
+`release()` method or procedure-exit finalization. The published handle API does
+not expose those pointers. Native descriptor release is idempotent; C handle
+release consumes a reference and returns status 8 after the final reference is gone.
+
 ## Metadata and errors
 
 `frumpy_info` returns strides in **elements** and a **zero-based** storage

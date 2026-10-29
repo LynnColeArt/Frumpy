@@ -288,3 +288,33 @@ def test_handle_registry_growth_and_churn(abi):
     fresh = handles.put(np.array([42.]))
     np.testing.assert_array_equal(handles.get(fresh), [42.])
     assert abi.frumpy_release(fresh) == 0
+
+
+@pytest.mark.parametrize("dtype", DTYPES)
+@pytest.mark.parametrize("size", [0, 3])
+def test_repeated_foreign_call_cleanup(abi, dtype, size):
+    """Owned handles/views outlive inputs; caller buffers never transfer ownership."""
+    lhs = np.arange(size, dtype=dtype) if dtype != np.bool_ else np.ones(size, dtype=dtype)
+    rhs = np.ones(size, dtype=dtype)
+    expected = np.add(lhs, rhs)
+    original = lhs.copy()
+    for _ in range(1000):
+        h = Handles(abi)
+        try:
+            a, b = h.put(lhs), h.put(rhs)
+            wrong_shape = h.put(np.zeros(2, dtype=dtype))
+            h.make("binary", 1, a, wrong_shape, status=1)
+            result = h.make("binary", 1, a, b)
+            view = h.view(2, result)  # Rank-one transpose retains managed backing.
+            for handle in (result, a, b):
+                assert abi.frumpy_release(handle) == 0
+                h.ids.remove(handle)
+                # C handles are invalid after release, unlike native release().
+                assert abi.frumpy_release(handle) == 8
+            h.make("binary", 1, a, b, status=8)
+            np.testing.assert_array_equal(h.get(view), expected)
+        finally:
+            for handle in reversed(h.ids):
+                assert abi.frumpy_release(handle) == 0
+    np.testing.assert_array_equal(lhs, original)
+    np.testing.assert_array_equal(rhs, np.ones(size, dtype=dtype))

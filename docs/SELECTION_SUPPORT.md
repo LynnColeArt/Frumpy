@@ -60,9 +60,9 @@ operation and reused across slices, in addition to the existing 16-byte-per-elem
 buffers and the result. The other four dtypes use the index workspace described
 in [the five-dtype sorting contract](STABLE_SORT_DTYPES.md). Python sort/argsort
 also accept `axis=None` through their existing C-order ravel wrapper. Allocation failures remain recoverable through status.
-Mixed-dtype selection promotion remains separate work. Full-shape bool extraction
-and basic-view assignment are documented in [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). Float64 results,
-boolean masks, and integer index results now use managed shared storage; see
+Mixed-dtype selection promotion remains separate work. Five-dtype full-shape bool extraction, mask assignment
+and basic-view assignment are documented in [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). All five
+value dtypes and integer index results use managed shared storage; see
 [storage lifetime](STORAGE_LIFETIME.md) for supported assignment/release
 operations, borrowed-buffer rules, and container-copy limits.
 

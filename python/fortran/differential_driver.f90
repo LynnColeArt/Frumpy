@@ -22,7 +22,7 @@ program differential_driver
     logical_and_bool, logical_or_bool, logical_xor_bool, logical_not_bool
   use frumpy, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
     sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
-  use frumpy, only: mask_select_r64, assign_r64
+  use frumpy, only: mask_select_r64, assign_r64, mask_select, assign, mask_assign
   use frumpy, only: where, take, concatenate, stack
   use frumpy, only: searchsorted
   use frumpy, only: sort, argsort
@@ -712,7 +712,7 @@ contains
     integer(int64), allocatable :: indices(:)
     integer :: count
 
-    if (operation == 'where') call read_mixed(condition)
+    if (operation == 'where' .or. operation == 'mask' .or. operation == 'mask_assign') call read_mixed(condition)
     select case (dtype)
     case (1)
       block
@@ -720,6 +720,8 @@ contains
 
         call read_mixed(inputs(1))
         select case (operation)
+        case ('mask')
+          output = mask_select(inputs(1), condition, status)
         case ('take', 'take_flat')
           read (*, *) count
           allocate(indices(count))
@@ -732,6 +734,12 @@ contains
         case default
           call read_mixed(inputs(2))
           select case (operation)
+          case ('assign')
+            call assign(inputs(1), inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
+          case ('mask_assign')
+            call mask_assign(inputs(1), condition, inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
           case ('where')
             output = where(condition, inputs(1), inputs(2), status)
           case ('concatenate')
@@ -742,6 +750,8 @@ contains
         end select
         write (*, '(i0)') status%code
         if (status%is_ok()) call emit_mixed(output)
+        call inputs(1)%release()
+        call inputs(2)%release()
       end block
     case (2)
       block
@@ -749,6 +759,8 @@ contains
 
         call read_mixed(inputs(1))
         select case (operation)
+        case ('mask')
+          output = mask_select(inputs(1), condition, status)
         case ('take', 'take_flat')
           read (*, *) count
           allocate(indices(count))
@@ -761,6 +773,12 @@ contains
         case default
           call read_mixed(inputs(2))
           select case (operation)
+          case ('assign')
+            call assign(inputs(1), inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
+          case ('mask_assign')
+            call mask_assign(inputs(1), condition, inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
           case ('where')
             output = where(condition, inputs(1), inputs(2), status)
           case ('concatenate')
@@ -771,6 +789,8 @@ contains
         end select
         write (*, '(i0)') status%code
         if (status%is_ok()) call emit_mixed(output)
+        call inputs(1)%release()
+        call inputs(2)%release()
       end block
     case (3)
       block
@@ -778,6 +798,8 @@ contains
 
         call read_mixed(inputs(1))
         select case (operation)
+        case ('mask')
+          output = mask_select(inputs(1), condition, status)
         case ('take', 'take_flat')
           read (*, *) count
           allocate(indices(count))
@@ -790,6 +812,12 @@ contains
         case default
           call read_mixed(inputs(2))
           select case (operation)
+          case ('assign')
+            call assign(inputs(1), inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
+          case ('mask_assign')
+            call mask_assign(inputs(1), condition, inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
           case ('where')
             output = where(condition, inputs(1), inputs(2), status)
           case ('concatenate')
@@ -800,6 +828,8 @@ contains
         end select
         write (*, '(i0)') status%code
         if (status%is_ok()) call emit_mixed(output)
+        call inputs(1)%release()
+        call inputs(2)%release()
       end block
     case (4)
       block
@@ -807,6 +837,8 @@ contains
 
         call read_mixed(inputs(1))
         select case (operation)
+        case ('mask')
+          output = mask_select(inputs(1), condition, status)
         case ('take', 'take_flat')
           read (*, *) count
           allocate(indices(count))
@@ -819,6 +851,12 @@ contains
         case default
           call read_mixed(inputs(2))
           select case (operation)
+          case ('assign')
+            call assign(inputs(1), inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
+          case ('mask_assign')
+            call mask_assign(inputs(1), condition, inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
           case ('where')
             output = where(condition, inputs(1), inputs(2), status)
           case ('concatenate')
@@ -829,6 +867,8 @@ contains
         end select
         write (*, '(i0)') status%code
         if (status%is_ok()) call emit_mixed(output)
+        call inputs(1)%release()
+        call inputs(2)%release()
       end block
     case (5)
       block
@@ -836,6 +876,8 @@ contains
 
         call read_mixed(inputs(1))
         select case (operation)
+        case ('mask')
+          output = mask_select(inputs(1), condition, status)
         case ('take', 'take_flat')
           read (*, *) count
           allocate(indices(count))
@@ -848,6 +890,12 @@ contains
         case default
           call read_mixed(inputs(2))
           select case (operation)
+          case ('assign')
+            call assign(inputs(1), inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
+          case ('mask_assign')
+            call mask_assign(inputs(1), condition, inputs(2), status)
+            if (status%is_ok()) call output%share_from(inputs(1), status)
           case ('where')
             output = where(condition, inputs(1), inputs(2), status)
           case ('concatenate')
@@ -858,6 +906,8 @@ contains
         end select
         write (*, '(i0)') status%code
         if (status%is_ok()) call emit_mixed(output)
+        call inputs(1)%release()
+        call inputs(2)%release()
       end block
     end select
   end subroutine run_selection

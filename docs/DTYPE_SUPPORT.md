@@ -242,8 +242,8 @@ Float64 [uniform and standard normal generation](RANDOM.md) uses explicit seeded
 state and owned C-order results; it does not match NumPy random streams.
 
 All five dtypes support [array astype and mixed comparisons](ARRAY_OPERATIONS.md).
-Integer/boolean reductions and float64 full-shape mask extraction and staged
-assignment through basic views are documented there as well.
+Integer/boolean reductions and five-dtype full-shape mask extraction and staged
+assignment through masks and basic views are documented there as well.
 
 Dot, outer and matmul support [floating-result mixed-dtype promotion](LINEAR_ALGEBRA.md#floating-result-promotion).
 Integer-only products and mixed-dtype solve remain unsupported.
@@ -260,3 +260,6 @@ Same-dtype searchsorted supports all five dtypes with int64 results. See the
 Same-dtype `where`, `take`, `concatenate`, and `stack` support all five dtypes
 through native generics, the existing C ABI and Python. Mixed value-dtype
 promotion is not included. See [selection contracts](SELECTION_DTYPES.md).
+
+Full-shape boolean extraction and same-dtype assignment now cover all five dtypes;
+see [masking and overlap contracts](MASKING_DTYPES.md).

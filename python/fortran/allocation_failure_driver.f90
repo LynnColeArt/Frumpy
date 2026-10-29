@@ -9,6 +9,7 @@ program allocation_failure_driver
   use frumpy_ndarray_i64, only: ndarray_i64, owned_descriptor_i64, share_descriptors_i64
   use frumpy_ndarray_r32, only: ndarray_r32, owned_descriptor_r32, share_descriptors_r32
   use frumpy_ndarray_r64, only: ndarray_r64, owned_descriptor_r64, share_descriptors_r64
+  use frumpy_indexing, only: mask_assign
   implicit none
 
   interface
@@ -20,6 +21,7 @@ program allocation_failure_driver
     end subroutine allow_allocations
   end interface
 
+  call exercise_mask_staging()
   call exercise_bool()
   call exercise_i32()
   call exercise_i64()
@@ -27,6 +29,32 @@ program allocation_failure_driver
   call exercise_r64()
 
 contains
+
+  ! Only the seven explicit allocations: positions, descriptor and owned storage.
+  ! Do not inject into compiler-generated constructor-result metadata copies.
+  subroutine exercise_mask_staging()
+    type(ndarray_i64) :: target, values
+    type(ndarray_bool) :: mask
+    type(frumpy_status) :: status
+    integer(c_int) :: attempt
+
+    target = owned_descriptor_i64([4_int64])
+    values = owned_descriptor_i64([4_int64])
+    mask = owned_descriptor_bool([4_int64])
+    values%data = 9_int64
+    mask%data = 1_int8
+    do attempt = 0_c_int, 6_c_int
+      target%data = 7_int64
+      call fail_after(attempt)
+      call mask_assign(target, mask, values, status)
+      call allow_allocations()
+      call require(status%code == FRUMPY_STATUS_ALLOCATION_FAILED, 'mask staging allocation status')
+      call require(all(target%data == 7_int64), 'mask staging failure atomicity')
+    end do
+    call mask_assign(target, mask, values, status)
+    call require(status%is_ok(), 'mask staging recovery')
+    call require(all(target%data == 9_int64), 'mask staging recovered values')
+  end subroutine exercise_mask_staging
 
   subroutine exercise_bool()
     type(ndarray_bool) :: sources(2), destinations(2)

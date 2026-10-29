@@ -73,23 +73,11 @@ ordinary comparisons (rtol=atol=2e-13). No global error bound is claimed.
 
 ## Mask extraction and assignment
 
-`mask_select_r64(source, mask, status)` requires a boolean mask of exactly the
-source shape, including scalar or empty shapes. It returns an independent
-float64 vector in C logical selection order. Prefix masks and arbitrary advanced
-index arrays are outside this subset.
-
-`call assign_r64(target, values, status)` broadcasts float64 values to an existing
-float64 target descriptor, including a basic slice/view. It never changes target
-metadata or allocates replacement target storage. It stages every RHS value
-before writing, so distinct descriptors with overlapping backing are supported.
-Reported validation/allocation failures leave the target unchanged. Passing the
-same actual Fortran variable to both dummies is unsupported; use a distinct shared
-descriptor for self-backed assignment.
-
-For deliberately writable views with repeated storage positions (e.g. zero
-strides), writes occur in C logical order and the last write wins. There is no
-read-only descriptor flag in the native contract. Boolean-mask assignment and
-non-float64 assignment remain outside this v0.1 subset.
+All five dtypes support full-shape boolean extraction and same-dtype staged
+assignment, including boolean-mask assignment. See [the masking contract](MASKING_DTYPES.md)
+for native, C and Python APIs, overlap semantics and exclusions. The existing
+`mask_select_r64` and `assign_r64` functions retain their original contracts;
+the new generic APIs are `mask_select`, `assign` and `mask_assign`.
 
 ## Evidence
 

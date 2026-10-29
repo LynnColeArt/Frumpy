@@ -20,6 +20,7 @@ module frumpy
     logical_and_bool, logical_or_bool, logical_xor_bool, logical_not_bool
   use frumpy_reductions_discrete, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
     sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
+  use frumpy_indexing, only: mask_select, assign, mask_assign
   use frumpy_indexing_r64, only: mask_select_r64, assign_r64
   use frumpy_array_casting, only: astype
   use frumpy_random, only: random_generator, uniform_r64, normal_r64
@@ -114,6 +115,7 @@ module frumpy
   public :: logical_and_bool, logical_or_bool, logical_xor_bool, logical_not_bool
   public :: sum_i32, prod_i32, min_i32, max_i32, mean_i32
   public :: sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
+  public :: mask_select, assign, mask_assign
   public :: mask_select_r64, assign_r64
   public :: FRUMPY_STATUS_INVALID_HANDLE
   public :: astype

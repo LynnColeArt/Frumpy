@@ -238,6 +238,10 @@ class ndarray(_ffi.OwnedHandle):
         return view
 
     def __setitem__(self, key, values):
+        if isinstance(key, ndarray) or isinstance(key, np.ndarray) and key.dtype == np.bool_:
+            mask, source = asarray(key), asarray(values)
+            _ffi.call("mask_assign", self._handle, mask._handle, source._handle)
+            return
         target, _ = self._basic_view(key)
         try:
             source = asarray(values)

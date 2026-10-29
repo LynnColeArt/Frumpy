@@ -56,6 +56,7 @@ int32_t frumpy_linalg(int32_t op, frumpy_handle lhs, frumpy_handle rhs, frumpy_h
 int32_t frumpy_norm(int32_t matrix, frumpy_handle source, const int64_t *axes,
                     int32_t count, int32_t keepdims, frumpy_handle *out);
 int32_t frumpy_mask_select(frumpy_handle source, frumpy_handle mask, frumpy_handle *out);
+int32_t frumpy_mask_assign(frumpy_handle target, frumpy_handle mask, frumpy_handle values);
 int32_t frumpy_assign(frumpy_handle target, frumpy_handle values);
 int32_t frumpy_full(int32_t dtype, int32_t rank, const int64_t *shape,
                     int32_t order, const void *value, frumpy_handle *out);

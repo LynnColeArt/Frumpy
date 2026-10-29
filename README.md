@@ -131,7 +131,7 @@ All five dtypes now have concrete convenience constructors and view helpers; see
 [constructors and views](docs/CONSTRUCTORS_AND_VIEWS.md) for the bounded copy/view contract.
 
 Array casts, mixed comparisons, boolean logic, integer/boolean reductions and
-float64 masked extraction/staged assignment are implemented; see
+five-dtype masked extraction/staged assignment are implemented; see
 [array operations](docs/ARRAY_OPERATIONS.md).
 
 The same-dtype selection subset supports all five dtypes for `where`, `take`,

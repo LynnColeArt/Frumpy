@@ -429,3 +429,24 @@ def test_searchsorted_package(dtype):
             assert result.dtype==np.dtype(np.int64)
             assert result.flags.owndata and result.flags.c_contiguous
             np.testing.assert_array_equal(result.numpy(),np.searchsorted(data,query,side=side))
+
+
+@pytest.mark.parametrize('dtype', [np.bool_, np.int32, np.int64, np.float32, np.float64])
+def test_same_dtype_selection_lifetime(dtype):
+    a = np.arange(12).reshape(3,4).astype(dtype)
+    if dtype == np.int64: a += 2**60
+    source = fp.asarray(a)[:, ::-1]
+    expected = a[:, ::-1]
+    mask = expected != 0
+    scalar = np.array(0, dtype=dtype)
+    results = [fp.where(mask, source, scalar), fp.take(source, [-1,0], axis=1),
+               fp.concatenate([source, source], axis=-1), fp.stack([source,source],axis=-1)]
+    source.close()
+    references = [np.where(mask,expected,scalar),np.take(expected,[-1,0],axis=1),
+                  np.concatenate([expected,expected],axis=-1), np.stack([expected,expected],axis=-1)]
+    for result, reference in zip(results,references):
+        assert result.dtype == np.dtype(dtype)
+        np.testing.assert_array_equal(result.numpy(),reference)
+        result.close()
+    with fp.take(np.array(1,dtype=dtype),[0,-1],axis=-1) as result:
+        np.testing.assert_array_equal(result.numpy(),np.ones(2,dtype=dtype))

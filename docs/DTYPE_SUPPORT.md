@@ -20,7 +20,7 @@ boundary, not as a roadmap wish list.
 
 | Dtype | ID | Bytes | Level | Current behavior |
 | --- | --- | ---: | --- | --- |
-| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; boolean addition/multiplication, true division and mixed arithmetic; all/any reductions and boolean logical operations. |
+| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for same-dtype where and flat nonzero indices; boolean addition/multiplication, true division and mixed arithmetic; all/any reductions and boolean logical operations. |
 | `i32` | `FRUMPY_DTYPE_I32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Int32 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
 | `i64` | `FRUMPY_DTYPE_I64` | 8 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; int64 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
 | `r32` | `FRUMPY_DTYPE_R32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Float32 add, subtract, multiply, and divide with broadcasting and signed strides; negation, absolute value, square root, exp, log, sine and cosine; sum, product, mean, minimum and maximum reductions. |
@@ -98,7 +98,8 @@ Malformed metadata, inaccessible offsets/strides and incompatible shapes return
 `FRUMPY_STATUS_INVALID_SHAPE`. Explicit allocation errors have status paths,
 subject to the compiler temporary-allocation limits in the lifetime contract.
 
-Float32 selection routines other than stable sort/argsort remain absent. Float32 convenience constructors and
+Same-dtype where/take/concatenate/stack, stable sort/argsort and searchsorted now
+cover float32; see [selection](SELECTION_DTYPES.md). Float32 convenience constructors and
 views follow the [five-dtype contract](CONSTRUCTORS_AND_VIEWS.md).
 Mixed arithmetic uses the separate subroutine API above. The 48 compiled NumPy cases in
 `test_frumpy_differential.py` check all four operations, including exact float32
@@ -178,9 +179,8 @@ Each descriptor preserves the same metadata invariants as `ndarray_r64`:
 Concrete convenience constructors and view helpers now cover all five dtypes;
 see [constructors and views](CONSTRUCTORS_AND_VIEWS.md) for API and limitations. Mixed arithmetic is the separate execution surface above. Integer binary arithmetic, float32
 binary/unary arithmetic and float32 reductions are the separate bounded kernel
-surfaces described above. The selection subset consumes
-boolean conditions and produces int64 indices without adding general dtype
-execution.
+surfaces described above. Same-dtype where/take/concatenate/stack now cover all
+five value dtypes, with boolean conditions for where and int64 indices for take.
 
 ## Promotion
 
@@ -256,3 +256,7 @@ Stable sort and argsort support all five existing dtypes. See the
 
 Same-dtype searchsorted supports all five dtypes with int64 results. See the
 [searching contract](SEARCHSORTED_DTYPES.md) for ordering, errors and exclusions.
+
+Same-dtype `where`, `take`, `concatenate`, and `stack` support all five dtypes
+through native generics, the existing C ABI and Python. Mixed value-dtype
+promotion is not included. See [selection contracts](SELECTION_DTYPES.md).

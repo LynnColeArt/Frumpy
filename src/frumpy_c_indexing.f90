@@ -6,8 +6,9 @@ module frumpy_c_indexing
   use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_UNSUPPORTED_DTYPE, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_ALLOCATION_FAILED
   use frumpy_operands, only: descriptor_dtype
-  use frumpy, only: ndarray_bool, ndarray_r64, ndarray_i64, where_r64, mask_select_r64, &
+  use frumpy, only: ndarray_bool, ndarray_r64, ndarray_i64, mask_select_r64, &
     assign_r64, nonzero_bool
+  use frumpy, only: ndarray_i32, ndarray_r32, where_native => where
   implicit none
   private
 contains
@@ -30,24 +31,55 @@ contains
     code = status%code
     if (status%is_failure()) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(left%array) /= 5) return
     right => lookup(rhs, 1_int32, status)
     code = status%code
     if (status%is_failure()) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(right%array) /= 5) return
-    call new_array_slot(5_int32, slot, status)
+    if (descriptor_dtype(right%array) /= descriptor_dtype(left%array)) return
+    call new_array_slot(descriptor_dtype(left%array), slot, status)
     code = status%code
     if (status%is_failure()) return
     select type (m => mask%array)
     type is (ndarray_bool)
       select type (a => left%array)
+      type is (ndarray_bool)
+        select type (b => right%array)
+        type is (ndarray_bool)
+          select type (c => slot%array)
+          type is (ndarray_bool)
+            c = where_native(m, a, b, status)
+          end select
+        end select
+      type is (ndarray_i32)
+        select type (b => right%array)
+        type is (ndarray_i32)
+          select type (c => slot%array)
+          type is (ndarray_i32)
+            c = where_native(m, a, b, status)
+          end select
+        end select
+      type is (ndarray_i64)
+        select type (b => right%array)
+        type is (ndarray_i64)
+          select type (c => slot%array)
+          type is (ndarray_i64)
+            c = where_native(m, a, b, status)
+          end select
+        end select
+      type is (ndarray_r32)
+        select type (b => right%array)
+        type is (ndarray_r32)
+          select type (c => slot%array)
+          type is (ndarray_r32)
+            c = where_native(m, a, b, status)
+          end select
+        end select
       type is (ndarray_r64)
         select type (b => right%array)
         type is (ndarray_r64)
           select type (c => slot%array)
           type is (ndarray_r64)
-            c = where_r64(m, a, b, status)
+            c = where_native(m, a, b, status)
           end select
         end select
       end select

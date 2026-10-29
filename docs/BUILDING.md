@@ -14,14 +14,50 @@ differential tests from a repo-local virtual environment, and `git diff --check`
 
 - `gfortran` with Fortran 2018 support. Current local validation uses GNU
   Fortran 13.x.
+- Compatible LP64 BLAS/LAPACK development libraries.
 - `make`.
 - `python3` with `venv` support for NumPy differential tests.
+- Optional memory gate: a C compiler, GNU linker, and AddressSanitizer on Linux.
 - Optional: `fpm` for Fortran package-manager builds.
 
 Do not install Python packages into the host interpreter for this project. The
 Makefile creates and uses `.venv/`, which is ignored by git.
 
+## BLAS/LAPACK linking
+
+Make links with `LINALG_LIBS ?= -llapack -lblas`. Pass a different `LINALG_LIBS`
+value to select a compatible backend. With only versioned runtime libraries on
+Linux, the tested override is `LINALG_LIBS='-l:liblapack.so.3 -l:libblas.so.3'`.
+The fpm manifest declares `lapack` and `blas` as link dependencies. See
+[linear algebra](LINEAR_ALGEBRA.md) for ABI and numerical limits.
+
 ## Make Targets
+
+### Experimental macOS checkout builds
+
+The [macOS review](https://github.com/LynnColeArt/Frumpy/issues/1#issuecomment-6469008558)
+tested GNU Fortran 14.4.0 on macOS 26.5.1 arm64 with Apple's legacy LP64
+Accelerate/vecLib interfaces. Select the compiler explicitly:
+
+```sh
+brew install gcc@14
+make validate FC=/opt/homebrew/bin/gfortran-14 BUILD_DIR=build/mac-gcc14
+```
+
+That compiler path is specific to the reviewed Homebrew installation. Use your
+installed GNU 14 path and a fresh build directory. The default `-llapack -lblas`
+resolved to the compatible Apple libraries in that review; verify the backend
+and integer ABI for other configurations. The shared-library link sets a Darwin
+`@rpath/libfrumpy.so` install name so C clients can resolve it via their rpath
+outside the build working directory.
+
+GNU Fortran 16.1.0 failed managed-descriptor tests on the reviewed Mac, including
+runtime crashes with warnings disabled. Use the tested GNU 14 compiler; removing
+`-Werror` is not a workaround. See [compiler portability](COMPILER_PORTABILITY.md)
+for evidence and remaining gaps. Source-package installation remains Linux-only;
+this checkout procedure does not establish supported macOS packaging.
+
+### Target reference
 
 | Target | Purpose |
 | --- | --- |
@@ -29,6 +65,9 @@ Makefile creates and uses `.venv/`, which is ignored by git.
 | `make test` | Compile and run every standalone Fortran test program. |
 | `make examples` | Compile and run example programs, including the first vertical slice. |
 | `make python-test` | Create `.venv/` if needed, install `pytest` and `numpy`, and run `python/tests`. |
+| `make integer-overflow-test` | Run integer/mixed and linear algebra invariants and NumPy comparisons with GNU signed-overflow traps and undefined-behavior sanitization. |
+| `make portability-test` | Validate debug and optimized builds with each compiler in `COMPILERS`; see the portability matrix. |
+| `make memory-test` | Run ownership and numeric invariant programs, allocation-failure sweeps, and compiled differential cases under AddressSanitizer with leak detection on GNU/Linux. |
 | `make fpm-test` | Run `fpm test` when `fpm` is installed; otherwise explain that fpm is optional. |
 | `make validate` | Run Fortran tests, examples, Python differential tests, and whitespace checks. |
 | `make clean` | Remove local build products and Python test caches. |
@@ -87,9 +126,16 @@ until the fpm-specific issue is documented and fixed.
 - `test/test_ndarray_i64.f90`
 - `test/test_ndarray_r32.f90`
 - `test/test_ndarray_r64.f90`
+- `test/test_storage_lifetime_r64.f90`
+- `test/test_storage_lifetime_dtypes.f90`
 - `test/test_constructors_r64.f90`
 - `test/test_broadcast.f90`
+- `test/test_linalg_r64.f90`
+- `test/test_arithmetic.f90`
+- `test/test_elementwise_integer.f90`
+- `test/test_elementwise_r32.f90`
 - `test/test_elementwise_r64.f90`
+- `test/test_reductions_r32.f90`
 - `test/test_reductions_r64.f90`
 - `test/test_views_r64.f90`
 - `test/test_selection_r64.f90`
@@ -114,3 +160,29 @@ make validate BUILD_DIR=build/review
 
 Make serializes builds because compiler module files are shared within a build directory. Use separate
 `BUILD_DIR` values for concurrent make processes.
+
+The numeric-descriptor lifetime and `make memory-test` gate are documented in
+[STORAGE_LIFETIME.md](STORAGE_LIFETIME.md).
+
+See [COMPILER_PORTABILITY.md](COMPILER_PORTABILITY.md) for the tested compiler
+matrix and [PERFORMANCE.md](PERFORMANCE.md) for reproducible timed comparisons.
+
+## Native C/Python release surface
+
+`make shared` builds `$(BUILD_DIR)/libfrumpy.so`; `make c-test` compiles and runs
+`c_tests/test_c_api.c`. `make validate` includes those checks and the direct ABI
+and public package tests, in addition to the native/NumPy suite. The core is
+compiled once into PIC objects per build directory and reused by executables
+and the shared library. Use a fresh `BUILD_DIR` (or clean it) when changing
+compiler or flags; module files and object profiles must not be mixed.
+
+`make c-memory-test FC=gfortran-14` checks standalone C ownership with ASan/leak
+detection, then the ABI/Python suite with ASan address checks. Only the Python
+process disables leak detection to exclude CPython/NumPy global allocations.
+The native memory and integer-overflow gates remain separate.
+
+See [PYTHON.md](PYTHON.md) for isolated source installation and [C_ABI.md](C_ABI.md)
+for buffer, status and serialization requirements. `examples/v01_workflow.f90`
+and `examples/v01_workflow.py` show equivalent workflows, including ownership
+and NumPy-checked results. The GitHub workflow `.github/workflows/linux.yml`
+defines the supported Linux matrix, GNU sanitizers, fpm and source-install jobs.

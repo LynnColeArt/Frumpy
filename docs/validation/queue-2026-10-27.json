@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-27",
+  "source_commit": "f1b9e055ca60f9a0365fcc77c072d4a2234d1e8e",
+  "changes": [
+    "row traversal for same-dtype floating arithmetic",
+    "avoid nested initialization lock after FFI load",
+    "C rank-two direct output; F rank-two input packing removed; NN retained",
+    "hash-bucket handle lookup with recoverable growth",
+    "four-element and wider nonuniform row kernels",
+    "empty RHS singularity detection across LP64 backends"
+  ],
+  "matrix": [
+    {
+      "configuration": "flang-new-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 3078,
+      "c_caller": "pass",
+      "log_sha256": "bc7b7308a565199c6986973cfc6d41d8acaf6a024fddb6ed4e7643e3b55fdbc4"
+    },
+    {
+      "configuration": "flang-new-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 3078,
+      "c_caller": "pass",
+      "log_sha256": "7b04283f6fb28d2eb2229acb7c4bafd2904097dec32c84ce08d6ae1b9c447b9a"
+    },
+    {
+      "configuration": "gfortran-13-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 3078,
+      "c_caller": "pass",
+      "log_sha256": "bc82fbe479714af998119f74c8d59c6828b46dbac51ff74d28efa4f59680da71"
+    },
+    {
+      "configuration": "gfortran-13-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 3078,
+      "c_caller": "pass",
+      "log_sha256": "123a755178e7e210d3079643a1c83da7cf5853bd2af0efd5a1138ad95582cf5a"
+    },
+    {
+      "configuration": "gfortran-14-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 3078,
+      "c_caller": "pass",
+      "log_sha256": "aec81ede9bb02b9b7491cad6c53274350945964b09bda891a6ab26254a9745c0"
+    },
+    {
+      "configuration": "gfortran-14-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 3078,
+      "c_caller": "pass",
+      "log_sha256": "dd864f3a3d8bb2cc1af7706d9b9267f0ea504c30df4983726df2d9c1392780ca"
+    }
+  ],
+  "openblas": {
+    "version": "0.3.26+ds-1ubuntu0.1 LP64 pthread",
+    "compiler": "GNU 14 release",
+    "threads": 1,
+    "fortran_programs": 35,
+    "examples": 2,
+    "python_tests": 3078,
+    "c_caller": "pass",
+    "log_sha256": "b84f208c43b40c4038e8fe9e43af18609afaf54d0d58789ac4b37db87bb8279d"
+  },
+  "sanitizers": {
+    "compiler": "GNU 14",
+    "native_memory_differential_tests": 2643,
+    "native_overflow_differential_tests": 2159,
+    "c_python_asan_tests": 407,
+    "c_python_ubsan_tests": 407,
+    "c_leak_detection": true,
+    "python_asan_leak_detection": false,
+    "native_lifetime_and_allocation_failure": "pass",
+    "gnu_gate_log_sha256": "a85bbd31ffaf1eae45b31b0c597cf23e42a103d4856d9a840fcb2729b5f991a3",
+    "ubsan_log_sha256": "9489d351f89f39a7a321f83982dc40e2edab85706060a57bba398c6003eadb61"
+  },
+  "fpm": {
+    "compiler": "GNU 14",
+    "native_programs": 35,
+    "result": "pass",
+    "log_sha256": "5cd7eb759cc8ea5402ac872d6a1bd0c377bc1a60990344bcf33e2c9f96f37606"
+  },
+  "registry_allocation_recovery": {
+    "queue-registry-fault.log": "2fe448026a44d7ab0a4f92c98dad51b3209dfecac91858f1e052f22615546e73",
+    "queue-registry-openblas-fault.log": "2fe448026a44d7ab0a4f92c98dad51b3209dfecac91858f1e052f22615546e73"
+  }
+}

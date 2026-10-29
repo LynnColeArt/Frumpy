@@ -1,0 +1,52 @@
+{
+  "source_commit": "315a44e7463fab3d23ba23a2b917d73ec8b29fb7",
+  "scope": "Python dispatch only; unchanged native libraries and differential drivers reused from the queue validation",
+  "checks": [
+    {
+      "configuration": "asan",
+      "passed": 410,
+      "log_sha256": "03101065da824ae69215faa9e589985a0421b77e6f44feb18cef3104549f3301"
+    },
+    {
+      "configuration": "flang-new-debug",
+      "passed": 3081,
+      "log_sha256": "3ff2ed1e908537744c256711f9220250ec63f0db95e687b2e1983baf866be242"
+    },
+    {
+      "configuration": "flang-new-release",
+      "passed": 3081,
+      "log_sha256": "7a4829e9936d3fcc28bce04e0f124b3637a937f73b3477bf297c676234640bf0"
+    },
+    {
+      "configuration": "gfortran-13-debug",
+      "passed": 3081,
+      "log_sha256": "c8219f1077464cf15266ed495d1cbf90641b44da5bcbd987e1622676845c30cd"
+    },
+    {
+      "configuration": "gfortran-13-release",
+      "passed": 3081,
+      "log_sha256": "cf1560f54d7c5a57df0d4c1722299771869c960a8b6261673838ab93df5b5d77"
+    },
+    {
+      "configuration": "gfortran-14-debug",
+      "passed": 3081,
+      "log_sha256": "3a215230fa5566a380c262d657fb25494dafd007cec5488833f8d26f18634f93"
+    },
+    {
+      "configuration": "gfortran-14-release",
+      "passed": 3081,
+      "log_sha256": "c9d1fcee4422b67f9c9bfe03e863e26a5b531ab5875258590307a733388ed53c"
+    },
+    {
+      "configuration": "openblas",
+      "passed": 3081,
+      "log_sha256": "c452f1b58a22b72d1372432d3a7cfb79b12ae7a6ce7aacefd8a19590e2227d96"
+    },
+    {
+      "configuration": "ubsan",
+      "passed": 410,
+      "log_sha256": "b16bacd86e6b0bafc858740938a89887cebe920c4cce220059373848b1fad094"
+    }
+  ],
+  "python_asan_leak_detection": false
+}

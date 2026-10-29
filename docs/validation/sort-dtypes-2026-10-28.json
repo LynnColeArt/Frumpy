@@ -1,0 +1,112 @@
+{
+  "status": "passed",
+  "source_commit": "2ff58eb",
+  "license_commit": "4710896",
+  "numpy": "2.4.6",
+  "python_tests": 6045,
+  "native_programs": 40,
+  "new_sort_tests": 580,
+  "new_package_tests": 5,
+  "logs": {
+    "flang-new-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/sort-dtypes-matrix/flang-new-debug.log",
+      "sha256": "64caad554c6c83b8a4eb329c33737e182f1d0a3b960941ed36717acdb208af77",
+      "python_passed": 6045,
+      "native_programs": 40,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "flang-new-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/sort-dtypes-matrix/flang-new-release.log",
+      "sha256": "c82b36969b201a56389c3a0f087b0a8376e06c1846223cc7879f6ba7199d84a8",
+      "python_passed": 6045,
+      "native_programs": 40,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/sort-dtypes-matrix/gfortran-13-debug.log",
+      "sha256": "167e6971fba9487ae963ebf0a6d0a2e25e5fe84574e34d02ec674cb658585e44",
+      "python_passed": 6045,
+      "native_programs": 40,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/sort-dtypes-matrix/gfortran-13-release.log",
+      "sha256": "cf7d08f66f4213ca35812e12ae985e776377b4bbb62944173fdc46aba294090e",
+      "python_passed": 6045,
+      "native_programs": 40,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/sort-dtypes-matrix/gfortran-14-debug.log",
+      "sha256": "43c662a3e1b1a2f683694064bb02e707737128331ac0be7881690c684c654412",
+      "python_passed": 6045,
+      "native_programs": 40,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/sort-dtypes-matrix/gfortran-14-release.log",
+      "sha256": "811e6f66ce028841b74379f3459f206cdbe3221a0080ee3ff941872746ed8743",
+      "python_passed": 6045,
+      "native_programs": 40,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gates": {
+      "path": "/tmp/sort-dtypes-gates.log",
+      "sha256": "71c693e3d6b0cd4a27d8d0c09a9a330350a92d7c38cf9c9f22426e61d7ec9bda",
+      "pytest_summaries": [
+        "2643 passed, 4 warnings in 75.19s (0:01:15)",
+        "2159 passed, 484 deselected, 4 warnings in 16.99s",
+        "3374 passed, 6 warnings in 49.80s"
+      ]
+    },
+    "ubsan": {
+      "path": "/tmp/sort-dtypes-ubsan.log",
+      "sha256": "a8045244238d3c7414560c39a7443f41b6d4e17c1b308156f368294ff5a8624d",
+      "pytest_summaries": [
+        "961 passed in 5.47s"
+      ]
+    },
+    "fpm": {
+      "path": "/tmp/sort-dtypes-fpm.log",
+      "sha256": "754df71e68d6340a063590465ae817515bd8e9acd4fe1a83d0eae346752f4318",
+      "pytest_summaries": []
+    },
+    "install": {
+      "path": "/tmp/sort-dtypes-install.log",
+      "sha256": "d28473eb352a8ca85d22068d634465da63d0031ce2c4fb598d208fe6cde302a5",
+      "pytest_summaries": [
+        "381 passed in 0.59s"
+      ]
+    },
+    "openblas": {
+      "path": "/tmp/sort-dtypes-openblas.log",
+      "sha256": "8986b172f270db67a9e90a00aebb0647855b14e88229a771b706ce9a4a6842d3",
+      "pytest_summaries": [
+        "6045 passed, 12 warnings in 47.87s"
+      ]
+    },
+    "license": {
+      "path": "/tmp/sort-dtypes-license.log",
+      "sha256": "24fc71873a5e85a0a7be87df959fb9ea1e1cc2976865a1d6a3a291cbb3d7fdb6",
+      "pytest_summaries": []
+    },
+    "baseline": {
+      "path": "/tmp/sort-dtypes-baseline.log",
+      "sha256": "d0b3ed611d43af5e38fe0d17f08d95fdfe0453879b8b3f16b01b79f52a5ad402",
+      "pytest_summaries": []
+    }
+  },
+  "notes": [
+    "New tests failed before implementation.",
+    "Final delegation change revalidated across all gates.",
+    "ASan native leak checks and 3374 C/Python cases; Python process-global leaks excluded.",
+    "Overflow gate and 961 UBSan sort/package cases passed.",
+    "381 isolated install tests; MIT metadata and complete license verified in installed distribution and sdist."
+  ]
+}

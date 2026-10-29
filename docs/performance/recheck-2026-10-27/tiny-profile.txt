@@ -1,0 +1,26 @@
+Tue Oct 27 07:17:05 2026    /home/lynn/Documents/Codex/2026-09-07/so/work/recheck/tiny.prof
+
+         1500001 function calls in 0.752 seconds
+
+   Ordered by: internal time
+   List reduced from 27 to 18 due to restriction <18>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    90000    0.225    0.000    0.266    0.000 _ffi.py:52(call)
+    30000    0.156    0.000    0.328    0.000 _array.py:55(__init__)
+    30000    0.066    0.000    0.639    0.000 _array.py:278(binary)
+    60000    0.030    0.000    0.065    0.000 _array.py:259(asarray)
+   120000    0.028    0.000    0.040    0.000 _ffi.py:75(_handle)
+    30000    0.028    0.000    0.032    0.000 weakref.py:568(__init__)
+    30000    0.026    0.000    0.158    0.000 _ffi.py:60(make)
+    90000    0.022    0.000    0.022    0.000 {built-in method builtins.getattr}
+    30000    0.021    0.000    0.091    0.000 weakref.py:585(__call__)
+   150000    0.018    0.000    0.018    0.000 {built-in method _ctypes.byref}
+    30000    0.016    0.000    0.048    0.000 _ffi.py:71(__init__)
+    30000    0.015    0.000    0.105    0.000 _ffi.py:81(close)
+   120000    0.012    0.000    0.012    0.000 weakref.py:608(alive)
+    90000    0.011    0.000    0.011    0.000 {method '__exit__' of '_thread.RLock' objects}
+   120000    0.009    0.000    0.009    0.000 {built-in method builtins.isinstance}
+    30000    0.008    0.000    0.065    0.000 _ffi.py:66(_release)
+    30000    0.008    0.000    0.647    0.000 _array.py:296(<lambda>)
+    90000    0.007    0.000    0.007    0.000 _ffi.py:35(library)

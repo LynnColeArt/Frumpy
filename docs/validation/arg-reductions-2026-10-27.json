@@ -1,0 +1,106 @@
+{
+  "status": "passed",
+  "source_commit": "836a5a4735d81e4abbdd68ae2f89dc1aafc021b7",
+  "numpy": "2.4.6",
+  "python_tests": 5386,
+  "native_programs": 39,
+  "new_arg_tests": 720,
+  "new_package_tests": 10,
+  "logs": {
+    "flang-new-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-matrix/flang-new-debug.log",
+      "sha256": "6f9a6b2a96509749eb8c4f20dcb7eee2feb1ece5e55c4c85045a6a27b4852840",
+      "python_passed": 5386,
+      "native_programs": 39,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "flang-new-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-matrix/flang-new-release.log",
+      "sha256": "eb935daaffb706cbd8f13b0cc92fccc48f68b9d2aba652250dddbbd508ef0b1b",
+      "python_passed": 5386,
+      "native_programs": 39,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-matrix/gfortran-13-debug.log",
+      "sha256": "c25dd90ed27d9c4c3a731e5af2f6e394ed25c69c74167bad69957aa1e29c10a5",
+      "python_passed": 5386,
+      "native_programs": 39,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-matrix/gfortran-13-release.log",
+      "sha256": "dff15a87785102f130ac21bc41fb17d9d137f9f3d34dcfe67202e8b39334bc81",
+      "python_passed": 5386,
+      "native_programs": 39,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-matrix/gfortran-14-debug.log",
+      "sha256": "37debd1266a486dcefe5c9c592a8766d6e5949a466471b4a20e19b9d44fc766d",
+      "python_passed": 5386,
+      "native_programs": 39,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/arg-matrix/gfortran-14-release.log",
+      "sha256": "de598b4778d1f3b4dd37145f98a566e8acb82000bda566accb52b9d754ddda42",
+      "python_passed": 5386,
+      "native_programs": 39,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gates": {
+      "path": "/tmp/arg-gates.log",
+      "sha256": "bedb690c4ad1c7d993f405e5670f7347f0628db857e092b373b89f3a4271520e",
+      "pytest_summaries": [
+        "2643 passed, 4 warnings in 68.50s (0:01:08)",
+        "2159 passed, 484 deselected, 4 warnings in 29.85s",
+        "2715 passed, 6 warnings in 37.72s"
+      ]
+    },
+    "ubsan": {
+      "path": "/tmp/arg-ubsan.log",
+      "sha256": "cd05f540d65dc3fb6de5d16ef536cff28cec719788ac9fa535d5bd1b388eb97e",
+      "pytest_summaries": [
+        "1096 passed in 11.42s"
+      ]
+    },
+    "fpm": {
+      "path": "/tmp/arg-fpm.log",
+      "sha256": "819c9e4cef78d4b170fd9957119e62edbb53420f1f85fdd3231cf8b38e1fbd4e",
+      "pytest_summaries": []
+    },
+    "install": {
+      "path": "/tmp/arg-install.log",
+      "sha256": "64216433e41fb343c5ed862322ee2900824a72bfaec205a864eb0a7a7fd6f329",
+      "pytest_summaries": [
+        "376 passed in 0.58s"
+      ]
+    },
+    "openblas": {
+      "path": "/tmp/arg-openblas.log",
+      "sha256": "d018a9caa726e44057ebf0a7b6306e34ed155cc728c897b9ad226ed1e5eac402",
+      "pytest_summaries": [
+        "5386 passed, 12 warnings in 40.42s"
+      ]
+    },
+    "baseline-failure": {
+      "path": "/tmp/arg-baseline-tests.log",
+      "sha256": "684ba3f8d6f929b5e250d478e7aad0c1fbb515d7692ad008b4f5b91f0a1e090f",
+      "purpose": "New arg tests fail before implementation"
+    }
+  },
+  "notes": [
+    "ASan: native leak checks and 2715 C/Python cases; Python process-global leaks excluded.",
+    "UBSan/overflow: native gate plus 1096 arg/package C/Python cases.",
+    "Isolated sdist installation: 376 package tests.",
+    "Initial standalone C smoke compile required adding math.h for NAN; corrected before final passing matrix.",
+    "New NumPy tests failed against baseline before implementation."
+  ]
+}

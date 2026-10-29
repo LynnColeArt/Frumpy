@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-27",
+  "source_commit": "f8882d52707c87a8dcb75403a455f1faf6d049af",
+  "changes": [
+    "Uniform signed-step arithmetic including reversed/stepped layouts",
+    "Lazy general-index allocation",
+    "ctypes metadata buffers and direct tuple conversion"
+  ],
+  "matrix": [
+    {
+      "configuration": "flang-new-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2999,
+      "c_caller": "pass",
+      "log_sha256": "d136a84785328b11135e8bf45dc8e8f62eca77b7d6e905d2f488d2453825e3ef"
+    },
+    {
+      "configuration": "flang-new-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2999,
+      "c_caller": "pass",
+      "log_sha256": "3bc8dd91db2f6c16b55cb4c7b8cdab8996c18852f29f2732518936e4092cc973"
+    },
+    {
+      "configuration": "gfortran-13-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2999,
+      "c_caller": "pass",
+      "log_sha256": "794c8a41f6fccaed6f236093f3a9aa39d28e56765b253c220a3584f9f241ea8d"
+    },
+    {
+      "configuration": "gfortran-13-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2999,
+      "c_caller": "pass",
+      "log_sha256": "91f22c3ccf259b81650c269ef914b72431fe07f4d900dfe431522aa7baebf946"
+    },
+    {
+      "configuration": "gfortran-14-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2999,
+      "c_caller": "pass",
+      "log_sha256": "6393a8a0143ab770ae16eca454e57d0132bbc06890afd47c7725e3638a9a222d"
+    },
+    {
+      "configuration": "gfortran-14-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2999,
+      "c_caller": "pass",
+      "log_sha256": "f17918f99b26c83f28aca429a9d0b779310b0ef0c9911a1da53b3da416c53f89"
+    }
+  ],
+  "sanitizers": {
+    "compiler": "GNU 14",
+    "native_memory_differential_tests": 2643,
+    "native_overflow_differential_tests": 2159,
+    "c_python_asan_tests": 328,
+    "c_python_ubsan_tests": 328,
+    "c_leak_detection": true,
+    "python_asan_leak_detection": false,
+    "native_lifetime_and_allocation_failure": "pass",
+    "native_linear_step_overflow_ubsan": "pass",
+    "gnu_gate_log_sha256": "d3f03cb8cd615658885c3b8fee26882c9ad1d6396572e18f31a0b82959d82d65",
+    "ubsan_log_sha256": "71cd983b02bbee76e86b1ca73f5dae056a7f1b2f95abdca0073584df94e599e7"
+  },
+  "fpm": {
+    "compiler": "GNU 14",
+    "native_programs": 35,
+    "result": "pass",
+    "log_sha256": "303981fbe4438cdae780e8e6e2c5f3551cefea210e007740152170a53c4ad04f"
+  }
+}

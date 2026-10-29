@@ -1,0 +1,28 @@
+{
+  "matrix_before": "42fa9a9 / numerical core f8882d5",
+  "matrix_after": "52a2b6a / numerical core f1b9e05",
+  "wrapper_before": "52a2b6a",
+  "wrapper_after": "315a44e7463fab3d23ba23a2b917d73ec8b29fb7",
+  "compiler_flags": "GNU 14 -std=f2018 -O3 -fimplicit-none",
+  "backend": "OpenBLAS 0.3.26 LP64 pthread; one thread; matrix recheck",
+  "tiny_backend": "reference LP64 BLAS/LAPACK, unchanged native library",
+  "notes": [
+    "Uninstrumented matrix pairs held the pre-dispatch-change wrapper constant.",
+    "Probe pairs held the dispatch-change wrapper constant.",
+    "Matrix timings use process CPU time, 9 samples of 15 allocating calls, 3 warmups.",
+    "Six uninstrumented process pairs alternate execution order; three probe pairs run before then after.",
+    "The probe records complete DGEMM/DGESV time. Remainder combines validation, packing, copy, ownership and Python costs.",
+    "No other task-owned builds/tests ran during measurement.",
+    "tiny-profile.txt uses cProfile and is attribution evidence, not latency measurement.",
+    "paired-struct.json compares fast dispatch with an unshipped metadata-buffer experiment; paired-fastpath.json is exploratory."
+  ],
+  "library_sha256": {
+    "before": "277e4aa1d04567e84d57dac777fb66b71ad5f53332d0e97e375193972c035f98",
+    "after": "b230c6a495c06de5fec8c46a366aeb80c014aaca6d2810b9da564836cc651429"
+  },
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "linkage": {
+    "before": "\tlinux-vdso.so.1 (0x00007cf157afa000)\n\tliblapack.so.3 => /home/lynn/Documents/Codex/2026-09-07/so/work/queue-openblas/extracted/usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3 (0x00007cf157200000)\n\tlibblas.so.3 => /home/lynn/Documents/Codex/2026-09-07/so/work/queue-openblas/extracted/usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 (0x00007cf1579bc000)\n\tlibgfortran.so.5 => /lib/x86_64-linux-gnu/libgfortran.so.5 (0x00007cf156e00000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007cf1578ae000)\n\tlibgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007cf157880000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007cf156a00000)\n\tlibopenblas.so.0 => /home/lynn/Documents/Codex/2026-09-07/so/work/queue-openblas/extracted/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblas.so.0 (0x00007cf154620000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007cf157afc000)\n",
+    "after": "\tlinux-vdso.so.1 (0x000077751eefb000)\n\tliblapack.so.3 => /home/lynn/Documents/Codex/2026-09-07/so/work/queue-openblas/extracted/usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3 (0x000077751e600000)\n\tlibblas.so.3 => /home/lynn/Documents/Codex/2026-09-07/so/work/queue-openblas/extracted/usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 (0x000077751edb9000)\n\tlibgfortran.so.5 => /lib/x86_64-linux-gnu/libgfortran.so.5 (0x000077751e200000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x000077751ecab000)\n\tlibgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x000077751ec7d000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x000077751de00000)\n\tlibopenblas.so.0 => /home/lynn/Documents/Codex/2026-09-07/so/work/queue-openblas/extracted/usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblas.so.0 (0x000077751ba20000)\n\t/lib64/ld-linux-x86-64.so.2 (0x000077751eefd000)\n"
+  }
+}

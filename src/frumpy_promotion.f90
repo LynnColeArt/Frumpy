@@ -6,12 +6,13 @@ module frumpy_promotion
     FRUMPY_DTYPE_I64, FRUMPY_DTYPE_R32, FRUMPY_DTYPE_R64, &
     FRUMPY_DTYPE_UNSUPPORTED, dtype_name
   use frumpy_statuses, only: FRUMPY_STATUS_OK, &
-    FRUMPY_STATUS_UNSUPPORTED_DTYPE, frumpy_status, set_status
+    FRUMPY_STATUS_UNSUPPORTED_DTYPE, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, frumpy_status, set_status
 
   implicit none
 
   private
 
+  public :: binary_result_dtype
   public :: promote_dtypes
   public :: promote_scalar_dtype
   public :: is_supported_promotion
@@ -59,6 +60,40 @@ module frumpy_promotion
   ]
 
 contains
+
+  !> Resolve one of the four arithmetic operations, including NumPy's dtype exceptions.
+  function binary_result_dtype(lhs_dtype_id, rhs_dtype_id, operation, status) result(dtype_id)
+    integer(int32), intent(in) :: lhs_dtype_id, rhs_dtype_id
+    character(len=*), intent(in) :: operation
+    type(frumpy_status), intent(out), optional :: status
+    integer(int32) :: dtype_id
+    type(frumpy_status) :: local_status
+
+    dtype_id = promote_dtypes(lhs_dtype_id, rhs_dtype_id, local_status)
+    if (local_status%is_failure()) then
+      if (present(status)) status = local_status
+      return
+    end if
+    select case (operation)
+    case ('add', 'multiply')
+    case ('subtract')
+      if (dtype_id == FRUMPY_DTYPE_BOOL) then
+        dtype_id = FRUMPY_DTYPE_UNSUPPORTED
+        call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+          "boolean subtraction is unsupported")
+        return
+      end if
+    case ('divide')
+      if (dtype_id == FRUMPY_DTYPE_BOOL .or. dtype_id == FRUMPY_DTYPE_I32 .or. &
+          dtype_id == FRUMPY_DTYPE_I64) dtype_id = FRUMPY_DTYPE_R64
+    case default
+      dtype_id = FRUMPY_DTYPE_UNSUPPORTED
+      call set_optional_status(status, FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR, &
+        "unknown binary arithmetic operation")
+      return
+    end select
+    call set_optional_status(status, FRUMPY_STATUS_OK)
+  end function binary_result_dtype
 
   function promote_dtypes(lhs_dtype_id, rhs_dtype_id, status) &
       result(result_dtype_id)

@@ -46,3 +46,7 @@ build/
 *.smod
 __pycache__/
 .pytest_cache/
+
+# Local Python distribution artifacts
+dist/
+*.egg-info/

@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-26",
+  "source_commit": "3e1a191e417eb252e3670f93226a8320d7b7b7c1",
+  "platform": "Linux x86_64",
+  "numpy": "2.4.6",
+  "python": "3.12",
+  "matrix": [
+    {
+      "configuration": "flang-new-debug",
+      "result": "pass",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2758,
+      "c_caller": "pass",
+      "numpy_warnings": 6,
+      "log_sha256": "af57f6dc6866ee3ab78085f0a1b63f8ed31a97f14d46fd16b47b276d53c4d3b5",
+      "link_flags": "-l:liblapack.so.3 -l:libblas.so.3"
+    },
+    {
+      "configuration": "flang-new-release",
+      "result": "pass",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2758,
+      "c_caller": "pass",
+      "numpy_warnings": 6,
+      "log_sha256": "90c340f17aec7ac43f97ed2d77c51c3039c117a7c530c54792a9ec81cf9ad018",
+      "link_flags": "-l:liblapack.so.3 -l:libblas.so.3"
+    },
+    {
+      "configuration": "gfortran-13-debug",
+      "result": "pass",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2758,
+      "c_caller": "pass",
+      "numpy_warnings": 6,
+      "log_sha256": "7a5fdfd75a3176eb6e57de64ff4cc625af3f1a073f55d703857c886ec797c71d",
+      "link_flags": "-l:liblapack.so.3 -l:libblas.so.3"
+    },
+    {
+      "configuration": "gfortran-13-release",
+      "result": "pass",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2758,
+      "c_caller": "pass",
+      "numpy_warnings": 6,
+      "log_sha256": "c169f6f2af41ab3999fad8e5129301715169fc2beeb764a5de0ac76fb1ad3103",
+      "link_flags": "-l:liblapack.so.3 -l:libblas.so.3"
+    },
+    {
+      "configuration": "gfortran-14-debug",
+      "result": "pass",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2758,
+      "c_caller": "pass",
+      "numpy_warnings": 6,
+      "log_sha256": "173d1e4448a62b370b2f831b75aafecee15981b6b42d5e36588c6779409cc2e9",
+      "link_flags": "-l:liblapack.so.3 -l:libblas.so.3"
+    },
+    {
+      "configuration": "gfortran-14-release",
+      "result": "pass",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2758,
+      "c_caller": "pass",
+      "numpy_warnings": 6,
+      "log_sha256": "9f851885d755f9197f360f4142bcdefa6dcb1491e19161981fd6f67f7cffd62c",
+      "link_flags": "-l:liblapack.so.3 -l:libblas.so.3"
+    }
+  ],
+  "sanitizers": [
+    {
+      "compiler": "gfortran-13",
+      "result": "pass",
+      "memory_differential_tests": 2643,
+      "overflow_differential_tests": 2159,
+      "overflow_deselected": 484,
+      "c_python_address_tests": 87,
+      "c_caller_leak_detection": true,
+      "python_process_leak_detection": false,
+      "native_lifetime_and_allocation_failure_tests": "pass",
+      "log_sha256": "5e97510b016d0eb060c9e0b0697d898de4d10dc36f6ce8491191ff69255316a0"
+    },
+    {
+      "compiler": "gfortran-14",
+      "result": "pass",
+      "memory_differential_tests": 2643,
+      "overflow_differential_tests": 2159,
+      "overflow_deselected": 484,
+      "c_python_address_tests": 87,
+      "c_caller_leak_detection": true,
+      "python_process_leak_detection": false,
+      "native_lifetime_and_allocation_failure_tests": "pass",
+      "log_sha256": "bbfe76ae47825f555701a3598fdc4540028cc32ae97377bd1b751fb3c02318be"
+    }
+  ],
+  "fpm": {
+    "version": "0.12.0",
+    "compiler": "GNU Fortran 14.2.0",
+    "result": "pass",
+    "development_libraries": "Ubuntu libblas-dev/liblapack-dev 3.12.0-3build1.1 extracted into isolated SDK; static archives via LIBRARY_PATH"
+  },
+  "source_install": {
+    "result": "pass",
+    "public_api_tests": 38,
+    "workflow_example": "pass",
+    "method": "source archive built and installed in a separate venv; no FRUMPY_LIBRARY or PYTHONPATH override"
+  },
+  "ci": "Workflow configured; hosted execution is not claimed."
+}

@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-27",
+  "source_commit": "1d83bc362922afb6f9fdb5146a71a9c158dcf026",
+  "changes": [
+    "same-dtype float32/float64 contiguous and constant-broadcast linear arithmetic in native and mixed dispatch",
+    "float64 all-axis and unit-stride-axis linear reductions preserving sequential accumulation",
+    "float32 all-axis contiguous pairwise sum/mean leaf addressing without tree changes"
+  ],
+  "matrix": [
+    {
+      "configuration": "flang-new-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2939,
+      "c_caller": "pass",
+      "log_sha256": "80fe675e29779d8301349d05cf52d513c88baa3afd0959ca9872e4ba574628db"
+    },
+    {
+      "configuration": "flang-new-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2939,
+      "c_caller": "pass",
+      "log_sha256": "fa492cd66a65eb1c71c4413f69f7aec6af5f7ae0085af440f0696aab55a96fe5"
+    },
+    {
+      "configuration": "gfortran-13-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2939,
+      "c_caller": "pass",
+      "log_sha256": "8d8015bdaa17d8cdef7478d9564c58a6beb9c46d967c47de737cf050abdafcda"
+    },
+    {
+      "configuration": "gfortran-13-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2939,
+      "c_caller": "pass",
+      "log_sha256": "23b3adaa3cca21a48a3e7569770afe9211fa7350ae1ddd12a2d74edd09f5b4d2"
+    },
+    {
+      "configuration": "gfortran-14-debug",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2939,
+      "c_caller": "pass",
+      "log_sha256": "bb3a9ea4cfba8925dbd200d78b45dd6fe3875f5b35b5f9ae4350b2e339fdb491"
+    },
+    {
+      "configuration": "gfortran-14-release",
+      "fortran_programs": 35,
+      "examples": 2,
+      "python_tests": 2939,
+      "c_caller": "pass",
+      "log_sha256": "c4c8d56b94c0898583b4130acae2ccce3d535a61763d822faf6a3bbac0d3c43f"
+    }
+  ],
+  "sanitizers": {
+    "compiler": "GNU 14",
+    "native_memory_differential_tests": 2643,
+    "native_overflow_differential_tests": 2159,
+    "c_python_asan_tests": 268,
+    "c_python_ubsan_tests": 268,
+    "c_leak_detection": true,
+    "python_asan_leak_detection": false,
+    "native_lifetime_and_allocation_failure": "pass",
+    "gnu_gate_log_sha256": "0f55f3a6f9ae8ab1a8707da2799aea53b9f231f6b02e3da6aee05d31bf7568ff",
+    "ubsan_log_sha256": "899b67da4ad36f895c6ad289eb4fc14866a358602576cda22fb3c2a6e0e68a7b",
+    "additional_native_r64_arithmetic_reduction_asan": "pass",
+    "additional_native_asan_log_sha256": "9ca8e371a4aa8ce358b2f4d217f0c92640396f935f9fc13757cf977b45dc8372"
+  },
+  "fpm": {
+    "compiler": "GNU 14",
+    "native_programs": 35,
+    "result": "pass",
+    "log_sha256": "211e18937ca607d0fe59e315c5a73b76c8bb699cf12ccf9389d22f3fe36e089b"
+  }
+}

@@ -1,5 +1,6 @@
 program test_elementwise_r64
   use iso_fortran_env, only: int32, int64, real64
+  use frumpy_linear_arithmetic, only: linear_step
   use frumpy_constructors_r64, only: asarray_r64, empty_r64
   use frumpy_constants, only: FRUMPY_ORDER_F
   use frumpy_elementwise_r64, only: abs_r64, add_r64, cos_r64, divide_r64, &
@@ -15,6 +16,8 @@ program test_elementwise_r64
   real(real64), parameter :: PI = acos(-1.0_real64)
   integer(int64) :: scalar_shape(0)
 
+  call test_linear_steps()
+  call test_linear_metadata()
   call test_binary_broadcast_kernels()
   call test_scalar_broadcast_kernel()
   call test_zero_extent_broadcast_kernel()
@@ -24,6 +27,55 @@ program test_elementwise_r64
   call test_elementwise_status_paths()
 
 contains
+
+  subroutine test_linear_steps()
+    integer(int64) :: step
+    logical :: linear
+
+    step = linear_step([2_int64, 3_int64], [6_int64, 2_int64], linear)
+    if (.not. linear .or. step /= 2_int64) error stop "stepped linear traversal"
+    step = linear_step([2_int64, 3_int64], [-6_int64, -2_int64], linear)
+    if (.not. linear .or. step /= -2_int64) error stop "negative linear traversal"
+    step = linear_step([2_int64, 3_int64], [0_int64, 1_int64], linear)
+    if (linear) error stop "row broadcast is not linear"
+    step = linear_step([2_int64, 3_int64], [0_int64, 0_int64], linear)
+    if (.not. linear .or. step /= 0_int64) error stop "constant broadcast"
+    step = linear_step([2_int64, 3_int64], [1_int64, 2_int64], linear)
+    if (linear) error stop "transpose is not linear"
+    step = linear_step([1_int64, 3_int64], [huge(0_int64), -1_int64], linear)
+    if (.not. linear .or. step /= -1_int64) error stop "singleton stride ignored"
+    step = linear_step([2_int64, 3_int64], [1_int64, huge(0_int64)], linear)
+    if (linear) error stop "linear stride overflow"
+    step = linear_step([2_int64, 3_int64], [1_int64, -huge(0_int64)-1_int64], linear)
+    if (linear) error stop "negative linear stride overflow"
+  end subroutine test_linear_steps
+
+  subroutine test_linear_metadata()
+    type(ndarray_r64) :: source, scalar, result
+    type(frumpy_status) :: status
+
+    source = asarray_r64([1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64], &
+      [1_int64, 4_int64], status=status)
+    scalar = asarray_r64([2.0_real64], scalar_shape, status=status)
+    source%shape = [1_int64, 3_int64]
+    source%offset = 2_int64
+    source%strides(1) = huge(0_int64)
+    source%is_c_contiguous = .false.
+    result = subtract_r64(scalar, source, status)
+    call assert_status_ok(status, "offset singleton linear arithmetic")
+    call assert_close_vector(result%data, [0.0_real64, -1.0_real64, -2.0_real64], &
+      "offset singleton values")
+    source%offset = 4_int64
+    source%strides(2) = -1_int64
+    source%is_c_contiguous = .true.
+    result = subtract_r64(scalar, source, status)
+    call assert_status_ok(status, "stale contiguous flag")
+    call assert_close_vector(result%data, [-2.0_real64, -1.0_real64, 0.0_real64], &
+      "actual strides override flag")
+    source%strides(2) = 1_int64
+    result = add_r64(source, scalar, status)
+    call assert_status_code(status, FRUMPY_STATUS_INVALID_SHAPE, "linear extent bounds")
+  end subroutine test_linear_metadata
 
   subroutine test_binary_broadcast_kernels()
     type(frumpy_status) :: status

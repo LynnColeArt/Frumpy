@@ -1,0 +1,333 @@
+# Floating linear algebra
+
+`outer_r64(lhs, rhs, status)`, `matmul_r64(lhs, rhs, status)` and
+`solve_r64(lhs, rhs, status)` accept
+`ndarray_r64` descriptors and return independent, managed, C-order float64
+results. `status` is optional. Inputs retain their values and metadata.
+
+```fortran
+product = matmul_r64(a, b, status)
+solution = solve_r64(a, rhs, status)
+```
+
+Float32 `matmul_r32` and `solve_r32` accept `ndarray_r32` and return owned
+C-order float32 results with the same shape, lifetime and failure contracts.
+The C ABI uses the existing `frumpy_linalg` operations 3/4 with two R32 handles;
+Python `matmul`, `@` and `linalg.solve` preserve float32 for two float32 inputs.
+Mixed-dtype solve remains unsupported. Dot, outer and matmul support the
+floating-result promotion contract below. Float32 dot, outer and norms are supported below. Existing float64 APIs and C ABI version 1 remain compatible.
+
+## Floating-result promotion
+
+Native subroutines `call dot(lhs, rhs, result, status)`, `outer` and `matmul`
+accept any registered descriptor pair whose promoted dtype is float32 or float64.
+The caller supplies a result descriptor of that concrete type; a wrong destination
+or any reported failure preserves its previous value. Status is optional.
+The output must be distinct from both input actual arguments, as with native arithmetic.
+Concrete `_r32`/`_r64` functions remain available without promotion.
+
+| Input pair (either order) | Result / computation dtype |
+| --- | --- |
+| bool + float32; float32 + float32 | float32 |
+| int32/int64 + float32 | float64 |
+| any registered dtype + float64 | float64 |
+
+All-integer/bool pairs remain unsupported. C `frumpy_linalg` operations 1–3 and
+Python `dot`, `outer`, `matmul`/`@` use this same policy. Python scalar inputs are
+first converted with `asarray`; these products do not apply weak-scalar arithmetic
+promotion. Mixed solve remains unsupported; norms accept float32 or float64 and preserve that dtype.
+
+Each input whose dtype changes is converted to an owned C-order temporary using
+`astype` before computation. Already-matching inputs are borrowed with their
+original strides. Extra conversion payload is `sum(input.size * result.itemsize)`
+for changed inputs, plus descriptor overhead; matmul can need its existing backend
+workspaces. Casts currently happen before kernel shape checks and even for vacuous
+products. Large int64 values may round when converted to float64, matching NumPy.
+There is no cache: repeated calls repeat conversion; explicit reusable precasts
+avoid that cost. Returned results own independent storage after temporaries die.
+
+The promoted dtype selects the existing numerical policy: pairwise real32 dot,
+sequential real64 dot, or the corresponding SGEMM/DGEMM matmul. This can change
+cancellation behavior relative to computing in float32 and then casting the answer.
+IEEE and finite-input restrictions below apply after conversion.
+
+## Outer product
+
+`outer_r32` and `outer_r64` follow NumPy `outer`: flatten both operands in C logical order,
+then return shape `[lhs.size(), rhs.size()]`. Scalars have one element; an empty
+operand produces an empty rank-two result. C/F layouts, transposes, stepped,
+negative and zero strides are read directly. Inputs are not flattened into
+work buffers; only the independent result payload is allocated.
+
+These native float32/float64 multiplication kernels accept NaNs and infinities, follow
+IEEE arithmetic (including signed zeros), and has no BLAS int32 dimension limit.
+Element and byte counts are checked for int64 overflow before output allocation.
+An empty result returns without traversing either operand. Floating-point traps
+and fast-math are outside the tested contract; there is no NumPy warning channel.
+The 51 `test_numpy_outer_r64` / `test_numpy_outer_extremes` cases check values,
+shapes, layouts, nonfinite values, overflow/underflow and signed zeros against
+NumPy. Fortran invariants additionally check lifetime and malformed inputs,
+plus element/byte overflow and huge empty shapes without huge allocations.
+
+## Dot product
+
+`dot_r64(lhs, rhs, status)` accepts float64 descriptors and returns an independent
+C-order result. A scalar operand multiplies the other input elementwise. Otherwise
+it contracts the last left dimension against the only right dimension for a vector,
+or the second-last right dimension for a higher-rank array. The result shape is
+`lhs.shape[:-1] + rhs.shape[:-2] + rhs.shape[-1:]` for a matrix-or-higher RHS,
+and `lhs.shape[:-1]` for a vector RHS. Leading dimensions concatenate; they do
+not broadcast as in matmul. Empty contractions produce positive zeros.
+
+The native loop reads signed/zero strides without input copies, uses sequential
+float64 multiply/add accumulation, and accepts IEEE nonfinite values. It has no
+BLAS int32 core-dimension limit. Output rank is bounded by FRUMPY_MAX_RANK and
+result element/byte counts are checked before allocation. Numerical comparisons
+use rtol=atol=2e-13; accumulation order may differ from NumPy, and signed zeros in
+contracted results are not guaranteed bitwise identical. Scalar multiplication
+preserves the ordinary IEEE multiply result. Failures return no storage.
+
+### Float32 dot accumulation
+
+`dot_r32` implements the same scalar, vector and higher-rank contraction shapes
+as `dot_r64`, with a float32 result. It uses a fixed balanced pairwise reduction:
+contractions longer than 32 terms split at `floor(k/2)`, recursively sum each
+half, then add the two results. Leaves of at most 32 terms accumulate in increasing
+logical contraction-index order, starting from positive zero. Products and sums
+use real32; there is no explicit float64 widening, BLAS dispatch, product buffer
+or fast-math. Recursion needs logarithmic stack depth and no heap workspace.
+Float64 dot retains its existing sequential accumulation policy.
+
+This reduces the long sequential dependency and limits rounding growth but is
+not compensated summation, a guarantee of greater accuracy than NumPy, or a
+bitwise compatibility promise. NumPy's BLAS uses its own reduction order.
+Ordinary float32 comparisons use rtol=atol=2e-5. Long finite, normal-range cases
+also check a term-magnitude-scaled error bound against float64 products/sums;
+near-zero results are assessed with absolute error, not relative error alone.
+Cancellation can still lose small terms inside a leaf. Overflow, underflow and
+NaN/infinity propagation follow floating arithmetic and can differ by summation
+order; trapping modes and fast-math remain outside the supported contract.
+
+Empty contractions return positive zero. Scalar dot bypasses reduction and uses
+ordinary float32 multiplication, including signed zeros; this deliberately
+matches `numpy.multiply` zero signs even when `numpy.dot` normalizes them through
+BLAS. Outer also preserves multiply zero signs. Contracted-dot zero signs and
+NaN payloads are not specified. Four-byte result-size guards apply before
+allocation; these native kernels have no BLAS int32 dimension restriction.
+
+Native, C ABI and Python expose both products for two float32 inputs without
+promotion. Mixed pairs use the promoted accumulation dtype described above. Tests cover rank limits,
+virtual overflow, independent ownership, failure without status, signed/zero
+strides, nonfinite values, long contractions and cancellation across interfaces.
+
+## Euclidean and Frobenius norms
+
+`vector_norm_r64(source, axis0, keepdims, status)` reduces one axis, or flattens
+all axes when axis0 is absent. A scalar without axis0 returns its absolute value;
+a scalar with an explicit axis is invalid. `matrix_norm_r64(source, axes0,
+keepdims, status)` computes Frobenius norms over two distinct axes, defaulting
+to the final two dimensions. Rank must be at least two. Negative axes and
+keepdims are supported. Other norm orders are outside this release's contract.
+
+These native float64 kernels traverse metadata without input copies. Output is
+independent and C-order. Empty reductions are zero, NaN dominates infinity, and
+infinity dominates finite magnitudes. A scaled sum of squares avoids premature
+overflow/underflow. This deliberately improves on NumPy's direct squaring for
+extreme finite values: [3e300,4e300] gives 5e300, and [3e-300,4e-300] gives 5e-300.
+Tests compare ordinary cases to NumPy and extreme cases to widened NumPy
+arithmetic. The ordinary regression tolerance is rtol=2e-15, atol=1e-15 (zero
+absolute tolerance for extreme values), not a universal accuracy bound. Invalid
+or repeated axes return INVALID_AXIS; malformed source metadata is rejected
+before payload access. Failed calls return no storage.
+
+### Float32 norm policy
+
+`vector_norm_r32` and `matrix_norm_r32` have the same bounded axis/shape contract
+and return independent C-order **float32** results. C `frumpy_norm` and Python
+`linalg.vector_norm` / `linalg.matrix_norm` preserve float32 inputs. Integer/bool
+norms remain unsupported; no arbitrary p-norm, spectral norm or complex norm is
+added. C ABI version 1 is unchanged.
+
+Inputs are read directly with signed/zero strides. Each value is widened to
+real64 **before squaring**. Reductions use a fixed pairwise tree: leaves of at
+most 64 terms add sequentially from positive zero; longer ranges split at
+`floor(count/2)` and add the two subresults. The square root is real64, followed
+by one conversion to float32. This replaces the original scaled sequential
+real64 algorithm; numerical results are not promised bitwise identical to it.
+Float64 norms keep their scaled algorithm.
+
+Scaling is unnecessary for finite float32 inputs: nonzero squares lie between
+2^-298 and 2^256, and fewer than 2^63 terms sum below 2^319. All fit safely within
+float64's normal range. Individual float32 squares are exact in float64; the
+sum and square root still round. Pairwise summation limits accumulation depth
+but is neither compensated summation nor a universal correct-rounding guarantee.
+Signed input cancellation does not occur in a sum of squared magnitudes; small
+contribution loss remains a relevant accuracy stress case.
+
+Reduction strides are classified from validated metadata, never cached flags.
+Contiguous or constant-stride reductions use direct indexing, including negative
+and zero steps. Irregular reductions retain logical C-order address calculation
+and the same pairwise accumulation policy. No widened input/product buffer is
+allocated. Recursion uses logarithmic stack depth; result payload remains four
+bytes per element, with bounded axis metadata and real64 scalar working state.
+
+NumPy 2.4.6 returns float32 but its direct float32 squaring can overflow at 1e30
+or underflow at 1e-30 even when the norm is representable. Frumpy retains the
+intentional robustness difference. True results beyond float32 range still
+become infinity; tiny results undergo final float32 rounding, including subnormal
+or zero outcomes. This range argument applies specifically to float32 inputs;
+it does not justify removing scaling from float64 norms.
+
+NaN dominates infinity, empty/all-zero reductions return positive zero, scalar
+vector norm returns magnitude, and matrix norm still requires rank at least two.
+Ordinary tests use rtol=3e-6/atol=1e-7 against NumPy; precision diagnostics compare
+with float64 arithmetic rounded to float32, including `math.fsum` references
+whose finite float32 squares are exact in float64. No universal relative-error bound,
+NumPy warning channel or support for trapping/fast-math execution is promised.
+
+## Matrix multiplication
+
+`matmul_r32` and `matmul_r64` implement NumPy's vector and matrix shape rules:
+
+- A vector times a vector produces a rank-zero descriptor.
+- A matrix times a vector, or a vector times a matrix, produces a vector.
+- Higher-rank inputs use their last two dimensions as matrix dimensions;
+  leading dimensions broadcast using the existing metadata planner.
+- Rank-zero operands and unequal contracted dimensions are invalid shapes.
+- Empty outputs are supported. A zero-length contracted dimension produces zeros,
+  including a zero-length vector dot product, whose scalar result is zero.
+
+The kernel traverses C/F-order arrays, transposes, reversed/stepped views, and
+zero strides through their metadata. When both rank-two inputs are C-contiguous,
+`SGEMM`/`DGEMM` compute the transposed product directly into the C-order result, without
+packing inputs or allocating an output work buffer. When both are F-contiguous,
+inputs are also read directly, but an output work buffer is copied into C order.
+Actual shape/strides determine eligibility; offsets and singleton dimensions are
+honored, and finite-input checks remain in place.
+
+Mixed layouts, vectors, irregular views and batches use reusable column-major
+input and output work arrays. Packing does not alter the input descriptors.
+The normal (NN) backend call is retained for these paths: an experiment using
+transposed DGEMM calls to remove the output buffer substantially regressed
+reference BLAS. Numerical results remain governed by the backend tolerance
+contract, rather than a bitwise accumulation-order promise.
+
+## Linear solve
+
+`solve_r32` and `solve_r64` solve `A X = B`, with square final two dimensions of A. Only a
+rank-one B denotes a vector; every higher-rank B denotes matrices in its final
+two dimensions, matching NumPy 2.x. Leading A/B dimensions broadcast. Output
+has the broadcast batch shape followed by `[n]` for vector B or `[n,nrhs]` for
+matrix B. Incompatible core or batch dimensions return INVALID_SHAPE.
+Empty batches return without factorization. Signed/zero batch and core strides
+are supported, and one set of workspace buffers is reused across batches.
+If any batch is singular or nonfinite, the whole result is discarded and sources
+remain unchanged, even if earlier batches succeeded.
+
+LAPACK `SGESV`/`DGESV` factor A with pivoting and overwrite their coefficient and RHS
+work arrays. Frumpy therefore packs both inputs into separate work arrays and
+copies the solution into owned C-order storage. A zero-order system returns an
+empty result. When A has positive order and B has zero columns, factorization
+still runs: singularity is reported even though X is empty, matching NumPy 2.4.6.
+A dummy zero-filled workspace column forces factorization even on backends that
+return early for zero RHS columns; the public output still has zero columns.
+A detected singular matrix returns `FRUMPY_STATUS_SINGULAR_MATRIX` (code 7).
+Singularity follows the backend's zero-pivot test; no condition estimator is run.
+
+The backend interfaces follow Netlib's documented
+[DGEMM](https://netlib.org/lapack/explore-html/dd/d09/group__gemm_ga1e899f8453bcbfde78e91a86a2dab984.html)
+and [DGESV](https://netlib.org/lapack/explore-html/d8/da6/group__gesv_ga831ce6a40e7fd16295752d18aed2d541.html)
+contracts. They are isolated in `frumpy_linalg_backend`.
+
+## Supported numerical and ABI contract
+
+Matmul and solve currently require finite values in every input block they read.
+NumPy permits non-finite operands and may return NaN/infinity; Frumpy explicitly
+reports `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR` for those inputs. This bounded
+contract avoids depending on backend-specific NaN handling and pivot selection.
+Vacuously empty operations do not read input values. The intentional restriction
+is covered by `test_linalg_nonfinite_explicitly_unsupported`.
+
+Finite inputs can still overflow or underflow during computation; intermediate
+or result values are not guaranteed finite. Floating-point traps and fast-math
+are outside the tested contract. BLAS accumulation order and LAPACK/backend
+choices can change rounding. The finite comparison corpus uses `rtol=2e-13` and
+`atol=2e-13`; this is a regression tolerance, not a global error bound or a
+bitwise guarantee. Signed-zero output bits are not specified for these kernels.
+
+Float32 computes in single precision through SGEMM/SGESV, including pivoting
+and elimination. The installed NumPy 2.4.6 solve path computes with its double
+precision `dd->d` loop and casts float32 results back; Frumpy intentionally does
+not widen its float32 workspace. Consequently ill-conditioned systems can have
+larger forward error or different zero-pivot classification. No condition
+estimator or refinement is provided. Well-conditioned float32 comparisons use
+`rtol=atol=2e-5`, plus a scaled residual check below `32*epsilon(float32)` on the
+specified test corpus. These are test tolerances, not universal accuracy bounds.
+For workloads requiring the float64 calculation, cast inputs to float64 explicitly.
+Float32 result/workspace overflow guards use four bytes per element.
+
+The matmul/solve backend interface requires conventional LP64 Fortran BLAS/LAPACK: signed int32
+dimensions and pivots, real32 single or real64 double precision, and compatible Fortran symbol
+and character calling conventions. ILP64 backends are unsupported. Core dimensions
+are limited to int32 range, even for empty operations. Work-array and result
+byte counts are checked for int64 overflow before allocation; array shapes,
+offsets and strides remain int64. Larger virtual arrays that NumPy can represent
+may therefore receive `FRUMPY_STATUS_OVERFLOW` here.
+
+## Build and validation
+
+Install a compatible BLAS/LAPACK development package, then build normally. Make
+links with `LINALG_LIBS ?= -llapack -lblas`; fpm declares the same libraries.
+Override the Make variable when selecting a compatible vendor backend:
+
+```sh
+make validate LINALG_LIBS='-llapack -lblas'
+```
+
+On the tested Linux host, only versioned runtime library links were installed.
+The validation matrix used the system reference BLAS/LAPACK 3.12.0 with:
+
+```sh
+make validate LINALG_LIBS='-l:liblapack.so.3 -l:libblas.so.3'
+```
+
+The `-l:` spelling is a GNU/Linux linker option, not a portable default. Compiler
+matrix logs record the selected link flags. Alternative backends and platforms
+need their own ABI and numerical checks; no automatic backend selection is added.
+
+The 126 compiled NumPy comparisons cover vector/matrix/batch promotion,
+broadcasting, layouts, empty dimensions, finite numerical results and residuals,
+pivoting, singular matrices, and shape errors. Tests also make the unsupported
+non-finite contracts explicit. `test/test_linalg_r64.f90` checks
+input preservation, independent owned results, lifetime, status omission,
+malformed metadata, and backend/workspace/output overflow guards without huge
+allocations. Both GNU memory and integer-overflow gates include these checks.
+The backend shared libraries themselves are not rebuilt with sanitizers.
+
+## Failure statuses
+
+Failed functions return descriptors without storage, including when status is
+omitted. Explicit allocations have status paths, subject to the existing
+[compiler allocation limits](STORAGE_LIFETIME.md).
+
+| Failure | Status |
+| --- | --- |
+| Missing source storage or non-finite matmul/solve values | `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR` |
+| Invalid rank/shape/strides/offset, unreachable storage, or incompatible dimensions | `FRUMPY_STATUS_INVALID_SHAPE` |
+| Forged input dtype metadata | `FRUMPY_STATUS_UNSUPPORTED_DTYPE` |
+| LP64 dimension or byte-count overflow | `FRUMPY_STATUS_OVERFLOW` |
+| Explicit allocation failure | `FRUMPY_STATUS_ALLOCATION_FAILED` |
+| Singular coefficient matrix | `FRUMPY_STATUS_SINGULAR_MATRIX` |
+
+Mixed-dtype linear algebra and other factorizations remain outside this slice. [Random generation](RANDOM.md) has a separate contract.
+
+
+OpenBLAS 0.3.26 LP64 pthread was additionally validated on this Linux host with
+GNU 14 release and one thread. The full differential suite includes singular
+empty-RHS solves. CI now includes a separate LP64 OpenBLAS job. Backend choice
+remains a build/runtime configuration; this does not change Frumpy's defaults.
+
+Float32-specific coverage is in `test/test_linalg_r32.f90` and
+`python/tests/test_float32_linalg.py`, including direct native, raw C ABI and
+Python calls, singular empty RHS, late-batch failure, signed/zero/offset strides,
+input preservation, scaled residuals, unsupported promotion and overflow guards.

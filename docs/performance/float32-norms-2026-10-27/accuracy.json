@@ -1,0 +1,75 @@
+{
+  "numpy_version": "2.4.6",
+  "rows": [
+    {
+      "case": "ordinary",
+      "count": 2,
+      "frumpy": "5.0",
+      "numpy": "5.0",
+      "rounded_float64_reference": "5.0"
+    },
+    {
+      "case": "square_overflow",
+      "count": 2,
+      "frumpy": "1.4142135130433894e+30",
+      "numpy": "inf",
+      "rounded_float64_reference": "1.4142135130433894e+30"
+    },
+    {
+      "case": "square_underflow",
+      "count": 2,
+      "frumpy": "1.4142135555081815e-30",
+      "numpy": "0.0",
+      "rounded_float64_reference": "1.4142135555081815e-30"
+    },
+    {
+      "case": "subnormal",
+      "count": 2,
+      "frumpy": "1.401298464324817e-45",
+      "numpy": "0.0",
+      "rounded_float64_reference": "1.401298464324817e-45"
+    },
+    {
+      "case": "result_overflow",
+      "count": 2,
+      "frumpy": "inf",
+      "numpy": "inf",
+      "rounded_float64_reference": "inf"
+    },
+    {
+      "case": "nan_dominates_inf",
+      "count": 2,
+      "frumpy": "nan",
+      "numpy": "nan",
+      "rounded_float64_reference": "nan"
+    },
+    {
+      "case": "signed_zero",
+      "count": 2,
+      "frumpy": "0.0",
+      "numpy": "0.0",
+      "rounded_float64_reference": "0.0"
+    },
+    {
+      "case": "small_contributions_4096",
+      "count": 4097,
+      "frumpy": "4096.5",
+      "numpy": "4096.498046875",
+      "rounded_float64_reference": "4096.5"
+    },
+    {
+      "case": "small_contributions_65536",
+      "count": 65537,
+      "frumpy": "4103.9921875",
+      "numpy": "4103.990234375",
+      "rounded_float64_reference": "4103.9921875"
+    },
+    {
+      "case": "small_contributions_1048576",
+      "count": 1048577,
+      "frumpy": "4222.06005859375",
+      "numpy": "4222.05810546875",
+      "rounded_float64_reference": "4222.06005859375"
+    }
+  ]
+}

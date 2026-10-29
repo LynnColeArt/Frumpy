@@ -1,0 +1,246 @@
+{
+  "source_commit": "2ff58eb",
+  "library_sha256": "31285a1a4987e79ec6536a39f7ed4e708429d0311dea1baa88ca761828d80ada",
+  "numpy": "2.4.6",
+  "numpy_build": {
+    "Compilers": {
+      "c": {
+        "name": "gcc",
+        "linker": "ld.bfd",
+        "version": "14.2.1",
+        "commands": "cc"
+      },
+      "cython": {
+        "name": "cython",
+        "linker": "cython",
+        "version": "3.2.4",
+        "commands": "cython"
+      },
+      "c++": {
+        "name": "gcc",
+        "linker": "ld.bfd",
+        "version": "14.2.1",
+        "commands": "c++"
+      }
+    },
+    "Machine Information": {
+      "host": {
+        "cpu": "x86_64",
+        "family": "x86_64",
+        "endian": "little",
+        "system": "linux"
+      },
+      "build": {
+        "cpu": "x86_64",
+        "family": "x86_64",
+        "endian": "little",
+        "system": "linux"
+      }
+    },
+    "Build Dependencies": {
+      "blas": {
+        "name": "scipy-openblas",
+        "found": true,
+        "version": "0.3.31.188.0",
+        "detection method": "pkgconfig",
+        "include directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/include",
+        "lib directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/lib",
+        "openblas configuration": "OpenBLAS 0.3.31.188.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY SkylakeX MAX_THREADS=64",
+        "pc file directory": "/project/.openblas"
+      },
+      "lapack": {
+        "name": "scipy-openblas",
+        "found": true,
+        "version": "0.3.31.188.0",
+        "detection method": "pkgconfig",
+        "include directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/include",
+        "lib directory": "/opt/_internal/cpython-3.12.12/lib/python3.12/site-packages/scipy_openblas64/lib",
+        "openblas configuration": "OpenBLAS 0.3.31.188.0  USE64BITINT DYNAMIC_ARCH NO_AFFINITY SkylakeX MAX_THREADS=64",
+        "pc file directory": "/project/.openblas"
+      }
+    },
+    "Python Information": {
+      "path": "/tmp/build-env-tgi5ymto/bin/python",
+      "version": "3.12"
+    },
+    "SIMD Extensions": {
+      "baseline": [
+        "X86_V2"
+      ],
+      "found": [
+        "X86_V3"
+      ],
+      "not found": [
+        "X86_V4",
+        "AVX512_ICL",
+        "AVX512_SPR"
+      ]
+    }
+  },
+  "affinity": [
+    0
+  ],
+  "compiler_flags": "GNU14 -std=f2018 -O3 -fimplicit-none",
+  "rows": [
+    {
+      "dtype": "float64",
+      "operation": "argsort",
+      "shape": [
+        32
+      ],
+      "layout": "C",
+      "distribution": "random",
+      "input_bytes": 256,
+      "result_bytes": 256,
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          1.561463053803891e-06,
+          1.1570850037969649e-06,
+          1.1067760060541332e-06,
+          1.1127450270578264e-06,
+          1.8232730217278004e-06,
+          1.1032659676857293e-06,
+          1.0771749657578765e-06
+        ],
+        "median_seconds": 1.1127450270578264e-06,
+        "cpu_seconds": [
+          1.5571199999999951e-06,
+          1.155239999999988e-06,
+          1.1053510000000044e-06,
+          1.1115800000000008e-06,
+          1.8213500000000133e-06,
+          1.1018609999999957e-06,
+          1.0761900000000046e-06
+        ],
+        "median_cpu_seconds": 1.1115800000000008e-06
+      },
+      "python": {
+        "iterations": 1000,
+        "seconds": [
+          1.2159780017100274e-05,
+          1.069544698111713e-05,
+          1.034341799095273e-05,
+          1.251687901094556e-05,
+          1.0381748026702553e-05,
+          1.0840976028703152e-05,
+          1.2844127952121198e-05
+        ],
+        "median_seconds": 1.0840976028703152e-05,
+        "cpu_seconds": [
+          1.2157663e-05,
+          1.069364299999999e-05,
+          1.0341443000000005e-05,
+          1.2514723000000005e-05,
+          1.0379522999999974e-05,
+          1.0838803000000009e-05,
+          1.284133400000001e-05
+        ],
+        "median_cpu_seconds": 1.0838803000000009e-05
+      },
+      "c_abi": {
+        "iterations": 1000,
+        "seconds": [
+          2.7795179630629717e-06,
+          2.8767389594577255e-06,
+          2.8000579914078115e-06,
+          3.2359070028178395e-06,
+          2.820519031956792e-06,
+          2.882588014472276e-06,
+          2.750568964984268e-06
+        ],
+        "median_seconds": 2.820519031956792e-06,
+        "cpu_seconds": [
+          2.777470000000004e-06,
+          2.8750509999999898e-06,
+          2.7986510000000132e-06,
+          3.2334110000000194e-06,
+          2.8186409999999827e-06,
+          2.880820000000006e-06,
+          2.7495409999999942e-06
+        ],
+        "median_cpu_seconds": 2.8186409999999827e-06
+      }
+    },
+    {
+      "dtype": "bool",
+      "operation": "argsort",
+      "shape": [
+        8192
+      ],
+      "layout": "C",
+      "distribution": "random",
+      "input_bytes": 8192,
+      "result_bytes": 65536,
+      "numpy": {
+        "iterations": 1000,
+        "seconds": [
+          2.921444200910628e-05,
+          2.8947332000825553e-05,
+          2.9128212016075848e-05,
+          2.910039102425799e-05,
+          2.9076253005769104e-05,
+          2.942961995722726e-05,
+          2.9035831976216285e-05
+        ],
+        "median_seconds": 2.910039102425799e-05,
+        "cpu_seconds": [
+          2.9210187999999997e-05,
+          2.8943278000000018e-05,
+          2.9125358000000047e-05,
+          2.9097368000000013e-05,
+          2.9072998000000016e-05,
+          2.942534800000002e-05,
+          2.9021577999999993e-05
+        ],
+        "median_cpu_seconds": 2.9097368000000013e-05
+      },
+      "python": {
+        "iterations": 62,
+        "seconds": [
+          0.0004770256618353268,
+          0.00046953291917640355,
+          0.0004636576453659443,
+          0.0004749164518509661,
+          0.0004883818872903864,
+          0.0004931596134068264,
+          0.0004695127746315613
+        ],
+        "median_seconds": 0.0004749164518509661,
+        "cpu_seconds": [
+          0.0004769719032258067,
+          0.0004693727096774191,
+          0.00046361174193548435,
+          0.00047487609677419483,
+          0.0004883248064516121,
+          0.0004931056129032254,
+          0.00046946561290322683
+        ],
+        "median_cpu_seconds": 0.00047487609677419483
+      },
+      "c_abi": {
+        "iterations": 65,
+        "seconds": [
+          0.0004565270608649231,
+          0.000445953261357947,
+          0.0004639510468293268,
+          0.000576102276905798,
+          0.0005917591230872158,
+          0.000512387769189305,
+          0.0005086260919387524
+        ],
+        "median_seconds": 0.0005086260919387524,
+        "cpu_seconds": [
+          0.00045645843076923113,
+          0.0004459101230769245,
+          0.0004638932000000002,
+          0.0005760416923076922,
+          0.000591563861538462,
+          0.0005123373692307702,
+          0.0005085818307692314
+        ],
+        "median_cpu_seconds": 0.0005085818307692314
+      }
+    }
+  ]
+}

@@ -19,7 +19,7 @@ packages. The mission is large by design; the work packages must still be
 small, concrete, testable, and reviewable.
 
 
-## Implementation Snapshot — 2026-09-07
+## Implementation Snapshot — 2026-10-26
 
 The phase descriptions below remain the roadmap, not a completion ledger.
 The repository now contains a working float64 descriptor/constructor/arithmetic/
@@ -31,11 +31,14 @@ The local validation gate includes standalone casting and promotion tests and
 a compiled Frumpy-versus-NumPy bridge. Existing NumPy-only fixtures remain useful
 oracle references, but are not themselves differential execution tests.
 
-Phases 1–8 have implementation coverage of varying depth; none of that implies
-full NumPy compatibility. Non-float64 kernels, shared-storage lifetime management,
-advanced indexing, linear algebra/random, C/Python interop, and benchmarks remain
-open. The next work should preserve the validated subset while closing those
-explicit gaps.
+The bounded [v0.1 checklist](docs/V0_1_CHECKLIST.md) is the release gate.
+It now includes five-dtype constructors/views/casts/comparisons, discrete
+reductions, float64 dot/norms/batched solve, seeded random generation, a C ABI
+and installable Python package. This does not imply full NumPy coverage.
+The [operation table](docs/V0_1_COVERAGE.md) states the supported surface;
+[post-v0.1 work](docs/POST_V0_1_PLAN.md) starts with measured performance work,
+then broader numeric coverage and distribution. Release validation is recorded
+separately from implementation progress.
 
 
 ## Planning Anchors
@@ -571,12 +574,15 @@ At every phase boundary, ask:
 
 ## Immediate Next Steps
 
-1. Define and test owned/view storage lifetime and release behavior.
-2. Expand dtype execution beyond float64 without duplicating promotion policy.
-3. Add the first BLAS/LAPACK-backed linear algebra slice.
-4. Design the C ABI and Python package around explicit ownership.
-5. Extend direct NumPy differential coverage alongside each supported operation,
-   then benchmark representative contiguous and strided workloads.
+The [v0.1 release checklist](docs/V0_1_CHECKLIST.md) now governs the active
+release scope and execution order. Start with float64 outer/dot/norms and batched
+solve, then reproducible random generation, the specified five-dtype gaps,
+C/Python interoperability and release validation. Preserve the current compiler
+matrix and storage contract throughout.
+
+The [post-v0.1 plan](docs/POST_V0_1_PLAN.md) sequences measured performance work,
+broader dtype/indexing/numerical coverage, distribution and later FFT/IO work.
+The phases above remain the long-term map, not additional v0.1 release gates.
 
 
 ## Spec Kitty Handoff Model

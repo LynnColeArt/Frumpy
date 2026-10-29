@@ -63,7 +63,7 @@ Shape, stride, dtype, memory, and kernel dispatch
         |
 BLAS/LAPACK and native Fortran kernels
         |
-C ABI and Python bindings later
+Versioned C ABI and Python ndarray package
 ```
 
 Frumpy is scoped to NumPy right now. Future projects may find it useful as a
@@ -110,10 +110,29 @@ The short version:
 
 ## Status
 
+The [v0.1 checklist](docs/V0_1_CHECKLIST.md) defines the next release gate.
+The [post-v0.1 plan](docs/POST_V0_1_PLAN.md) sequences performance work and broader coverage.
+
 Frumpy has a working float64 array core: descriptors, constructors, broadcasting,
 elementwise arithmetic, reductions, views, and slicing. Boolean, int32, int64,
 and float32 descriptors plus dtype promotion and scalar casting policies are
-also implemented; general kernels for those dtypes remain future work.
+also implemented. Float32 supports binary arithmetic with broadcasting; negation,
+absolute value, square root, exp, log, sine and cosine; and sum, product, mean,
+minimum and maximum reductions. See the
+[float32 unary contract](docs/DTYPE_SUPPORT.md#float32-unary-arithmetic) and the
+[float32 reduction contract](docs/FLOAT32_REDUCTIONS.md) for axes and numerical
+limits. Int32 and int64 support add, subtract, multiply, and float64 true
+division with broadcasting; see [integer arithmetic](docs/INTEGER_ARITHMETIC.md).
+Mixed-dtype `add`, `subtract`, `multiply`, and `divide` now connect all five
+registered descriptors; see [mixed arithmetic](docs/MIXED_ARITHMETIC.md) for
+result-type selection and the boolean subtraction exception.
+
+All five dtypes now have concrete convenience constructors and view helpers; see
+[constructors and views](docs/CONSTRUCTORS_AND_VIEWS.md) for the bounded copy/view contract.
+
+Array casts, mixed comparisons, boolean logic, integer/boolean reductions and
+float64 masked extraction/staged assignment are implemented; see
+[array operations](docs/ARRAY_OPERATIONS.md).
 
 The selection subset adds `where`, `take`, `concatenate`, `stack`, stable sorting,
 `argsort`, `searchsorted`, and flat nonzero indices. See
@@ -122,8 +141,40 @@ and [dtype support](docs/DTYPE_SUPPORT.md) for the type coverage matrix.
 
 Run `make validate` to compile/run Fortran tests and the example, execute Python
 reference fixtures and direct Frumpy-versus-NumPy comparisons, and check patch
-whitespace. See [building](docs/BUILDING.md).
+whitespace. See [building](docs/BUILDING.md), [compiler portability](docs/COMPILER_PORTABILITY.md),
+and [performance measurements](docs/PERFORMANCE.md).
 
-Linear algebra, random generation, a C ABI, Python bindings, and measured
-performance work remain unfinished. Storage lifetime still requires explicit
-caller management; this is not yet a drop-in NumPy replacement.
+Float32/float64 `outer_r32/r64` multiplies operands flattened in C logical order.
+`matmul_r32/r64` supports float32/float64 vectors, matrices and broadcast batches;
+`solve_r32/r64` solves broadcast batches of square systems with vector or matrix
+right-hand sides. Native `dot_r32/r64`, float32/float64 robust vector/Frobenius norms, and explicit
+seeded [uniform/normal generators](docs/RANDOM.md) are also implemented. See
+[linear algebra](docs/LINEAR_ALGEBRA.md) for the finite-input contract, LP64
+BLAS/LAPACK dependency and supported limits. Broader linear algebra and
+performance optimization remain post-v0.1 work. Managed storage for all five registered
+dtypes now retains aliases and views, with explicit limits on Fortran container
+copying. Borrowed external buffers still require caller lifetime management. See
+[storage lifetime](docs/STORAGE_LIFETIME.md). This is not yet a drop-in NumPy
+replacement.
+
+
+## C and Python interfaces
+
+`make shared` builds ABI-v1 `libfrumpy.so`; `make c-test` checks a real C caller.
+See [the C ownership and buffer contract](docs/C_ABI.md).
+
+A Linux source package is available with `.venv/bin/python -m pip install .`
+after installing the compiler and BLAS/LAPACK development prerequisites.
+See [Python installation and API semantics](docs/PYTHON.md). Native operations
+never silently fall back to NumPy computation. The release acceptance checklist
+remains the source of truth for candidate readiness.
+
+Dot, outer and matmul now support [floating-result mixed-dtype promotion](docs/LINEAR_ALGEBRA.md#floating-result-promotion).
+Integer-only products and mixed-dtype solve remain unsupported.
+
+Argmin and argmax now support all five existing dtypes, with int64 indices,
+first-occurrence ties and first-NaN selection. See the [index reduction contract](docs/ARG_REDUCTIONS.md).
+
+## License
+
+Frumpy is licensed under the [MIT License](LICENSE).

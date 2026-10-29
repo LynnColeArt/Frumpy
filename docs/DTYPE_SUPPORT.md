@@ -12,6 +12,7 @@ boundary, not as a roadmap wish list.
 | Level | Meaning |
 | --- | --- |
 | Full current array support | The dtype has concrete descriptors, storage, constructors or kernels, and regression tests for the listed behavior. |
+| Partial array support | A bounded set of concrete operations is supported; other dtype operations remain absent. |
 | Foundation support | The dtype has stable IDs, metadata, policy, or descriptors, but not full array operations. |
 | Unsupported | The dtype is intentionally absent from the registered core surface and callers must treat it as unsupported. |
 
@@ -19,16 +20,16 @@ boundary, not as a roadmap wish list.
 
 | Dtype | ID | Bytes | Level | Current behavior |
 | --- | --- | ---: | --- | --- |
-| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; no general bool arithmetic/reduction kernels yet. |
-| `i32` | `FRUMPY_DTYPE_I32` | 4 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No i32 array kernels yet. |
-| `i64` | `FRUMPY_DTYPE_I64` | 8 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; no general i64 value kernels yet. |
-| `r32` | `FRUMPY_DTYPE_R32` | 4 | Foundation support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. No r32 array kernels yet. |
+| `bool` | `FRUMPY_DTYPE_BOOL` | 1 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Boolean conditions for float64 where and flat nonzero indices; boolean addition/multiplication, true division and mixed arithmetic; all/any reductions and boolean logical operations. |
+| `i32` | `FRUMPY_DTYPE_I32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Int32 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
+| `i64` | `FRUMPY_DTYPE_I64` | 8 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Index outputs for argsort, searchsorted, and flat nonzero; int64 add, subtract, multiply, and float64 true division with broadcasting and signed strides. |
+| `r32` | `FRUMPY_DTYPE_R32` | 4 | Partial array support | Registered metadata, NumPy-checked promotion policy, dtype-level casting policy, selected scalar casts, and concrete descriptor/storage metadata. Float32 add, subtract, multiply, and divide with broadcasting and signed strides; negation, absolute value, square root, exp, log, sine and cosine; sum, product, mean, minimum and maximum reductions. |
 | `r64` | `FRUMPY_DTYPE_R64` | 8 | Full current array support | Concrete descriptor/storage metadata, constructors, broadcasting, elementwise kernels, reductions, views, promotion policy, and casting policy. |
 
 The `frumpy_dtypes` support state remains conservative: only `r64` reports
 `FRUMPY_DTYPE_SUPPORT_SUPPORTED`. Non-`r64` dtypes are registered and useful for
-policy and descriptors, but still report planned support because Frumpy cannot
-yet run non-`r64` ndarray kernels.
+policy, descriptors, and the bounded operations listed above. They still report
+planned broad support; this legacy flag is not per-operation capability discovery.
 
 ## Implemented r64 Array Behavior
 
@@ -40,14 +41,117 @@ The current `r64` path includes:
 | Constructors and copies | `empty_r64`, `zeros_r64`, `ones_r64`, `full_r64`, `arange_r64`, `linspace_r64`, `asarray_r64`, `copy_r64`, `ascontiguousarray_r64` |
 | Broadcasting | `broadcast_plan_r64`, `broadcast_plan` |
 | Elementwise kernels | `add_r64`, `subtract_r64`, `multiply_r64`, `divide_r64`, `negate_r64`, `abs_r64`, `sqrt_r64`, `sin_r64`, `cos_r64`, `exp_r64`, `log_r64` |
+| Linear algebra | floating-result promotion via `outer`, `dot`, `matmul`; `outer_r32/r64`, `dot_r32/r64` (IEEE float32/float64), vector/Frobenius norms (IEEE float32/float64, real64 accumulation (pairwise for float32, scaled for float64)), `matmul_r32/r64`, `solve_r32/r64` (same-dtype finite float32/float64; see the linear algebra contract) |
 | Reductions | `sum_r64`, `prod_r64`, `mean_r64`, `min_r64`, `max_r64` |
 | Selection and ordering | `where_r64`, `take_r64`, `concatenate_r64`, `stack_r64`, `sort_r64`, `argsort_r64`, `searchsorted_r64`, `nonzero_bool` (flat indices) |
 | Views and slicing | `reshape_r64`, `ravel_r64`, `flatten_r64`, `transpose_r64`, `swapaxes_r64`, `squeeze_r64`, `expand_dims_r64`, `slice_r64` |
 
 This is not full NumPy. See [selection support](SELECTION_SUPPORT.md) for the
-bounded indexing/ordering contract. Advanced indexing, linear algebra, random
-generation, FFTs, Python bindings, and C ABI work remain outside the current
-implementation.
+bounded indexing/ordering contract. Advanced indexing and FFTs remain outside
+the current implementation. The [v0.1 coverage table](V0_1_COVERAGE.md) includes
+the implemented C ABI and Python package. Float64 linear algebra has a bounded
+[matmul/solve surface](LINEAR_ALGEBRA.md), with finite-input and LP64 requirements.
+
+All five registered descriptors use managed backing storage. Views and explicit
+sharing retain that storage; release and finalization drop references. This does
+not add missing dtype kernels. See [storage lifetime](STORAGE_LIFETIME.md) for
+the required explicit-sharing APIs and restrictions on Fortran container copies.
+
+## Arithmetic Across Dtypes
+
+`call add(lhs, rhs, result, status)` and the matching `subtract`, `multiply`, and
+`divide` subroutines accept any pair of registered descriptors. The result must
+have the dtype selected by `binary_result_dtype`. They support broadcasting and
+strided inputs, and preserve the previous result on reported failure. Boolean
+subtraction is unsupported. See [MIXED_ARITHMETIC.md](MIXED_ARITHMETIC.md) for the
+full contract, operation-specific promotion rules and 1,200 NumPy comparisons.
+
+## Integer Binary Arithmetic
+
+`add_i32`, `subtract_i32`, `multiply_i32` and the corresponding `_i64` functions
+return independent integer arrays with NumPy-style modular payload overflow.
+`divide_i32` and `divide_i64` return float64 arrays, following NumPy true division.
+All support broadcasting, scalar/empty inputs and signed/zero-stride views.
+See [INTEGER_ARITHMETIC.md](INTEGER_ARITHMETIC.md) for numerical semantics,
+status paths, compiler assumptions and the 128 compiled NumPy cases. Integer
+reductions now follow [the array-operation contract](ARRAY_OPERATIONS.md); integer
+unary functions remain unimplemented. Mixed arithmetic uses the
+separate subroutine API above.
+
+## Float32 Binary Arithmetic
+
+`add_r32`, `subtract_r32`, `multiply_r32`, and `divide_r32` accept two
+`ndarray_r32` operands and return an independent C-order float32 array. Create
+inputs with `owned_descriptor_r32` and access their float32 payload through
+`data`. `view_descriptor_r32` supplies explicit shape/stride views.
+
+The kernels use the same metadata broadcast planner as float64. They support
+rank-zero operands, trailing-dimension broadcasting, empty arrays, C/F-order
+inputs, transpose/reverse views, stepped slices, and zero strides. Both inputs
+remain float32; there is no implicit mixed-dtype conversion or new promotion
+policy. NaNs, infinities, signed zero, overflow and division by zero follow the
+host IEEE floating-point arithmetic. No NumPy-style warning channel is provided;
+explicitly enabling compiler floating-point traps can change that behavior.
+
+Inputs with missing storage return `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR`.
+Malformed metadata, inaccessible offsets/strides and incompatible shapes return
+`FRUMPY_STATUS_INVALID_SHAPE`. Explicit allocation errors have status paths,
+subject to the compiler temporary-allocation limits in the lifetime contract.
+
+Float32 selection routines other than stable sort/argsort remain absent. Float32 convenience constructors and
+views follow the [five-dtype contract](CONSTRUCTORS_AND_VIEWS.md).
+Mixed arithmetic uses the separate subroutine API above. The 48 compiled NumPy cases in
+`test_frumpy_differential.py` check all four operations, including exact float32
+results and signed zeros. `test/test_elementwise_r32.f90` checks ownership,
+result lifetime, and malformed input status paths.
+
+## Float32 Unary Arithmetic
+
+`negate_r32`, `abs_r32`, `sqrt_r32`, `exp_r32`, `log_r32`, `sin_r32`, and
+`cos_r32` accept one `ndarray_r32` and an optional output `frumpy_status`:
+
+```fortran
+result = sqrt_r32(source, status)
+```
+
+Each returns an independent, managed C-order float32 array with the input's
+shape. Scalar and empty arrays, C/F-order inputs, transposes, reversed and
+stepped views, and zero strides are supported. Inputs are read through their
+existing storage and strides. No float64 promotion or input copy is required.
+
+The kernels evaluate Fortran real32 intrinsics. With the tested IEEE settings,
+negative square roots/logarithms yield NaN, logarithms of either signed zero
+yield negative infinity, exponential overflow yields positive infinity, and
+underflow can yield subnormals or positive zero. NaN and infinity propagation
+and signed zeros are checked against NumPy. Numerical domain/range events leave
+Frumpy status OK; there is no NumPy warning or `seterr` channel. Enabling compiler
+floating-point traps or fast-math is outside this tested numerical contract.
+
+Decision: transcendental results need not be bitwise identical to NumPy.
+NumPy may use vector math routines with different rounding from the compiler's
+intrinsics. Frumpy keeps real32 arithmetic and checks finite square-root, exp,
+log, sine and cosine results within four float32 ULP of NumPy 2.4.6 in the tested
+corpus. This is a regression threshold, not a global accuracy bound. Negation
+and absolute value are checked exactly; NaN payload bits are not specified.
+`test_numpy_unary_r32` covers 105 cases, including 2,048 seeded bit patterns per
+operation, extreme values, domain boundaries, layouts and scalar/empty inputs.
+
+Missing storage returns `FRUMPY_STATUS_UNSUPPORTED_BEHAVIOR`; malformed metadata
+or unreachable storage returns `FRUMPY_STATUS_INVALID_SHAPE`. Explicit allocation
+failures return `FRUMPY_STATUS_ALLOCATION_FAILED`, subject to the compiler
+allocation limits in [storage lifetime](STORAGE_LIFETIME.md). Failures return a
+descriptor without storage, including when status is omitted.
+`test/test_elementwise_r32.f90` checks independent results surviving source
+release, owned C-order metadata, optional status and malformed descriptors.
+
+## Float32 Reductions
+
+`sum_r32`, `prod_r32`, `mean_r32`, `min_r32`, and `max_r32` return independent
+float32 descriptors. They support all-axis or one-axis reduction, negative axes,
+keepdims, empty/scalar inputs and signed/zero-stride views. Sum and mean use
+pairwise float32 accumulation. See [FLOAT32_REDUCTIONS.md](FLOAT32_REDUCTIONS.md)
+for exact empty-axis behavior, status paths, supported scope, and reduction-order
+rounding differences from NumPy.
 
 ## Non-r64 Descriptor Foundation
 
@@ -71,9 +175,10 @@ Each descriptor preserves the same metadata invariants as `ndarray_r64`:
 - Fortran-contiguity.
 - Copy-vs-view storage sharing.
 
-The non-`r64` descriptor APIs are descriptor foundations only. They do not add
-NumPy constructors, general elementwise kernels, reductions, view helpers, or
-mixed-dtype array execution for those dtypes. The selection subset consumes
+Concrete convenience constructors and view helpers now cover all five dtypes;
+see [constructors and views](CONSTRUCTORS_AND_VIEWS.md) for API and limitations. Mixed arithmetic is the separate execution surface above. Integer binary arithmetic, float32
+binary/unary arithmetic and float32 reductions are the separate bounded kernel
+surfaces described above. The selection subset consumes
 boolean conditions and produces int64 indices without adding general dtype
 execution.
 
@@ -131,5 +236,23 @@ should not terminate the process or silently fall back to another dtype.
 ## Explicit Non-Scope
 
 This dtype support surface does not add Torch compatibility, autograd, Diffusers
-support, GPU runtime design, model loading, tokenizers, SciPy replacement work,
-or Python packaging. Frumpy remains scoped to NumPy-compatible ndarray behavior.
+support, GPU runtime design, model loading, tokenizers, or SciPy replacement work. Frumpy remains scoped to NumPy-compatible ndarray behavior.
+
+Float64 [uniform and standard normal generation](RANDOM.md) uses explicit seeded
+state and owned C-order results; it does not match NumPy random streams.
+
+All five dtypes support [array astype and mixed comparisons](ARRAY_OPERATIONS.md).
+Integer/boolean reductions and float64 full-shape mask extraction and staged
+assignment through basic views are documented there as well.
+
+Dot, outer and matmul support [floating-result mixed-dtype promotion](LINEAR_ALGEBRA.md#floating-result-promotion).
+Integer-only products and mixed-dtype solve remain unsupported.
+
+Argmin and argmax now support all five existing dtypes, with int64 indices,
+first-occurrence ties and first-NaN selection. See the [index reduction contract](ARG_REDUCTIONS.md).
+
+Stable sort and argsort support all five existing dtypes. See the
+[stable sorting contract](STABLE_SORT_DTYPES.md) for ordering, axes and memory costs.
+
+Same-dtype searchsorted supports all five dtypes with int64 results. See the
+[searching contract](SEARCHSORTED_DTYPES.md) for ordering, errors and exclusions.

@@ -1,0 +1,103 @@
+{
+  "source_commit": "4d2cabb",
+  "baseline_commit": "0dc8740",
+  "numpy": "2.4.6",
+  "status": "passed",
+  "logs": {
+    "flang-new-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/casting-matrix/flang-new-debug.log",
+      "sha256": "893918f9672bf0a93868bf7afb963515145fb576274f3c5594c45ca97f0c809e",
+      "python_passed": 4359,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "flang-new-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/casting-matrix/flang-new-release.log",
+      "sha256": "5323cbfb6cb5252b9f80ee5c10ce2791e8abd0c18091aca6dd38fad3a0621fd0",
+      "python_passed": 4359,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/casting-matrix/gfortran-13-debug.log",
+      "sha256": "1cbd97808b60ffb41cf4dac45691dcd914f2d6a37398bf5af1ee5495f0eace01",
+      "python_passed": 4359,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-13-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/casting-matrix/gfortran-13-release.log",
+      "sha256": "43c4e99961832f9e3d85ad5bf6761915b21898dbd22ba820c885d9dd3c7b4ef2",
+      "python_passed": 4359,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-debug.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/casting-matrix/gfortran-14-debug.log",
+      "sha256": "0d4a168951a017bc0b0c5691fb90023401e08c2eb4a4172c71774fcebe78d4ed",
+      "python_passed": 4359,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gfortran-14-release.log": {
+      "path": "/home/lynn/Documents/Codex/2026-09-07/so/work/casting-matrix/gfortran-14-release.log",
+      "sha256": "48528cc08b56e5dd839088b8cb278fe30612a25d4392c94d01bddc2d53825b3f",
+      "python_passed": 4359,
+      "native_programs": 38,
+      "examples": 2,
+      "c_caller": "passed"
+    },
+    "gates": {
+      "path": "/tmp/casting-gates.log",
+      "sha256": "b73e31bbdb89f8d40e8f743758559dbe822b15bc89870cbd552da3287090c7a2",
+      "pytest_summaries": [
+        "2643 passed, 4 warnings in 73.69s (0:01:13)",
+        "2159 passed, 484 deselected, 4 warnings in 16.39s",
+        "1688 passed, 6 warnings in 8.99s"
+      ]
+    },
+    "ubsan": {
+      "path": "/tmp/casting-ubsan.log",
+      "sha256": "33d262a7074b249cf0c9e69290c7f04c2d0479292f1677cd5c8b2fdb70922807",
+      "pytest_summaries": [
+        "1688 passed, 6 warnings in 5.43s"
+      ]
+    },
+    "fpm": {
+      "path": "/tmp/casting-fpm.log",
+      "sha256": "40875af1885140457401f425e33c84e938a5d527b3070791842e66a068c7d08b",
+      "pytest_summaries": []
+    },
+    "install": {
+      "path": "/tmp/casting-install.log",
+      "sha256": "dfd576ad00f68133b580ad1d690fe4579764b6d004a32263e686356e8267023f",
+      "pytest_summaries": [
+        "365 passed in 0.69s"
+      ]
+    },
+    "openblas-validation": {
+      "path": "/tmp/casting-openblas-validation.log",
+      "sha256": "d77f0faa657b425683706c8f578aea4545883081e0949fbc486270054ba0aaf2",
+      "pytest_summaries": [
+        "4359 passed, 12 warnings in 30.15s"
+      ]
+    }
+  },
+  "native_programs": 38,
+  "python_tests": 4359,
+  "new_casting_tests": 96,
+  "notes": [
+    "Six compiler profiles: GNU13, GNU14, Flang19, debug/release; each passes all 4359 Python tests, 38 native programs, two examples and the C caller.",
+    "GNU14 release with one-thread OpenBLAS passes all 4359 tests.",
+    "Native ASan differential: 2643; integer-overflow differential: 2159 with 484 deselected. Combined C/package/numerical/casting tests: 1688 under each ASan and UBSan.",
+    "Native and C leak checks enabled; Python ASan leak detection disabled. Backend libraries are not sanitized.",
+    "Isolated source-distribution installation passes 365 package tests; fpm completes 38 native programs.",
+    "The 96 new casting cases also passed on the unoptimized baseline. Initial test harness omitted the cast-mode field; corrected before baseline validation.",
+    "Hosted CI was not run."
+  ]
+}

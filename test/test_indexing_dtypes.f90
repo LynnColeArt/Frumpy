@@ -55,6 +55,10 @@ contains
     result = mask_select(source, mask_view, status)
     call require(status%is_ok(), 'reversed mask')
     call require(size(result%data) == 4, 'mask count')
+    invalid = owned_descriptor_bool([integer(int64)::], status=status)
+    invalid%data = -3_int8
+    call assign(source, invalid, status)
+    call require(status%is_ok() .and. all(source%data == 1_int8), 'scalar bool normalization')
   end subroutine test_bool
 
   subroutine test_i32()
@@ -142,8 +146,11 @@ contains
     invalid = owned_descriptor_i64([1_int64], status=status)
     invalid%data = 9_int64
     call assign(repeated, invalid, status)
-    call require(status%code == 4, 'staging bytes overflow before allocation')
-    call require(int(source%data(1),int64) == 0_int64, 'overflow leaves target unchanged')
+    call require(status%is_ok(), 'huge zero-stride scalar fill without staging')
+    call require(int(source%data(1),int64) == 9_int64, 'huge constant fill writes once')
+    call assign(repeated, repeated, status)
+    call require(status%code == 4, 'nonscalar staging byte overflow still rejected')
+    call require(int(source%data(1),int64) == 9_int64, 'overflow preserves target')
     mask_view = view_descriptor_bool(mask, [4_int64], [-1_int64], 4_int64, status)
     result = mask_select(source, mask_view, status)
     call require(status%is_ok(), 'reversed mask')

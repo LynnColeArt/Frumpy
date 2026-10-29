@@ -179,3 +179,57 @@ def test_transposed_masks_and_broadcast_assignment(dtype):
         expected[:] = values
         np.testing.assert_array_equal(target.numpy(), expected)
         target.close(); mask.close()
+
+
+@pytest.mark.parametrize('dtype', DTYPES)
+@pytest.mark.parametrize('layout', ['C', 'F', 'step', 'reverse', 'irregular'])
+@pytest.mark.parametrize('masked', [False, True])
+def test_scalar_fill_alias_snapshot(dtype, layout, masked):
+    data = np.arange(24).reshape(4, 6).astype(dtype)
+    if dtype == np.bool_:
+        data = (np.arange(24).reshape(4, 6) % 3 == 0)
+    with fp.asarray(data, order='F' if layout == 'F' else 'C') as owner:
+        target = owner[:, ::2] if layout == 'step' else owner[::-1, ::-1] if layout == 'reverse' else (
+            owner[::2, ::-1] if layout == 'irregular' else owner)
+        before = target.numpy()
+        # The captured element lies late in the traversal, but inside the write set.
+        rhs = target[-1:, -1:].squeeze().reshape((1,))
+        expected = before.copy()
+        value = before[-1, -1]
+        if masked:
+            mask = np.arange(expected.size).reshape(expected.shape) % 2 == 0
+            target[mask] = rhs
+            expected[mask] = value
+        else:
+            target[:] = rhs
+            expected[:] = value
+        np.testing.assert_array_equal(target.numpy(), expected)
+        rhs.close()
+        if target is not owner:
+            target.close()
+
+
+@pytest.mark.parametrize('dtype', DTYPES)
+def test_scalar_fill_preserves_shape_rejections(dtype):
+    with fp.asarray(np.zeros(4, dtype=dtype)) as target:
+        rhs = np.ones((1, 1), dtype=dtype)
+        with pytest.raises(ValueError):
+            target[:] = rhs
+        with pytest.raises(ValueError):
+            target[np.ones(4, dtype=bool)] = rhs
+        np.testing.assert_array_equal(target.numpy(), np.zeros(4, dtype=dtype))
+
+
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+@pytest.mark.parametrize('masked', [False, True])
+def test_scalar_fill_float_bits(dtype, masked):
+    uint = np.uint32 if dtype == np.float32 else np.uint64
+    for bits in (1 << (np.dtype(dtype).itemsize * 8 - 1),
+                 0x7fc00031 if dtype == np.float32 else 0x7ff8000000000031):
+        scalar = np.array(bits, dtype=uint).view(dtype)
+        with fp.asarray(np.zeros((3,4), dtype=dtype)) as target:
+            if masked:
+                target[np.ones(target.shape, dtype=bool)] = scalar
+            else:
+                target[:] = scalar
+            np.testing.assert_array_equal(target.numpy().view(uint), np.full((3,4), bits, dtype=uint))

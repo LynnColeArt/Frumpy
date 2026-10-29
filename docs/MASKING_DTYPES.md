@@ -18,17 +18,21 @@ payload changes; passing the same descriptor is supported. Legacy `assign_r64`
 retains its distinct-descriptor restriction and existing implementation.
 Legacy `mask_select_r64` also remains available.
 
-All inputs are validated before writes. RHS payloads are staged before any target
-mutation. Mask assignment also snapshots every selected destination, so masks
+All inputs are validated before writes. RHS payloads are captured before any target
+mutation. A single-element RHS is captured in one typed scalar; other values use
+a staging array. Mask assignment also snapshots every selected destination, so masks
 may share boolean target storage. Reported validation/allocation failures leave
 the target unchanged. Explicit allocations have status paths; compiler-generated
-temporary allocation limitations still apply. Staging is O(N) values for basic
-assignment; masked assignment stages O(K) values and int64 positions for K selected
-entries. Extraction allocates only its result after counting selected entries.
+temporary allocation limitations still apply. For a scalar RHS, basic assignment needs O(1) working storage and masked
+assignment needs O(K) int64 positions for K selected entries. Nonscalar basic
+assignment stages O(N) values; masked assignment stages O(K) values and positions. Extraction allocates only its result after counting selected entries.
 
 C/F-contiguous, reversed, stepped, transposed and zero-stride descriptors are
 supported. Repeated destination positions are written in C logical order, with
-the last selected write winning. Empty selections still validate RHS rank,
+the last selected write winning. Constant fills may visit contiguous F-order
+storage in physical order because all writes use the same captured value. A
+uniform zero-stride constant fill writes once, even for huge logical shapes
+that previously exceeded staging-byte limits. Empty selections still validate RHS rank,
 dtype and length: scalar, length-one and length-zero values are valid.
 
 ## NumPy correspondence and intentional boundaries
@@ -75,3 +79,6 @@ five dtypes. `test_mask_dtypes.py` compares native driver results, direct C call
 and Python behavior against NumPy and snapshot-based overlap expectations.
 Installed-package regressions exercise extraction lifetime and both assignment
 forms. These tests are included in the full suite and native/C memory gates.
+
+Scalar fill performance and before/after evidence are recorded in
+[the focused optimization report](performance/scalar-assignment-2026-10-29/README.md).

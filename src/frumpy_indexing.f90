@@ -1,9 +1,10 @@
 !> Full-shape boolean selection and staged same-dtype writes.
 module frumpy_indexing
-  use iso_fortran_env, only: int8, int32, int64
+  use iso_fortran_env, only: int8, int32, int64, real32, real64
   use frumpy_operands, only: operand, bind_operand, boolean_value
   use frumpy_shape, only: element_count
-  use frumpy_strides, only: flat_offset
+  use frumpy_strides, only: flat_offset, is_c_contiguous, is_f_contiguous
+  use frumpy_linear_arithmetic, only: linear_step
   use frumpy_broadcast, only: broadcast_plan, broadcast_plan_from_metadata
   use frumpy_dtypes, only: dtype_byte_size
   use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_INVALID_SHAPE, &
@@ -185,6 +186,7 @@ contains
     integer(int64), allocatable :: positions(:)
     integer(int64) :: count, i0, selected, position, value_position
     integer(int32) :: alloc_stat
+    logical :: scalar
 
     call bind_operand(target, destination, status)
     if (status%is_ok()) call bind_operand(values, input, status)
@@ -194,6 +196,7 @@ contains
       return
     end if
     count = element_count(destination%shape)
+    scalar = element_count(input%shape) == 1_int64
     if (present(mask)) then
       call check_mask(destination, mask, condition, count, status)
       if (status%is_failure()) return
@@ -218,6 +221,15 @@ contains
         return
       end if
     else
+      if (scalar) then
+        ! Singleton RHS dimensions cannot expand the existing target rank.
+        if (size(input%shape) > size(destination%shape)) then
+          call set_status(status, FRUMPY_STATUS_INVALID_SHAPE, 'assignment cannot expand target')
+          return
+        end if
+        call fill_scalar(input, destination, count)
+        return
+      end if
       plan = broadcast_plan_from_metadata(destination%shape, destination%strides, &
         input%shape, input%strides, status)
       if (status%is_failure()) return
@@ -230,7 +242,7 @@ contains
         return
       end if
     end if
-    call allocate_stage(staged, count, input%dtype_id, buffer, status)
+    if (.not. scalar) call allocate_stage(staged, count, input%dtype_id, buffer, status)
     if (status%is_failure()) return
     if (present(mask)) then
       selected = 0_int64
@@ -239,6 +251,7 @@ contains
         if (.not. boolean_value(condition, position)) cycle
         selected = selected + 1_int64
         positions(selected) = flat_offset(destination%shape, destination%strides, destination%offset, i0)
+        if (scalar) cycle
         value_position = input%offset
         if (size(input%shape) == 1) then
           if (input%shape(1) /= 1_int64) &
@@ -246,6 +259,10 @@ contains
         end if
         call copy_value(input, value_position, buffer, selected)
       end do
+      if (scalar) then
+        call fill_scalar(input, destination, count, positions)
+        return
+      end if
       do selected = 1_int64, count
         call copy_value(buffer, selected, destination, positions(selected))
       end do
@@ -260,6 +277,136 @@ contains
       end do
     end if
   end subroutine staged_assign
+
+  ! Snapshot the typed scalar once, before the first write even when it aliases
+  ! target or mask storage. Validated constant fills may visit F order physically.
+  subroutine fill_scalar(input, output, count, positions)
+    type(operand), intent(in) :: input, output
+    integer(int64), intent(in) :: count
+    integer(int64), optional, intent(in) :: positions(:)
+    integer(int64) :: i0, position, step
+    logical :: linear
+    integer(int8) :: value_bool
+    integer(int32) :: value_i32
+    integer(int64) :: value_i64
+    real(real32) :: value_r32
+    real(real64) :: value_r64
+
+    if (count == 0_int64) return
+    linear = .false.
+    step = 0_int64
+    if (.not. present(positions)) then
+      if (is_c_contiguous(output%shape, output%strides) .or. &
+          is_f_contiguous(output%shape, output%strides)) then
+        linear = .true.
+        step = 1_int64
+      else
+        step = linear_step(output%shape, output%strides, linear)
+      end if
+    end if
+    select case (input%dtype_id)
+    case (1)
+      value_bool = merge(1_int8, 0_int8, input%values_bool(input%offset) /= 0_int8)
+      if (present(positions)) then
+        do i0 = 1_int64, count
+          output%values_bool(positions(i0)) = value_bool
+        end do
+      else if (linear) then
+        if (step == 0_int64) then
+          output%values_bool(output%offset) = value_bool
+        else
+          do i0 = 0_int64, count - 1_int64
+            output%values_bool(output%offset + i0 * step) = value_bool
+          end do
+        end if
+      else
+        do i0 = 0_int64, count - 1_int64
+          position = flat_offset(output%shape, output%strides, output%offset, i0)
+          output%values_bool(position) = value_bool
+        end do
+      end if
+    case (2)
+      value_i32 = input%values_i32(input%offset)
+      if (present(positions)) then
+        do i0 = 1_int64, count
+          output%values_i32(positions(i0)) = value_i32
+        end do
+      else if (linear) then
+        if (step == 0_int64) then
+          output%values_i32(output%offset) = value_i32
+        else
+          do i0 = 0_int64, count - 1_int64
+            output%values_i32(output%offset + i0 * step) = value_i32
+          end do
+        end if
+      else
+        do i0 = 0_int64, count - 1_int64
+          position = flat_offset(output%shape, output%strides, output%offset, i0)
+          output%values_i32(position) = value_i32
+        end do
+      end if
+    case (3)
+      value_i64 = input%values_i64(input%offset)
+      if (present(positions)) then
+        do i0 = 1_int64, count
+          output%values_i64(positions(i0)) = value_i64
+        end do
+      else if (linear) then
+        if (step == 0_int64) then
+          output%values_i64(output%offset) = value_i64
+        else
+          do i0 = 0_int64, count - 1_int64
+            output%values_i64(output%offset + i0 * step) = value_i64
+          end do
+        end if
+      else
+        do i0 = 0_int64, count - 1_int64
+          position = flat_offset(output%shape, output%strides, output%offset, i0)
+          output%values_i64(position) = value_i64
+        end do
+      end if
+    case (4)
+      value_r32 = input%values_r32(input%offset)
+      if (present(positions)) then
+        do i0 = 1_int64, count
+          output%values_r32(positions(i0)) = value_r32
+        end do
+      else if (linear) then
+        if (step == 0_int64) then
+          output%values_r32(output%offset) = value_r32
+        else
+          do i0 = 0_int64, count - 1_int64
+            output%values_r32(output%offset + i0 * step) = value_r32
+          end do
+        end if
+      else
+        do i0 = 0_int64, count - 1_int64
+          position = flat_offset(output%shape, output%strides, output%offset, i0)
+          output%values_r32(position) = value_r32
+        end do
+      end if
+    case (5)
+      value_r64 = input%values_r64(input%offset)
+      if (present(positions)) then
+        do i0 = 1_int64, count
+          output%values_r64(positions(i0)) = value_r64
+        end do
+      else if (linear) then
+        if (step == 0_int64) then
+          output%values_r64(output%offset) = value_r64
+        else
+          do i0 = 0_int64, count - 1_int64
+            output%values_r64(output%offset + i0 * step) = value_r64
+          end do
+        end if
+      else
+        do i0 = 0_int64, count - 1_int64
+          position = flat_offset(output%shape, output%strides, output%offset, i0)
+          output%values_r64(position) = value_r64
+        end do
+      end if
+    end select
+  end subroutine fill_scalar
 
   subroutine check_mask(input, mask, condition, count, status)
     type(operand), intent(in) :: input

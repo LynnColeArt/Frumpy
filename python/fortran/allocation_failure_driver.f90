@@ -9,7 +9,7 @@ program allocation_failure_driver
   use frumpy_ndarray_i64, only: ndarray_i64, owned_descriptor_i64, share_descriptors_i64
   use frumpy_ndarray_r32, only: ndarray_r32, owned_descriptor_r32, share_descriptors_r32
   use frumpy_ndarray_r64, only: ndarray_r64, owned_descriptor_r64, share_descriptors_r64
-  use frumpy_indexing, only: mask_assign
+  use frumpy_indexing, only: mask_assign, assign
   implicit none
 
   interface
@@ -21,6 +21,7 @@ program allocation_failure_driver
     end subroutine allow_allocations
   end interface
 
+  call exercise_scalar_fill()
   call exercise_mask_staging()
   call exercise_bool()
   call exercise_i32()
@@ -29,6 +30,35 @@ program allocation_failure_driver
   call exercise_r64()
 
 contains
+
+  subroutine exercise_scalar_fill()
+    type(ndarray_i64) :: target, scalar
+    type(ndarray_bool) :: mask
+    type(frumpy_status) :: status
+
+    target = owned_descriptor_i64([4_int64])
+    scalar = owned_descriptor_i64([integer(int64)::])
+    scalar%data = 23_int64
+    target%data = 7_int64
+    call fail_after(0_c_int)
+    call assign(target, scalar, status)
+    call allow_allocations()
+    call require(status%is_ok(), 'scalar fill must not allocate')
+    call require(all(target%data == 23_int64), 'scalar fill values')
+    mask = owned_descriptor_bool([4_int64])
+    mask%data = 1_int8
+    target%data = 7_int64
+    call fail_after(0_c_int)
+    call mask_assign(target, mask, scalar, status)
+    call allow_allocations()
+    call require(status%code == FRUMPY_STATUS_ALLOCATION_FAILED, 'masked scalar positions failure')
+    call require(all(target%data == 7_int64), 'masked scalar positions failure atomicity')
+    call fail_after(1_c_int)
+    call mask_assign(target, mask, scalar, status)
+    call allow_allocations()
+    call require(status%is_ok(), 'masked scalar only allocates positions')
+    call require(all(target%data == 23_int64), 'masked scalar recovery')
+  end subroutine exercise_scalar_fill
 
   ! Only the seven explicit allocations: positions, descriptor and owned storage.
   ! Do not inject into compiler-generated constructor-result metadata copies.

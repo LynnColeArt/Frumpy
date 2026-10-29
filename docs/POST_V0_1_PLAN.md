@@ -58,8 +58,10 @@ Use the v0.1 coverage table to select small releases, not blanket parity claims:
 - Stable sort/argsort across the five existing dtypes are completed; see
   [the sorting contract](STABLE_SORT_DTYPES.md). Same-dtype searchsorted is also
   complete across all five dtypes; see [searching](SEARCHSORTED_DTYPES.md).
-  Remaining selection across dtypes, advanced integer indexing, boolean
-  assignment and full nonzero tuples. Specify repeated-index assignment first.
+  Same-dtype where/take/concatenate/stack and full-shape boolean extraction,
+  basic-view assignment and boolean-mask assignment now cover all five dtypes.
+  Remaining work includes advanced integer indexing, prefix masks, assignment
+  casting and full nonzero tuples. Specify repeated-index assignment first.
 - Broader norms and selected factorizations (QR, Cholesky, SVD/eigen), with
   singular/ill-conditioned cases and backend variability documented.
 

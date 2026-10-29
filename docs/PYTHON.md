@@ -59,10 +59,13 @@ and ownership as immutable metadata, not a writable-buffer interface.
 
 Basic indexing supports integers, slices (including clipping/negative steps),
 one ellipsis and new axes. Integer-only scalar indexing returns a NumPy scalar;
-other indexing returns a Frumpy array. Float64 full-shape bool masks extract an
-owned flat array. Arbitrary advanced indexing and mask assignment are unsupported.
-Float64 basic-slice assignment stages its float64 RHS before writing, including
-aliased RHS views. Other destination/source dtypes are explicitly unsupported.
+other indexing returns a Frumpy array. Full-shape bool masks extract an owned
+flat array across all five dtypes. Basic-slice and boolean-mask assignment require
+matching value dtypes and stage the RHS before writing, including aliased views.
+Mask assignment also snapshots selected destinations. Masked values must be scalar
+or rank one, of length one or the selected count. Use explicitly typed scalars;
+no implicit assignment cast is performed. Prefix masks, boolean lists/tuples,
+and arbitrary advanced indexing remain unsupported. See [masking](MASKING_DTYPES.md).
 
 Reshape supports one inferred -1 dimension at the Python boundary but requires
 C-contiguous source storage. Ravel shares C-contiguous storage and copies other

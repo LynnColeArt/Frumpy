@@ -53,8 +53,9 @@ its source. Python scalar `take` now accepts axes 0/-1, matching native and
 NumPy behavior. Scalar concatenation raises `ValueError` before axis handling.
 
 Mixed selection promotion, multidimensional index arrays, take clip/wrap modes,
-join `axis=None`, `out`, and additional masking/assignment dtypes are excluded.
-Float64 mask extraction, staged assignment, and bool flatnonzero are unchanged.
+join `axis=None` and `out` are excluded from this slice.
+Five-dtype masking and staged assignment are documented separately in
+[MASKING_DTYPES.md](MASKING_DTYPES.md). Bool flatnonzero is unchanged.
 
 ## Verification
 

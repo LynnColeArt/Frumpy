@@ -6,9 +6,11 @@ module frumpy_c_indexing
   use frumpy_statuses, only: frumpy_status, set_status, FRUMPY_STATUS_UNSUPPORTED_DTYPE, &
     FRUMPY_STATUS_INVALID_SHAPE, FRUMPY_STATUS_ALLOCATION_FAILED
   use frumpy_operands, only: descriptor_dtype
-  use frumpy, only: ndarray_bool, ndarray_r64, ndarray_i64, mask_select_r64, &
-    assign_r64, nonzero_bool
+  use frumpy, only: ndarray_bool, ndarray_r64, ndarray_i64, &
+    nonzero_bool
   use frumpy, only: ndarray_i32, ndarray_r32, where_native => where
+  use frumpy_indexing, only: mask_select_native => mask_select, assign_native => assign, &
+    mask_assign_native => mask_assign
   implicit none
   private
 contains
@@ -101,22 +103,41 @@ contains
     code = status%code
     if (status%is_failure()) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(input%array) /= 5) return
     condition => lookup(mask, 1_int32, status)
     code = status%code
     if (status%is_failure()) return
     code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
     if (descriptor_dtype(condition%array) /= 1) return
-    call new_array_slot(5_int32, slot, status)
+    call new_array_slot(descriptor_dtype(input%array), slot, status)
     code = status%code
     if (status%is_failure()) return
-    select type (a => input%array)
-    type is (ndarray_r64)
-      select type (m => condition%array)
+    select type (m => condition%array)
+    type is (ndarray_bool)
+      select type (a => input%array)
       type is (ndarray_bool)
         select type (b => slot%array)
+        type is (ndarray_bool)
+          b = mask_select_native(a, m, status)
+        end select
+      type is (ndarray_i32)
+        select type (b => slot%array)
+        type is (ndarray_i32)
+          b = mask_select_native(a, m, status)
+        end select
+      type is (ndarray_i64)
+        select type (b => slot%array)
+        type is (ndarray_i64)
+          b = mask_select_native(a, m, status)
+        end select
+      type is (ndarray_r32)
+        select type (b => slot%array)
+        type is (ndarray_r32)
+          b = mask_select_native(a, m, status)
+        end select
+      type is (ndarray_r64)
+        select type (b => slot%array)
         type is (ndarray_r64)
-          b = mask_select_r64(a, m, status)
+          b = mask_select_native(a, m, status)
         end select
       end select
     end select
@@ -162,18 +183,33 @@ contains
     input => lookup(values, 1_int32, status)
     code = status%code
     if (status%is_failure()) return
-    code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
-    if (descriptor_dtype(destination%array) /= 5 .or. descriptor_dtype(input%array) /= 5) return
-    ! Identical handles need no writes and must not alias native INTENT arguments.
+    ! Preserve the established no-allocation identical-handle shortcut.
     code = 0_c_int32_t
     if (target == values) return
-    select type (a => destination%array)
-    type is (ndarray_r64)
-      select type (b => input%array)
-      type is (ndarray_r64)
-        call assign_r64(a, b, status)
-      end select
-    end select
+    call assign_native(destination%array, input%array, status)
     code = status%code
   end function assign
+  integer(c_int32_t) function mask_assign(target, mask, values) &
+      bind(C, name="frumpy_mask_assign") result(code)
+    integer(c_int64_t), value :: target, mask, values
+    type(handle_slot), pointer :: destination, condition, input
+    type(frumpy_status) :: status
+
+    destination => lookup(target, 1_int32, status)
+    code = status%code
+    if (status%is_failure()) return
+    condition => lookup(mask, 1_int32, status)
+    code = status%code
+    if (status%is_failure()) return
+    code = FRUMPY_STATUS_UNSUPPORTED_DTYPE
+    if (descriptor_dtype(condition%array) /= 1) return
+    input => lookup(values, 1_int32, status)
+    code = status%code
+    if (status%is_failure()) return
+    select type (m => condition%array)
+    type is (ndarray_bool)
+      call mask_assign_native(destination%array, m, input%array, status)
+    end select
+    code = status%code
+  end function mask_assign
 end module frumpy_c_indexing

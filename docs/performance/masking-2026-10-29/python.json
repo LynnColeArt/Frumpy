@@ -1,0 +1,482 @@
+[
+  {
+    "dtype": "bool",
+    "size": 16,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 16.8358,
+    "numpy_us": 0.708
+  },
+  {
+    "dtype": "bool",
+    "size": 16,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 5.944,
+    "numpy_us": 0.66
+  },
+  {
+    "dtype": "bool",
+    "size": 16,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 31.6358,
+    "numpy_us": 0.434
+  },
+  {
+    "dtype": "bool",
+    "size": 16,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 16.8738,
+    "numpy_us": 0.686
+  },
+  {
+    "dtype": "bool",
+    "size": 16,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 6.012,
+    "numpy_us": 0.642
+  },
+  {
+    "dtype": "bool",
+    "size": 16,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 29.9378,
+    "numpy_us": 0.416
+  },
+  {
+    "dtype": "bool",
+    "size": 65536,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 1225.5094,
+    "numpy_us": 234.1608
+  },
+  {
+    "dtype": "bool",
+    "size": 65536,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 1130.1278,
+    "numpy_us": 228.7706
+  },
+  {
+    "dtype": "bool",
+    "size": 65536,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 903.919,
+    "numpy_us": 0.986
+  },
+  {
+    "dtype": "bool",
+    "size": 65536,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 978.5065999999999,
+    "numpy_us": 161.83120000000002
+  },
+  {
+    "dtype": "bool",
+    "size": 65536,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 1051.7282,
+    "numpy_us": 137.77339999999998
+  },
+  {
+    "dtype": "bool",
+    "size": 65536,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 907.339,
+    "numpy_us": 15.346
+  },
+  {
+    "dtype": "int32",
+    "size": 16,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 14.307799999999999,
+    "numpy_us": 0.832
+  },
+  {
+    "dtype": "int32",
+    "size": 16,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 5.798,
+    "numpy_us": 0.352
+  },
+  {
+    "dtype": "int32",
+    "size": 16,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 25.8938,
+    "numpy_us": 0.248
+  },
+  {
+    "dtype": "int32",
+    "size": 16,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 16.964,
+    "numpy_us": 0.4
+  },
+  {
+    "dtype": "int32",
+    "size": 16,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 4.156,
+    "numpy_us": 0.362
+  },
+  {
+    "dtype": "int32",
+    "size": 16,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 32.013799999999996,
+    "numpy_us": 0.256
+  },
+  {
+    "dtype": "int32",
+    "size": 65536,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 904.883,
+    "numpy_us": 193.471
+  },
+  {
+    "dtype": "int32",
+    "size": 65536,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 1012.5344,
+    "numpy_us": 142.4332
+  },
+  {
+    "dtype": "int32",
+    "size": 65536,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 837.8354,
+    "numpy_us": 8.1538
+  },
+  {
+    "dtype": "int32",
+    "size": 65536,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 908.4812,
+    "numpy_us": 173.329
+  },
+  {
+    "dtype": "int32",
+    "size": 65536,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 981.9386,
+    "numpy_us": 118.6434
+  },
+  {
+    "dtype": "int32",
+    "size": 65536,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 846.4614,
+    "numpy_us": 17.558
+  },
+  {
+    "dtype": "int64",
+    "size": 16,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 13.564,
+    "numpy_us": 0.408
+  },
+  {
+    "dtype": "int64",
+    "size": 16,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 3.894,
+    "numpy_us": 0.726
+  },
+  {
+    "dtype": "int64",
+    "size": 16,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 22.8858,
+    "numpy_us": 0.26
+  },
+  {
+    "dtype": "int64",
+    "size": 16,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 12.206,
+    "numpy_us": 0.81
+  },
+  {
+    "dtype": "int64",
+    "size": 16,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 3.836,
+    "numpy_us": 0.36
+  },
+  {
+    "dtype": "int64",
+    "size": 16,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 26.176,
+    "numpy_us": 0.542
+  },
+  {
+    "dtype": "int64",
+    "size": 65536,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 813.5536,
+    "numpy_us": 173.307
+  },
+  {
+    "dtype": "int64",
+    "size": 65536,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 943.8428,
+    "numpy_us": 117.09339999999999
+  },
+  {
+    "dtype": "int64",
+    "size": 65536,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 824.2674000000001,
+    "numpy_us": 8.1
+  },
+  {
+    "dtype": "int64",
+    "size": 65536,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 849.5654000000001,
+    "numpy_us": 174.205
+  },
+  {
+    "dtype": "int64",
+    "size": 65536,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 1080.0982,
+    "numpy_us": 118.22739999999999
+  },
+  {
+    "dtype": "int64",
+    "size": 65536,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 850.5854,
+    "numpy_us": 16.414
+  },
+  {
+    "dtype": "float32",
+    "size": 16,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 10.968,
+    "numpy_us": 0.398
+  },
+  {
+    "dtype": "float32",
+    "size": 16,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 4.166,
+    "numpy_us": 0.362
+  },
+  {
+    "dtype": "float32",
+    "size": 16,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 20.8098,
+    "numpy_us": 0.244
+  },
+  {
+    "dtype": "float32",
+    "size": 16,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 11.286,
+    "numpy_us": 0.446
+  },
+  {
+    "dtype": "float32",
+    "size": 16,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 4.232,
+    "numpy_us": 0.35
+  },
+  {
+    "dtype": "float32",
+    "size": 16,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 36.159800000000004,
+    "numpy_us": 0.248
+  },
+  {
+    "dtype": "float32",
+    "size": 65536,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 943.5468000000001,
+    "numpy_us": 215.91279999999998
+  },
+  {
+    "dtype": "float32",
+    "size": 65536,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 984.0548,
+    "numpy_us": 143.5832
+  },
+  {
+    "dtype": "float32",
+    "size": 65536,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 909.671,
+    "numpy_us": 5.4898
+  },
+  {
+    "dtype": "float32",
+    "size": 65536,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 878.9291999999999,
+    "numpy_us": 151.825
+  },
+  {
+    "dtype": "float32",
+    "size": 65536,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 1061.3662,
+    "numpy_us": 121.3814
+  },
+  {
+    "dtype": "float32",
+    "size": 65536,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 844.9254,
+    "numpy_us": 17.151799999999998
+  },
+  {
+    "dtype": "float64",
+    "size": 16,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 18.1798,
+    "numpy_us": 0.402
+  },
+  {
+    "dtype": "float64",
+    "size": 16,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 3.884,
+    "numpy_us": 0.364
+  },
+  {
+    "dtype": "float64",
+    "size": 16,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 26.555799999999998,
+    "numpy_us": 0.26
+  },
+  {
+    "dtype": "float64",
+    "size": 16,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 11.4698,
+    "numpy_us": 0.396
+  },
+  {
+    "dtype": "float64",
+    "size": 16,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 3.912,
+    "numpy_us": 0.362
+  },
+  {
+    "dtype": "float64",
+    "size": 16,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 22.386,
+    "numpy_us": 0.256
+  },
+  {
+    "dtype": "float64",
+    "size": 65536,
+    "step": 1,
+    "operation": "extract",
+    "frumpy_us": 844.5594,
+    "numpy_us": 194.311
+  },
+  {
+    "dtype": "float64",
+    "size": 65536,
+    "step": 1,
+    "operation": "mask_assign",
+    "frumpy_us": 947.4368000000001,
+    "numpy_us": 131.3474
+  },
+  {
+    "dtype": "float64",
+    "size": 65536,
+    "step": 1,
+    "operation": "assign",
+    "frumpy_us": 846.1794,
+    "numpy_us": 8.3898
+  },
+  {
+    "dtype": "float64",
+    "size": 65536,
+    "step": 2,
+    "operation": "extract",
+    "frumpy_us": 930.213,
+    "numpy_us": 190.48479999999998
+  },
+  {
+    "dtype": "float64",
+    "size": 65536,
+    "step": 2,
+    "operation": "mask_assign",
+    "frumpy_us": 980.4148,
+    "numpy_us": 117.1292
+  },
+  {
+    "dtype": "float64",
+    "size": 65536,
+    "step": 2,
+    "operation": "assign",
+    "frumpy_us": 867.3152,
+    "numpy_us": 30.311799999999998
+  }
+]

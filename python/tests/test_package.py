@@ -450,3 +450,18 @@ def test_same_dtype_selection_lifetime(dtype):
         result.close()
     with fp.take(np.array(1,dtype=dtype),[0,-1],axis=-1) as result:
         np.testing.assert_array_equal(result.numpy(),np.ones(2,dtype=dtype))
+
+
+@pytest.mark.parametrize('dtype', [np.bool_, np.int32, np.int64, np.float32, np.float64])
+def test_masking_dtype_install(dtype):
+    initial = np.arange(6).astype(dtype)
+    mask = np.array([True, False, True, False, True, False])
+    with fp.asarray(initial) as source:
+        selected = source[mask]
+        source[mask] = np.array(1, dtype=dtype)
+        expected = initial.copy(); expected[mask] = 1
+        source[1:] = source[:-1]
+        expected[1:] = expected[:-1]
+        np.testing.assert_array_equal(source.numpy(), expected)
+    np.testing.assert_array_equal(selected.numpy(), initial[mask])
+    selected.close()

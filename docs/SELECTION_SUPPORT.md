@@ -1,7 +1,7 @@
 # Selection, Sorting, and Searching
 
-Selection operates on float64 (`r64`) arrays, with boolean masks and int64
-index outputs. Stable sort/argsort and same-dtype searchsorted support all five
+Where, take, concatenate and stack now support matching inputs across all five
+dtypes, with boolean conditions and int64 indices; see [five-dtype selection](SELECTION_DTYPES.md). Stable sort/argsort and same-dtype searchsorted support all five
 dtypes; see [sorting](STABLE_SORT_DTYPES.md) and [searching](SEARCHSORTED_DTYPES.md). These functions allocate independent results; none returns
 a view. Input shape, rank, and reachable storage bounds are validated before
 reading data. Invalid input returns `frumpy_status` rather than terminating the
@@ -11,7 +11,7 @@ caller. Bounds checks include signed-stride and element-count overflow cases.
 
 | API | NumPy behavior and current subset |
 | --- | --- |
-| `where_r64(condition, lhs, rhs)` | Three-array `np.where`: trailing-dimension broadcasting, including scalars and zero extents. The condition is `ndarray_bool`; both value arrays are `ndarray_r64`. |
+| `where_r64(condition, lhs, rhs)` | Three-array `np.where`: trailing-dimension broadcasting, including scalars and zero extents. The condition is `ndarray_bool`; the generic `where` accepts matching value dtypes. |
 | `take_r64(source, indices, axis0)` | `np.take` with a one-dimensional Fortran int64 index vector. Omitting `axis0` indexes the logical C-order flattening. Explicit positive or negative axes select a dimension. Negative indices wrap once; out-of-bounds indices return invalid-shape status. Scalar sources accept axis 0 or -1. |
 | `concatenate_r64(arrays, axis0)` | Join one or more arrays along an existing axis, default 0. Ranks and all other dimensions must match. Positive and negative axes are supported. Scalar inputs are rejected. |
 | `stack_r64(arrays, axis0)` | Join one or more equal-shaped arrays along a new axis, default 0. Positive and negative axes and scalar sources are supported. |
@@ -60,7 +60,7 @@ operation and reused across slices, in addition to the existing 16-byte-per-elem
 buffers and the result. The other four dtypes use the index workspace described
 in [the five-dtype sorting contract](STABLE_SORT_DTYPES.md). Python sort/argsort
 also accept `axis=None` through their existing C-order ravel wrapper. Allocation failures remain recoverable through status.
-Non-float64 selection kernels remain separate work. Full-shape bool extraction
+Mixed-dtype selection promotion remains separate work. Full-shape bool extraction
 and basic-view assignment are documented in [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). Float64 results,
 boolean masks, and integer index results now use managed shared storage; see
 [storage lifetime](STORAGE_LIFETIME.md) for supported assignment/release

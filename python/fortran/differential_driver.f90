@@ -23,6 +23,7 @@ program differential_driver
   use frumpy, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
     sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
   use frumpy, only: mask_select_r64, assign_r64
+  use frumpy, only: where, take, concatenate, stack
   use frumpy, only: searchsorted
   use frumpy, only: sort, argsort
   use frumpy, only: argmin, argmax
@@ -73,6 +74,10 @@ contains
 
     read (*, *) operation, axis0, side
     integer_output = .false.
+    if (index(operation, 'select_') == 1) then
+      call run_selection(operation(8:), axis0, side)
+      return
+    end if
     if (operation == 'search_typed') then
       call run_search(axis0,side)
       return
@@ -698,6 +703,164 @@ contains
     write (*, '(i0)') status%code
     if (status%is_ok()) call emit_mixed(result)
   end subroutine run_compare
+
+  subroutine run_selection(operation, dtype, axis)
+    character(len=*), intent(in) :: operation
+    integer(int32), intent(in) :: dtype, axis
+    type(ndarray_bool) :: condition
+    type(frumpy_status) :: status
+    integer(int64), allocatable :: indices(:)
+    integer :: count
+
+    if (operation == 'where') call read_mixed(condition)
+    select case (dtype)
+    case (1)
+      block
+        type(ndarray_bool) :: inputs(2), output
+
+        call read_mixed(inputs(1))
+        select case (operation)
+        case ('take', 'take_flat')
+          read (*, *) count
+          allocate(indices(count))
+          read (*, *) indices
+          if (operation == 'take_flat') then
+            output = take(inputs(1), indices, status=status)
+          else
+            output = take(inputs(1), indices, axis, status)
+          end if
+        case default
+          call read_mixed(inputs(2))
+          select case (operation)
+          case ('where')
+            output = where(condition, inputs(1), inputs(2), status)
+          case ('concatenate')
+            output = concatenate(inputs, axis, status)
+          case ('stack')
+            output = stack(inputs, axis, status)
+          end select
+        end select
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(output)
+      end block
+    case (2)
+      block
+        type(ndarray_i32) :: inputs(2), output
+
+        call read_mixed(inputs(1))
+        select case (operation)
+        case ('take', 'take_flat')
+          read (*, *) count
+          allocate(indices(count))
+          read (*, *) indices
+          if (operation == 'take_flat') then
+            output = take(inputs(1), indices, status=status)
+          else
+            output = take(inputs(1), indices, axis, status)
+          end if
+        case default
+          call read_mixed(inputs(2))
+          select case (operation)
+          case ('where')
+            output = where(condition, inputs(1), inputs(2), status)
+          case ('concatenate')
+            output = concatenate(inputs, axis, status)
+          case ('stack')
+            output = stack(inputs, axis, status)
+          end select
+        end select
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(output)
+      end block
+    case (3)
+      block
+        type(ndarray_i64) :: inputs(2), output
+
+        call read_mixed(inputs(1))
+        select case (operation)
+        case ('take', 'take_flat')
+          read (*, *) count
+          allocate(indices(count))
+          read (*, *) indices
+          if (operation == 'take_flat') then
+            output = take(inputs(1), indices, status=status)
+          else
+            output = take(inputs(1), indices, axis, status)
+          end if
+        case default
+          call read_mixed(inputs(2))
+          select case (operation)
+          case ('where')
+            output = where(condition, inputs(1), inputs(2), status)
+          case ('concatenate')
+            output = concatenate(inputs, axis, status)
+          case ('stack')
+            output = stack(inputs, axis, status)
+          end select
+        end select
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(output)
+      end block
+    case (4)
+      block
+        type(ndarray_r32) :: inputs(2), output
+
+        call read_mixed(inputs(1))
+        select case (operation)
+        case ('take', 'take_flat')
+          read (*, *) count
+          allocate(indices(count))
+          read (*, *) indices
+          if (operation == 'take_flat') then
+            output = take(inputs(1), indices, status=status)
+          else
+            output = take(inputs(1), indices, axis, status)
+          end if
+        case default
+          call read_mixed(inputs(2))
+          select case (operation)
+          case ('where')
+            output = where(condition, inputs(1), inputs(2), status)
+          case ('concatenate')
+            output = concatenate(inputs, axis, status)
+          case ('stack')
+            output = stack(inputs, axis, status)
+          end select
+        end select
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(output)
+      end block
+    case (5)
+      block
+        type(ndarray_r64) :: inputs(2), output
+
+        call read_mixed(inputs(1))
+        select case (operation)
+        case ('take', 'take_flat')
+          read (*, *) count
+          allocate(indices(count))
+          read (*, *) indices
+          if (operation == 'take_flat') then
+            output = take(inputs(1), indices, status=status)
+          else
+            output = take(inputs(1), indices, axis, status)
+          end if
+        case default
+          call read_mixed(inputs(2))
+          select case (operation)
+          case ('where')
+            output = where(condition, inputs(1), inputs(2), status)
+          case ('concatenate')
+            output = concatenate(inputs, axis, status)
+          case ('stack')
+            output = stack(inputs, axis, status)
+          end select
+        end select
+        write (*, '(i0)') status%code
+        if (status%is_ok()) call emit_mixed(output)
+      end block
+    end select
+  end subroutine run_selection
 
   subroutine run_search(dtype,side)
     integer(int32), intent(in) :: dtype,side

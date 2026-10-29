@@ -76,6 +76,9 @@ Solve requires matching float32 or float64 inputs. Norms accept float32 or float
 float64 sums of widened squares with a single final rounding.
 See [promotion and conversion storage](LINEAR_ALGEBRA.md#floating-result-promotion).
 
+Where, take and joins accept matching value dtypes across all five registered
+dtypes; where requires a bool condition. Mixed selection dtypes return status 5.
+See [five-dtype selection](SELECTION_DTYPES.md).
 Where, take, joins, sorting, search, mask extraction and assignment retain the
 bounded contracts in [SELECTION_SUPPORT.md](SELECTION_SUPPORT.md) and
 [ARRAY_OPERATIONS.md](ARRAY_OPERATIONS.md). `frumpy_flatnonzero` takes bool.

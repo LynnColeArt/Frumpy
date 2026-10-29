@@ -79,14 +79,14 @@ dtype's range raise. NumPy scalars are strong operands. Explicit array casts run
 through native `astype`; see [conversion departures](ARRAY_OPERATIONS.md).
 
 Constructors, arithmetic, comparisons, boolean logical operations, views and
-reductions follow the [coverage table](DTYPE_SUPPORT.md). Float64 arange/linspace,
-selection are exposed; stable sorting and same-dtype ordered search support
-all five dtypes. Euclidean/Frobenius
+reductions follow the [coverage table](DTYPE_SUPPORT.md). Float64 arange/linspace
+are exposed. Same-dtype where/take/concatenate/stack, stable sorting and ordered
+search support all five dtypes; see [selection](SELECTION_DTYPES.md). Euclidean/Frobenius
 norms accept float32/float64 and preserve dtype; float32 uses pairwise float64
 sums of widened squares with one final rounding. Dot, outer and matmul promote registered input pairs when the result is
 float32 or float64, converting operands before computation. Integer-only products
 remain unsupported. Batched solve requires matching float32 or float64 inputs.
-Float32 dot uses bounded pairwise accumulation. Other non-float64 selection input
+Float32 dot uses bounded pairwise accumulation. Mixed selection value dtypes
 and mixed solve pairs are rejected; see
 [linear algebra](LINEAR_ALGEBRA.md) for precision and backend limits. `flatnonzero` accepts bool only.
 Reduction results remain Frumpy arrays, including rank-zero results; use `.item()`

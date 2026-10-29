@@ -120,13 +120,15 @@ def take(source, indices, axis=None):
         raise OverflowError("index exceeds int64")
     indices = np.ascontiguousarray(indices, dtype=np.int64)
     return ndarray(_ffi.make("take", source._handle, indices.ctypes.data, indices.size,
-                             axis_value(axis, source.ndim)))
+                             axis_value(axis, source.ndim or 1)))
 
 
 def _join(stack_flag, arrays, axis):
     arrays = [asarray(a, order="K") for a in arrays]
     if not arrays:
         raise ValueError("joining requires at least one array")
+    if not stack_flag and arrays[0].ndim == 0:
+        raise ValueError("concatenate requires arrays with at least one dimension")
     axis = axis_value(axis, arrays[0].ndim, insertion=bool(stack_flag))
     handles = np.asarray([a._handle for a in arrays], dtype=np.int64)
     return ndarray(_ffi.make("join", stack_flag, handles.ctypes.data, handles.size, axis))

@@ -23,6 +23,7 @@ program differential_driver
   use frumpy, only: sum_i32, prod_i32, min_i32, max_i32, mean_i32, &
     sum_i64, prod_i64, min_i64, max_i64, mean_i64, all_bool, any_bool
   use frumpy, only: mask_select_r64, assign_r64, mask_select, assign, mask_assign
+  use frumpy, only: argwhere, nonzero, release_nonzero
   use frumpy, only: where, take, concatenate, stack
   use frumpy, only: searchsorted
   use frumpy, only: sort, argsort
@@ -74,6 +75,10 @@ contains
 
     read (*, *) operation, axis0, side
     integer_output = .false.
+    if (index(operation, 'coords_') == 1) then
+      call run_coordinates(operation(8:), axis0)
+      return
+    end if
     if (index(operation, 'select_') == 1) then
       call run_selection(operation(8:), axis0, side)
       return
@@ -703,6 +708,50 @@ contains
     write (*, '(i0)') status%code
     if (status%is_ok()) call emit_mixed(result)
   end subroutine run_compare
+
+  subroutine run_coordinates(operation, dtype)
+    character(len=*), intent(in) :: operation
+    integer(int32), intent(in) :: dtype
+    class(*), allocatable :: source
+    type(ndarray_i64) :: result
+    type(ndarray_i64), allocatable :: axes(:)
+    type(frumpy_status) :: status
+    integer(int64) :: i0, count
+    integer(int32) :: dim1
+
+    select case(dtype)
+    case(1)
+      allocate(ndarray_bool :: source)
+    case(2)
+      allocate(ndarray_i32 :: source)
+    case(3)
+      allocate(ndarray_i64 :: source)
+    case(4)
+      allocate(ndarray_r32 :: source)
+    case(5)
+      allocate(ndarray_r64 :: source)
+    end select
+    call read_mixed(source)
+    if (operation == 'argwhere') then
+      result = argwhere(source, status)
+    else
+      call nonzero(source, axes, status)
+      if (status%is_ok()) then
+        count = axes(1)%size()
+        result = owned_descriptor_i64([count, int(size(axes),int64)], status=status)
+        if (status%is_ok()) then
+          do dim1 = 1, size(axes)
+            do i0 = 0_int64, count-1_int64
+              result%data(i0*size(axes)+dim1) = axes(dim1)%data(axes(dim1)%offset+i0)
+            end do
+          end do
+        end if
+      end if
+    end if
+    call release_nonzero(axes)
+    write (*,'(i0)') status%code
+    if (status%is_ok()) call emit_mixed(result)
+  end subroutine run_coordinates
 
   subroutine run_selection(operation, dtype, axis)
     character(len=*), intent(in) :: operation

@@ -136,7 +136,9 @@ five-dtype masked extraction/staged assignment are implemented; see
 
 The same-dtype selection subset supports all five dtypes for `where`, `take`,
 `concatenate`, `stack`, stable sorting,
-`argsort` and `searchsorted`. Boolean inputs also support flat nonzero indices. See
+`argsort` and `searchsorted`. All five dtypes support `nonzero` coordinate tuples and `argwhere` tables;
+see [coordinate extraction](docs/COORDINATES.md). Boolean inputs also support
+flat nonzero indices. See
 [selection support](docs/SELECTION_SUPPORT.md) for the exact contract and limits,
 and [dtype support](docs/DTYPE_SUPPORT.md) for the type coverage matrix.
 

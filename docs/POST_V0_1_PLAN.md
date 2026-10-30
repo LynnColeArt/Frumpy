@@ -61,7 +61,8 @@ Use the v0.1 coverage table to select small releases, not blanket parity claims:
   Same-dtype where/take/concatenate/stack and full-shape boolean extraction,
   basic-view assignment and boolean-mask assignment now cover all five dtypes.
   Remaining work includes advanced integer indexing, prefix masks, assignment
-  casting and full nonzero tuples. Specify repeated-index assignment first.
+  casting. Full nonzero tuples and argwhere tables now cover all five dtypes;
+  see [coordinate contracts](COORDINATES.md). Specify repeated-index assignment first.
 - Broader norms and selected factorizations (QR, Cholesky, SVD/eigen), with
   singular/ill-conditioned cases and backend variability documented.
 

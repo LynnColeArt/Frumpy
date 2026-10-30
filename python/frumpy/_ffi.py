@@ -18,7 +18,7 @@ _SIGNATURES = {
     "arange": [D, D, D, P], "linspace": [D, D, H, I, P],
     "where": [H, H, H, P], "mask_select": [H, H, P], "assign": [H, H], "mask_assign": [H, H, H],
     "take": [H, P, H, I, P], "join": [I, P, I, I, P], "sort": [I, H, I, P],
-    "searchsorted": [H, H, I, P], "flatnonzero": [H, P],
+    "searchsorted": [H, H, I, P], "flatnonzero": [H, P], "nonzero": [H, P, I], "argwhere": [H, P],
     "rng_create": [H, P], "rng_fill": [H, I, I, P, P],
     "rng_get_state": [H, P, I], "rng_set_state": [H, P, I],
 }

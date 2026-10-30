@@ -170,6 +170,31 @@ def searchsorted(source, values, side="left"):
     return ndarray(_ffi.make("searchsorted", source._handle, values._handle, side == "right"))
 
 
+def argwhere(source):
+    source = asarray(source, order="K")
+    return ndarray(_ffi.make("argwhere", source._handle))
+
+
+def nonzero(source):
+    source = asarray(source, order="K")
+    handles = np.zeros(source.ndim, dtype=np.int64)
+    axes = [None] * source.ndim
+    _ffi.call("nonzero", source._handle, handles.ctypes.data, handles.size)
+    try:
+        for i, handle in enumerate(handles):
+            axes[i] = ndarray(int(handle))
+            handles[i] = 0
+        return tuple(axes)
+    except BaseException:
+        for axis in axes:
+            if axis is not None:
+                axis.close()
+        for handle in handles:
+            if handle:
+                _ffi.call("release", int(handle))
+        raise
+
+
 def flatnonzero(source):
     source = asarray(source, order="K")
     return ndarray(_ffi.make("flatnonzero", source._handle))
@@ -197,5 +222,5 @@ __all__ = [
     "greater", "greater_equal", "logical_and", "logical_or", "logical_xor", "logical_not",
     "negative", "absolute", "sqrt", "exp", "log", "sin", "cos", "sum", "prod", "min", "max",
     "mean", "all", "any", "argmin", "argmax", "where", "take", "concatenate", "stack", "sort", "argsort",
-    "searchsorted", "flatnonzero", "outer", "dot", "matmul", "linalg", "random",
+    "searchsorted", "flatnonzero", "nonzero", "argwhere", "outer", "dot", "matmul", "linalg", "random",
 ]

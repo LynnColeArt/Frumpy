@@ -1,0 +1,487 @@
+{
+  "numpy": "2.4.6",
+  "cpu": 0,
+  "library_sha256": "50172b463a871dc7d52d199075eff2702b8cf7ead1d8607526e34ff152f474cf",
+  "rows": [
+    {
+      "dtype": "bool",
+      "size": 16,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 21.260270000000002,
+      "numpy_us": 0.46849
+    },
+    {
+      "dtype": "bool",
+      "size": 16,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 9.20933,
+      "numpy_us": 1.85879
+    },
+    {
+      "dtype": "bool",
+      "size": 16,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 20.03216,
+      "numpy_us": 0.77209
+    },
+    {
+      "dtype": "bool",
+      "size": 16,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 9.25774,
+      "numpy_us": 2.27819
+    },
+    {
+      "dtype": "bool",
+      "size": 16,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 13.69521,
+      "numpy_us": 0.4676
+    },
+    {
+      "dtype": "bool",
+      "size": 16,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 9.27524,
+      "numpy_us": 1.86649
+    },
+    {
+      "dtype": "bool",
+      "size": 65536,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 725.6194,
+      "numpy_us": 24.2978
+    },
+    {
+      "dtype": "bool",
+      "size": 65536,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 685.6795999999999,
+      "numpy_us": 33.643800000000006
+    },
+    {
+      "dtype": "bool",
+      "size": 65536,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 1131.3146000000002,
+      "numpy_us": 177.4468
+    },
+    {
+      "dtype": "bool",
+      "size": 65536,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 1114.3286,
+      "numpy_us": 206.1026
+    },
+    {
+      "dtype": "bool",
+      "size": 65536,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 700.1334,
+      "numpy_us": 42.5776
+    },
+    {
+      "dtype": "bool",
+      "size": 65536,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 701.4894,
+      "numpy_us": 46.665800000000004
+    },
+    {
+      "dtype": "int32",
+      "size": 16,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 13.363809999999999,
+      "numpy_us": 0.4893
+    },
+    {
+      "dtype": "int32",
+      "size": 16,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 9.112540000000001,
+      "numpy_us": 1.88549
+    },
+    {
+      "dtype": "int32",
+      "size": 16,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 22.043950000000002,
+      "numpy_us": 0.77499
+    },
+    {
+      "dtype": "int32",
+      "size": 16,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 9.16094,
+      "numpy_us": 2.29978
+    },
+    {
+      "dtype": "int32",
+      "size": 16,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 13.141110000000001,
+      "numpy_us": 0.4988
+    },
+    {
+      "dtype": "int32",
+      "size": 16,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 9.22634,
+      "numpy_us": 1.8720899999999998
+    },
+    {
+      "dtype": "int32",
+      "size": 65536,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 781.9248,
+      "numpy_us": 147.289
+    },
+    {
+      "dtype": "int32",
+      "size": 65536,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 705.7174,
+      "numpy_us": 101.68939999999999
+    },
+    {
+      "dtype": "int32",
+      "size": 65536,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 1205.4941999999999,
+      "numpy_us": 273.0522
+    },
+    {
+      "dtype": "int32",
+      "size": 65536,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 1125.0286,
+      "numpy_us": 266.7522
+    },
+    {
+      "dtype": "int32",
+      "size": 65536,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 720.1192,
+      "numpy_us": 102.1814
+    },
+    {
+      "dtype": "int32",
+      "size": 65536,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 701.5495999999999,
+      "numpy_us": 112.5294
+    },
+    {
+      "dtype": "int64",
+      "size": 16,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 14.05731,
+      "numpy_us": 0.49269
+    },
+    {
+      "dtype": "int64",
+      "size": 16,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 9.28344,
+      "numpy_us": 2.1713899999999997
+    },
+    {
+      "dtype": "int64",
+      "size": 16,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 20.03877,
+      "numpy_us": 0.77449
+    },
+    {
+      "dtype": "int64",
+      "size": 16,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 9.15344,
+      "numpy_us": 2.33319
+    },
+    {
+      "dtype": "int64",
+      "size": 16,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 13.07732,
+      "numpy_us": 0.4914
+    },
+    {
+      "dtype": "int64",
+      "size": 16,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 9.092540000000001,
+      "numpy_us": 1.9251800000000001
+    },
+    {
+      "dtype": "int64",
+      "size": 65536,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 721.7654,
+      "numpy_us": 96.7174
+    },
+    {
+      "dtype": "int64",
+      "size": 65536,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 697.6394,
+      "numpy_us": 148.285
+    },
+    {
+      "dtype": "int64",
+      "size": 65536,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 1130.8966,
+      "numpy_us": 277.1042
+    },
+    {
+      "dtype": "int64",
+      "size": 65536,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 1109.3468,
+      "numpy_us": 265.5022
+    },
+    {
+      "dtype": "int64",
+      "size": 65536,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 708.6654,
+      "numpy_us": 103.0172
+    },
+    {
+      "dtype": "int64",
+      "size": 65536,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 700.0336,
+      "numpy_us": 117.2834
+    },
+    {
+      "dtype": "float32",
+      "size": 16,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 13.48191,
+      "numpy_us": 0.5088
+    },
+    {
+      "dtype": "float32",
+      "size": 16,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 9.54074,
+      "numpy_us": 1.87619
+    },
+    {
+      "dtype": "float32",
+      "size": 16,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 21.88746,
+      "numpy_us": 0.7415900000000001
+    },
+    {
+      "dtype": "float32",
+      "size": 16,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 9.437040000000001,
+      "numpy_us": 2.41079
+    },
+    {
+      "dtype": "float32",
+      "size": 16,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 14.0244,
+      "numpy_us": 0.4838
+    },
+    {
+      "dtype": "float32",
+      "size": 16,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 9.300139999999999,
+      "numpy_us": 1.88758
+    },
+    {
+      "dtype": "float32",
+      "size": 65536,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 810.5986,
+      "numpy_us": 125.4692
+    },
+    {
+      "dtype": "float32",
+      "size": 65536,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 788.2568,
+      "numpy_us": 139.589
+    },
+    {
+      "dtype": "float32",
+      "size": 65536,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 1199.0922,
+      "numpy_us": 316.686
+    },
+    {
+      "dtype": "float32",
+      "size": 65536,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 1205.9941999999999,
+      "numpy_us": 315.9798
+    },
+    {
+      "dtype": "float32",
+      "size": 65536,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 818.9066,
+      "numpy_us": 127.8032
+    },
+    {
+      "dtype": "float32",
+      "size": 65536,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 754.867,
+      "numpy_us": 152.3748
+    },
+    {
+      "dtype": "float64",
+      "size": 16,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 13.77161,
+      "numpy_us": 0.49609
+    },
+    {
+      "dtype": "float64",
+      "size": 16,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 9.34014,
+      "numpy_us": 1.99339
+    },
+    {
+      "dtype": "float64",
+      "size": 16,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 21.43606,
+      "numpy_us": 0.73529
+    },
+    {
+      "dtype": "float64",
+      "size": 16,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 10.27214,
+      "numpy_us": 2.2442800000000003
+    },
+    {
+      "dtype": "float64",
+      "size": 16,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 14.45311,
+      "numpy_us": 0.4908
+    },
+    {
+      "dtype": "float64",
+      "size": 16,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 9.315040000000002,
+      "numpy_us": 1.8940899999999998
+    },
+    {
+      "dtype": "float64",
+      "size": 65536,
+      "layout": "C",
+      "operation": "nonzero",
+      "frumpy_us": 802.0645999999999,
+      "numpy_us": 126.7892
+    },
+    {
+      "dtype": "float64",
+      "size": 65536,
+      "layout": "C",
+      "operation": "argwhere",
+      "frumpy_us": 768.591,
+      "numpy_us": 138.0012
+    },
+    {
+      "dtype": "float64",
+      "size": 65536,
+      "layout": "F",
+      "operation": "nonzero",
+      "frumpy_us": 1230.978,
+      "numpy_us": 309.108
+    },
+    {
+      "dtype": "float64",
+      "size": 65536,
+      "layout": "F",
+      "operation": "argwhere",
+      "frumpy_us": 1176.5803999999998,
+      "numpy_us": 335.8358
+    },
+    {
+      "dtype": "float64",
+      "size": 65536,
+      "layout": "step",
+      "operation": "nonzero",
+      "frumpy_us": 817.2726,
+      "numpy_us": 128.945
+    },
+    {
+      "dtype": "float64",
+      "size": 65536,
+      "layout": "step",
+      "operation": "argwhere",
+      "frumpy_us": 804.9748000000001,
+      "numpy_us": 137.34320000000002
+    }
+  ]
+}

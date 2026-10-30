@@ -125,3 +125,9 @@ Stable sort and argsort support all five existing dtypes. See the
 
 Same-dtype searchsorted supports all five dtypes with int64 results. See the
 [searching contract](SEARCHSORTED_DTYPES.md) for ordering, errors and exclusions.
+
+`frumpy_nonzero` returns one owned handle per axis in a caller-supplied buffer,
+with rollback of all published outputs on failure. `frumpy_argwhere` returns one
+int64 coordinate matrix handle. Both cover all five dtypes; see
+[capacity, scalar, and ownership rules](COORDINATES.md). These are additive ABI v1
+symbols, requiring the updated library for new bindings.

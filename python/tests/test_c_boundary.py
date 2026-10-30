@@ -32,7 +32,7 @@ def abi(tmp_path_factory):
         "linspace": [C.c_double, C.c_double, H, I, P],
         "where": [H, H, H, P], "mask_select": [H, H, P], "assign": [H, H], "mask_assign": [H, H, H],
         "take": [H, P, H, I, P], "join": [I, P, I, I, P],
-        "sort": [I, H, I, P], "searchsorted": [H, H, I, P], "flatnonzero": [H, P],
+        "sort": [I, H, I, P], "searchsorted": [H, H, I, P], "flatnonzero": [H, P], "nonzero": [H, P, I], "argwhere": [H, P],
     }
     for name, args in signatures.items():
         fn = getattr(lib, "frumpy_" + name)

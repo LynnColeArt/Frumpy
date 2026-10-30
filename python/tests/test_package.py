@@ -465,3 +465,17 @@ def test_masking_dtype_install(dtype):
         np.testing.assert_array_equal(source.numpy(), expected)
     np.testing.assert_array_equal(selected.numpy(), initial[mask])
     selected.close()
+
+
+@pytest.mark.parametrize('dtype',DTYPES)
+def test_coordinate_package_lifetime(dtype):
+    a=np.array([[0,1,0],[2,0,3]],dtype=dtype)
+    with fp.asarray(a) as source:
+        axes=source.nonzero()
+        matrix=fp.argwhere(source)
+    for axis,want in zip(axes,np.nonzero(a)):
+        np.testing.assert_array_equal(axis.numpy(),want);axis.close()
+    np.testing.assert_array_equal(matrix.numpy(),np.argwhere(a));matrix.close()
+    with fp.argwhere(np.array(1,dtype=dtype)) as result:
+        assert result.shape==(1,0)
+    with pytest.raises(ValueError):fp.nonzero(np.array(1,dtype=dtype))

@@ -1,0 +1,14 @@
+{
+  "before_source": "2cb5f2cc3b5196cdb5c090ef84f568198ef660e3",
+  "after_source": "44d8967fad6ae7fcfd4ab883c3d09842b7b4848f",
+  "platform": "Linux-7.0.0-42-generic-x86_64-with-glibc2.39",
+  "compiler": "GNU Fortran (Ubuntu 14.2.0-4ubuntu2~24.04.1) 14.2.0",
+  "flags": "-std=f2018 -O3 -fimplicit-none",
+  "cpu": 0,
+  "sha256": {
+    "before_library": "924da16ffdc407bdd21dd557ece4650990c3fe37484e1dbf6705cbfb04afcad0",
+    "after_library": "a49517c160727b1b28db9e43ce83576e5ec2557f3b174aedd695cea6b5115cda",
+    "before_native": "4a573d67ac2f10e712afad409c61c985b137edc0059db4ff683f5003d16ec3cc",
+    "after_native": "e0ed90c6b14b686f09292113714ce404eed37723c584e5b4135bfd21f2309c81"
+  }
+}

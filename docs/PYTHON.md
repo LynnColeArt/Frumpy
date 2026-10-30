@@ -121,3 +121,8 @@ Stable sort and argsort support all five existing dtypes. See the
 
 Same-dtype searchsorted supports all five dtypes with int64 results. See the
 [searching contract](SEARCHSORTED_DTYPES.md) for ordering, errors and exclusions.
+
+`fp.nonzero(a)` and `a.nonzero()` return a tuple of int64 Frumpy axis arrays;
+`fp.argwhere(a)` returns a coordinate matrix. Both support all five dtypes.
+Scalar `nonzero` raises ValueError; scalar `argwhere` returns `(0,0)` or `(1,0)`
+for false/true values. See [coordinate extraction](COORDINATES.md).

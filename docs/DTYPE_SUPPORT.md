@@ -263,3 +263,6 @@ promotion is not included. See [selection contracts](SELECTION_DTYPES.md).
 
 Full-shape boolean extraction and same-dtype assignment now cover all five dtypes;
 see [masking and overlap contracts](MASKING_DTYPES.md).
+
+`nonzero` and `argwhere` support all five dtypes with int64 coordinate results.
+The existing bool flat-index API is unchanged. See [coordinates](COORDINATES.md).

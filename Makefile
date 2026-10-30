@@ -58,6 +58,7 @@ SOURCES := \
 	src/frumpy_arithmetic.f90 \
 	src/frumpy_indexing_r64.f90 \
 	src/frumpy_indexing.f90 \
+	src/frumpy_coordinates.f90 \
 	src/frumpy_products_r32.f90 \
 	src/frumpy_products_r64.f90 \
 	src/frumpy_norms_r64.f90 \
@@ -123,6 +124,7 @@ FORTRAN_TESTS := \
 	test/test_selection_dtypes.f90 \
 	test/test_indexing_r64.f90 \
 	test/test_indexing_dtypes.f90 \
+	test/test_coordinates.f90 \
 	test/test_selection_validation.f90 \
 	test/test_searching_r64.f90 \
 	test/test_searching_dtypes.f90 \
@@ -192,6 +194,7 @@ memory-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/memory/bin/test_selection_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_indexing_r64" \
 		"$(BUILD_DIR)/memory/bin/test_indexing_dtypes" \
+		"$(BUILD_DIR)/memory/bin/test_coordinates" \
 		"$(BUILD_DIR)/memory/bin/test_constructors_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_views_dtypes" \
 		"$(BUILD_DIR)/memory/bin/test_views_r64" \
@@ -218,6 +221,7 @@ memory-test: $(PY_DEPS_STAMP)
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_selection_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_indexing_r64"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_indexing_dtypes"
+	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_coordinates"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_constructors_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_views_dtypes"
 	ASAN_OPTIONS=detect_leaks=1 "$(BUILD_DIR)/memory/bin/test_views_r64"
@@ -249,6 +253,7 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 		"$(BUILD_DIR)/integer-overflow/bin/test_selection_dtypes" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_indexing_r64" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_indexing_dtypes" \
+		"$(BUILD_DIR)/integer-overflow/bin/test_coordinates" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_constructors_dtypes" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_views_dtypes" \
 		"$(BUILD_DIR)/integer-overflow/bin/test_views_r64" \
@@ -270,6 +275,7 @@ integer-overflow-test: $(PY_DEPS_STAMP)
 	"$(BUILD_DIR)/integer-overflow/bin/test_selection_dtypes"
 	"$(BUILD_DIR)/integer-overflow/bin/test_indexing_r64"
 	"$(BUILD_DIR)/integer-overflow/bin/test_indexing_dtypes"
+	"$(BUILD_DIR)/integer-overflow/bin/test_coordinates"
 	"$(BUILD_DIR)/integer-overflow/bin/test_constructors_dtypes"
 	"$(BUILD_DIR)/integer-overflow/bin/test_views_dtypes"
 	"$(BUILD_DIR)/integer-overflow/bin/test_views_r64"
@@ -359,14 +365,16 @@ c-memory-test: $(PY_DEPS_STAMP)
 		FRUMPY_DIFFERENTIAL_DRIVER="$(abspath $(BUILD_DIR)/c-memory/bin/differential_driver)" \
 		$(VENV_PY) -m pytest -q python/tests/test_c_boundary.py python/tests/test_package.py \
 		python/tests/test_float32_linalg.py python/tests/test_float32_products.py \
-		python/tests/test_promoted_products.py python/tests/test_contiguous_casting.py python/tests/test_float32_norms.py python/tests/test_norm_accumulation.py python/tests/test_arg_reductions.py python/tests/test_arg_scan_contracts.py python/tests/test_sort_dtypes.py python/tests/test_searchsorted_dtypes.py python/tests/test_selection_dtypes.py python/tests/test_mask_dtypes.py
+		python/tests/test_promoted_products.py python/tests/test_contiguous_casting.py python/tests/test_float32_norms.py python/tests/test_norm_accumulation.py python/tests/test_arg_reductions.py python/tests/test_arg_scan_contracts.py python/tests/test_sort_dtypes.py python/tests/test_searchsorted_dtypes.py python/tests/test_selection_dtypes.py python/tests/test_mask_dtypes.py python/tests/test_nonzero_dtypes.py
 
 # Linux/glibc only; run separately from ASan's own malloc interposition.
 .PHONY: registry-allocation-test
 registry-allocation-test: shared
+	$(FC) $(FFLAGS) -I"$(MOD_DIR)" -c c_tests/coordinate_handle_size.f90 -o "$(BUILD_DIR)/coordinate_handle_size.o"
 	$(CC) -std=c11 -Wall -Wextra -Werror -shared -fPIC c_tests/registry_alloc_probe.c \
 		-o "$(BUILD_DIR)/libfrumpy_registry_alloc_probe.so"
-	$(CC) -std=c11 -Wall -Wextra -Werror -Iinclude c_tests/test_registry_allocation.c \
+	$(CC) -std=c11 -Wall -Wextra -Werror -Iinclude -c c_tests/test_registry_allocation.c -o "$(BUILD_DIR)/test_registry_allocation.o"
+	$(FC) $(FFLAGS) "$(BUILD_DIR)/test_registry_allocation.o" "$(BUILD_DIR)/coordinate_handle_size.o" \
 		-L"$(BUILD_DIR)" -lfrumpy -lfrumpy_registry_alloc_probe \
 		-Wl,-rpath,"$(abspath $(BUILD_DIR))" -o "$(BUILD_DIR)/test_registry_allocation"
 	LD_PRELOAD="$(abspath $(BUILD_DIR)/libfrumpy_registry_alloc_probe.so)" \

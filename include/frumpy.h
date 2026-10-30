@@ -70,6 +70,10 @@ int32_t frumpy_join(int32_t stack, const frumpy_handle *sources, int32_t count,
 int32_t frumpy_sort(int32_t indices, frumpy_handle source, int32_t axis, frumpy_handle *out);
 int32_t frumpy_searchsorted(frumpy_handle source, frumpy_handle values, int32_t right,
                             frumpy_handle *out);
+/* NONZERO: capacity must be rank..32; output owns one handle per axis.
+ * Slots are zeroed on failure for a valid pointer/capacity. Rank-zero is invalid. */
+int32_t frumpy_nonzero(frumpy_handle source, frumpy_handle *out, int32_t capacity);
+int32_t frumpy_argwhere(frumpy_handle source, frumpy_handle *out);
 int32_t frumpy_flatnonzero(frumpy_handle source, frumpy_handle *out);
 int32_t frumpy_rng_create(int64_t seed, frumpy_handle *out);
 int32_t frumpy_rng_get_state(frumpy_handle generator, int64_t *words, int32_t count);

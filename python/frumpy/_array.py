@@ -225,6 +225,10 @@ class ndarray(_ffi.OwnedHandle):
             view = next_view
         return view, bool(integers) and not view.ndim
 
+    def nonzero(self):
+        from . import nonzero
+        return nonzero(self)
+
     def __getitem__(self, key):
         if isinstance(key, ndarray) or isinstance(key, np.ndarray) and key.dtype == np.bool_:
             mask = asarray(key)
